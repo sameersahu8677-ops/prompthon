@@ -2376,3 +2376,1076 @@ Object.assign(UIManager, (() => {
     };
 
 })());
+
+/* ==========================================================
+   PART 3C - RESULTS + SUMMARY RENDERING
+   ----------------------------------------------------------
+   Adds methods onto existing UIManager
+========================================================== */
+
+Object.assign(UIManager, (() => {
+
+    /* ======================================================
+       SUMMARY CARDS
+    ====================================================== */
+
+    const renderSummaryCards = () => {
+
+        if (!DOM.summaryCards) {
+            return;
+        }
+
+        const state =
+            StateManager.getState();
+
+        const expense =
+            state.currentExpense;
+
+        if (
+            !expense ||
+            !expense.expenseName
+        ) {
+
+            DOM.summaryCards.innerHTML = "";
+
+            return;
+        }
+
+        const createdDate =
+            expense.createdAt
+                ? new Date(
+                      expense.createdAt
+                  ).toLocaleString()
+                : "Not Available";
+
+        DOM.summaryCards.innerHTML = `
+            <div class="card">
+
+                <span class="stat-label">
+                    Expense Name
+                </span>
+
+                <div class="stat-value">
+                    ${expense.expenseName}
+                </div>
+
+            </div>
+
+            <div class="card">
+
+                <span class="stat-label">
+                    Final Amount
+                </span>
+
+                <div class="stat-value">
+                    ${Utils.formatCurrency(
+                        expense.finalAmount
+                    )}
+                </div>
+
+            </div>
+
+            <div class="card">
+
+                <span class="stat-label">
+                    Tip Amount
+                </span>
+
+                <div class="stat-value">
+                    ${Utils.formatCurrency(
+                        expense.tipAmount
+                    )}
+                </div>
+
+            </div>
+
+            <div class="card">
+
+                <span class="stat-label">
+                    Split Method
+                </span>
+
+                <div class="stat-value">
+                    ${state.splitMethod}
+                </div>
+
+            </div>
+
+            <div class="card">
+
+                <span class="stat-label">
+                    Date Created
+                </span>
+
+                <div class="stat-value">
+                    ${createdDate}
+                </div>
+
+            </div>
+        `;
+    };
+
+    /* ======================================================
+       SETTLEMENT SUMMARY
+    ====================================================== */
+
+    const renderSettlementSummary =
+        () => {
+
+            if (
+                !DOM.settlementSummaryContainer
+            ) {
+                return;
+            }
+
+            const state =
+                StateManager.getState();
+
+            const results =
+                state.results || [];
+
+            UIManager.clearContainer(
+                DOM.settlementSummaryContainer
+            );
+
+            if (
+                results.length === 0
+            ) {
+                return;
+            }
+
+            const wrapper =
+                document.createElement(
+                    "div"
+                );
+
+            wrapper.className =
+                "settlement-summary";
+
+            wrapper.innerHTML =
+                `
+                <div class="card">
+
+                    <h3>
+                        Settlement Summary
+                    </h3>
+
+                    <div id="settlementItems">
+                    </div>
+
+                </div>
+            `;
+
+            const container =
+                wrapper.querySelector(
+                    "#settlementItems"
+                );
+
+            results.forEach(
+                participant => {
+
+                    const item =
+                        document.createElement(
+                            "div"
+                        );
+
+                    item.className =
+                        "settlement-item";
+
+                    item.textContent =
+                        `${participant.participantName} owes ${Utils.formatCurrency(
+                            participant.amount
+                        )}`;
+
+                    container.appendChild(
+                        item
+                    );
+                }
+            );
+
+            DOM.settlementSummaryContainer.appendChild(
+                wrapper
+            );
+        };
+
+    /* ======================================================
+       PARTICIPANT BREAKDOWN
+    ====================================================== */
+
+    const renderResults =
+        () => {
+
+            if (
+                !DOM.participantBreakdownContainer
+            ) {
+                return;
+            }
+
+            const state =
+                StateManager.getState();
+
+            const results =
+                state.results || [];
+
+            UIManager.clearContainer(
+                DOM.participantBreakdownContainer
+            );
+
+            if (
+                results.length === 0
+            ) {
+
+                if (
+                    DOM.resultsEmptyState
+                ) {
+
+                    UIManager.showEmptyState(
+                        DOM.resultsEmptyState
+                    );
+                }
+
+                return;
+            }
+
+            if (
+                DOM.resultsEmptyState
+            ) {
+
+                UIManager.hideEmptyState(
+                    DOM.resultsEmptyState
+                );
+            }
+
+            const wrapper =
+                document.createElement(
+                    "div"
+                );
+
+            wrapper.className =
+                "summary-grid";
+
+            results.forEach(
+                participant => {
+
+                    const card =
+                        document.createElement(
+                            "div"
+                        );
+
+                    card.className =
+                        "card result-card";
+
+                    card.dataset.participantId =
+                        participant.participantId;
+
+                    card.innerHTML =
+                        `
+                        <h3>
+                            ${participant.participantName}
+                        </h3>
+
+                        <p>
+                            <strong>
+                                Share %
+                            </strong>
+                        </p>
+
+                        <p>
+                            ${participant.percentage.toFixed(
+                                2
+                            )}%
+                        </p>
+
+                        <hr
+                            style="
+                            margin:1rem 0;
+                            border:none;
+                            border-top:1px solid #ece8e2;
+                            "
+                        >
+
+                        <p>
+                            <strong>
+                                Amount Owed
+                            </strong>
+                        </p>
+
+                        <h2>
+                            ${Utils.formatCurrency(
+                                participant.amount
+                            )}
+                        </h2>
+                    `;
+
+                    wrapper.appendChild(
+                        card
+                    );
+                }
+            );
+
+            DOM.participantBreakdownContainer.appendChild(
+                wrapper
+            );
+
+            renderSettlementSummary();
+            renderSummaryCards();
+        };
+
+    /* ======================================================
+       PUBLIC METHODS
+    ====================================================== */
+
+    return {
+
+        renderResults,
+
+        renderSettlementSummary,
+
+        renderSummaryCards
+
+    };
+
+})());
+
+/* ==========================================================
+   PART 4 - APPLICATION WIRING & INTEGRATION
+========================================================== */
+
+(() => {
+
+    /* ======================================================
+       INTERNAL STATE
+    ====================================================== */
+
+    const Runtime = {
+
+        percentageAllocations: [],
+
+        customAllocations: []
+    };
+
+    /* ======================================================
+       TIP PREVIEW
+    ====================================================== */
+
+    const updateTipPreview = () => {
+
+        try {
+
+            const bill =
+                Number(
+                    DOM.billAmount?.value || 0
+                );
+
+            const quality =
+                DOM.serviceQuality?.value || "good";
+
+            const tipMap = {
+                poor: 5,
+                good: 15,
+                excellent: 20
+            };
+
+            const tipPercentage =
+                tipMap[quality] || 15;
+
+            const tipAmount =
+                TipEngine.calculateTip(
+                    bill,
+                    tipPercentage
+                );
+
+            const finalAmount =
+                TipEngine.calculateFinalAmount(
+                    bill,
+                    tipPercentage
+                );
+
+            if (
+                DOM.tipPreview
+            ) {
+                DOM.tipPreview.textContent =
+                    Utils.formatCurrency(
+                        tipAmount
+                    );
+            }
+
+            if (
+                DOM.totalPreview
+            ) {
+                DOM.totalPreview.textContent =
+                    Utils.formatCurrency(
+                        finalAmount
+                    );
+            }
+
+        } catch (error) {
+
+            console.error(error);
+        }
+    };
+
+    /* ======================================================
+       FIELD VALIDATION
+    ====================================================== */
+
+    const validateExpenseForm =
+        () => {
+
+            const result =
+                ValidationEngine.validateExpense(
+                    DOM.expenseName?.value,
+                    DOM.billAmount?.value
+                );
+
+            if (
+                DOM.expenseNameError
+            ) {
+
+                DOM.expenseNameError.textContent =
+                    result.errors
+                        ?.expenseName || "";
+            }
+
+            if (
+                DOM.billAmountError
+            ) {
+
+                DOM.billAmountError.textContent =
+                    result.errors
+                        ?.billAmount || "";
+            }
+
+            return result.valid;
+        };
+
+    /* ======================================================
+       PARTICIPANT ACTIONS
+    ====================================================== */
+
+    const addParticipant =
+        () => {
+
+            const name =
+                prompt(
+                    "Participant Name"
+                );
+
+            if (
+                !name ||
+                !name.trim()
+            ) {
+
+                NotificationManager.warning(
+                    "Participant name is required."
+                );
+
+                return;
+            }
+
+            const state =
+                StateManager.getState();
+
+            const duplicate =
+                state.participants.some(
+                    participant =>
+                        participant.name
+                            .toLowerCase()
+                            .trim() ===
+                        name
+                            .toLowerCase()
+                            .trim()
+                );
+
+            if (
+                duplicate
+            ) {
+
+                NotificationManager.error(
+                    "Duplicate participant name."
+                );
+
+                return;
+            }
+
+            ParticipantManager.addParticipant(
+                name
+            );
+
+            UIManager.renderParticipants();
+
+            NotificationManager.success(
+                "Participant added."
+            );
+        };
+
+    /* ======================================================
+       EXPENSE CREATION
+    ====================================================== */
+
+    const buildExpense =
+        () => {
+
+            const tipMap = {
+                poor: 5,
+                good: 15,
+                excellent: 20
+            };
+
+            const tipPercentage =
+                tipMap[
+                    DOM.serviceQuality
+                        ?.value
+                ] || 15;
+
+            return ExpenseManager.createExpense(
+                {
+                    expenseName:
+                        DOM.expenseName
+                            ?.value,
+
+                    baseAmount:
+                        Number(
+                            DOM.billAmount
+                                ?.value
+                        ),
+
+                    tipPercentage
+                }
+            );
+        };
+
+    /* ======================================================
+       SPLIT CALCULATION
+    ====================================================== */
+
+    const calculateResults =
+        () => {
+
+            const state =
+                StateManager.getState();
+
+            const participants =
+                state.participants;
+
+            const finalAmount =
+                state.currentExpense
+                    .finalAmount;
+
+            let results =
+                [];
+
+            switch (
+                state.splitMethod
+            ) {
+
+                case "equal":
+
+                    results =
+                        SplitEngine.equalSplit(
+                            finalAmount,
+                            participants
+                        );
+
+                    break;
+
+                case "percentage":
+
+                    results =
+                        SplitEngine.percentageSplit(
+                            finalAmount,
+                            participants,
+                            Runtime.percentageAllocations
+                        );
+
+                    break;
+
+                case "custom":
+
+                    results =
+                        SplitEngine.customSplit(
+                            participants,
+                            Runtime.customAllocations
+                        );
+
+                    break;
+
+                default:
+
+                    results =
+                        SplitEngine.equalSplit(
+                            finalAmount,
+                            participants
+                        );
+            }
+
+            StateManager.updateState({
+                results
+            });
+
+            return results;
+        };
+
+    /* ======================================================
+       AUTO SAVE
+    ====================================================== */
+
+    const saveCurrentExpense =
+        () => {
+
+            try {
+
+                const record =
+                    ExpenseManager.buildExpenseRecord();
+
+                const state =
+                    StateManager.getState();
+
+                const history =
+                    [
+                        ...state.history,
+                        record
+                    ];
+
+                StateManager.updateState({
+                    history
+                });
+
+                StorageManager.saveHistory(
+                    history
+                );
+
+                UIManager.renderHistory();
+                UIManager.renderDashboard();
+
+                NotificationManager.success(
+                    "Expense saved."
+                );
+
+            } catch (error) {
+
+                console.error(error);
+
+                NotificationManager.error(
+                    "Failed to save expense."
+                );
+            }
+        };
+
+    /* ======================================================
+       HISTORY ACTIONS
+    ====================================================== */
+
+    const deleteHistoryRecord =
+        (expenseId) => {
+
+            const state =
+                StateManager.getState();
+
+            const history =
+                state.history.filter(
+                    record =>
+                        record.id !==
+                        expenseId
+                );
+
+            StateManager.updateState({
+                history
+            });
+
+            StorageManager.saveHistory(
+                history
+            );
+
+            UIManager.renderHistory();
+            UIManager.renderDashboard();
+
+            NotificationManager.success(
+                "Expense deleted."
+            );
+        };
+
+    const clearHistory =
+        () => {
+
+            StateManager.updateState({
+                history: []
+            });
+
+            StorageManager.clearHistory();
+
+            UIManager.renderHistory();
+            UIManager.renderDashboard();
+
+            NotificationManager.success(
+                "History cleared."
+            );
+        };
+
+    /* ======================================================
+       SPLIT VALIDATION
+    ====================================================== */
+
+    const validateSplit =
+        () => {
+
+            const state =
+                StateManager.getState();
+
+            if (
+                state.splitMethod ===
+                "percentage"
+            ) {
+
+                const result =
+                    ValidationEngine.validatePercentages(
+                        Runtime.percentageAllocations
+                    );
+
+                UIManager.renderValidationStatus(
+                    result.valid
+                        ? `Percentage Total: ${result.total}% ✓`
+                        : `Percentage Total: ${result.total}%`,
+                    result.valid
+                        ? "success"
+                        : "error"
+                );
+
+                return result.valid;
+            }
+
+            if (
+                state.splitMethod ===
+                "custom"
+            ) {
+
+                const result =
+                    ValidationEngine.validateCustomAmounts(
+                        Runtime.customAllocations,
+                        state.currentExpense
+                            .finalAmount
+                    );
+
+                UIManager.renderValidationStatus(
+                    result.valid
+                        ? `Assigned Amount: ${Utils.formatCurrency(result.total)} ✓`
+                        : `Assigned Amount: ${Utils.formatCurrency(result.total)}`,
+                    result.valid
+                        ? "success"
+                        : "error"
+                );
+
+                return result.valid;
+            }
+
+            return true;
+        };
+
+    /* ======================================================
+       STEP NAVIGATION
+    ====================================================== */
+
+    const goNext =
+        () => {
+
+            const state =
+                StateManager.getState();
+
+            const currentStep =
+                state.currentStep;
+
+            if (
+                currentStep === 1
+            ) {
+
+                if (
+                    !validateExpenseForm()
+                ) {
+                    return;
+                }
+
+                buildExpense();
+            }
+
+            if (
+                currentStep === 2
+            ) {
+
+                const participantValidation =
+                    ValidationEngine.validateParticipants(
+                        state.participants
+                    );
+
+                if (
+                    !participantValidation.valid
+                ) {
+
+                    NotificationManager.error(
+                        participantValidation.errors.join(
+                            ", "
+                        )
+                    );
+
+                    return;
+                }
+            }
+
+            if (
+                currentStep === 3
+            ) {
+
+                if (
+                    !validateSplit()
+                ) {
+
+                    NotificationManager.error(
+                        "Split validation failed."
+                    );
+
+                    return;
+                }
+
+                UIManager.renderReview();
+            }
+
+            if (
+                currentStep === 4
+            ) {
+
+                calculateResults();
+
+                UIManager.renderResults();
+
+                saveCurrentExpense();
+            }
+
+            if (
+                currentStep >= 5
+            ) {
+                return;
+            }
+
+            StateManager.setCurrentStep(
+                currentStep + 1
+            );
+
+            if (
+                typeof goToStep ===
+                "function"
+            ) {
+
+                goToStep(
+                    currentStep + 1
+                );
+            }
+        };
+
+    const goPrevious =
+        () => {
+
+            const state =
+                StateManager.getState();
+
+            if (
+                state.currentStep <=
+                1
+            ) {
+                return;
+            }
+
+            StateManager.setCurrentStep(
+                state.currentStep - 1
+            );
+
+            if (
+                typeof goToStep ===
+                "function"
+            ) {
+
+                goToStep(
+                    state.currentStep
+                );
+            }
+        };
+
+    /* ======================================================
+       EVENT DELEGATION
+    ====================================================== */
+
+    document.addEventListener(
+        "click",
+        event => {
+
+            const action =
+                event.target.dataset
+                    ?.action;
+
+            if (!action) {
+                return;
+            }
+
+            switch (
+                action
+            ) {
+
+                case "new-expense":
+
+                    ExpenseManager.resetExpense();
+
+                    UIManager.refreshAll();
+
+                    NotificationManager.info(
+                        "New expense started."
+                    );
+
+                    break;
+
+                case "add-participant":
+
+                    addParticipant();
+
+                    break;
+
+                case "next-step":
+
+                    goNext();
+
+                    break;
+
+                case "prev-step":
+
+                    goPrevious();
+
+                    break;
+
+                case "refresh-history":
+
+                    UIManager.renderHistory();
+
+                    break;
+
+                case "clear-history":
+
+                    clearHistory();
+
+                    break;
+
+                case "delete-history":
+
+                    deleteHistoryRecord(
+                        event.target.dataset
+                            .expenseId
+                    );
+
+                    break;
+
+                case "save-result":
+
+                    saveCurrentExpense();
+
+                    break;
+            }
+        }
+    );
+
+    /* ======================================================
+       LIVE INPUTS
+    ====================================================== */
+
+    DOM.expenseName?.addEventListener(
+        "input",
+        validateExpenseForm
+    );
+
+    DOM.billAmount?.addEventListener(
+        "input",
+        () => {
+
+            validateExpenseForm();
+            updateTipPreview();
+        }
+    );
+
+    DOM.serviceQuality?.addEventListener(
+        "change",
+        updateTipPreview
+    );
+
+    document.addEventListener(
+        "input",
+        event => {
+
+            if (
+                event.target.matches(
+                    "[data-percentage-input]"
+                )
+            ) {
+
+                Runtime.percentageAllocations =
+                    [
+                        ...document.querySelectorAll(
+                            "[data-percentage-input]"
+                        )
+                    ].map(
+                        input =>
+                            Number(
+                                input.value ||
+                                    0
+                            )
+                    );
+
+                validateSplit();
+            }
+
+            if (
+                event.target.matches(
+                    "[data-custom-amount-input]"
+                )
+            ) {
+
+                Runtime.customAllocations =
+                    [
+                        ...document.querySelectorAll(
+                            "[data-custom-amount-input]"
+                        )
+                    ].map(
+                        input =>
+                            Number(
+                                input.value ||
+                                    0
+                            )
+                    );
+
+                validateSplit();
+            }
+        }
+    );
+
+    /* ======================================================
+       INITIAL RENDER
+    ====================================================== */
+
+    try {
+
+        LoadingManager.showLoading();
+
+        UIManager.renderDashboard();
+        UIManager.renderParticipants();
+        UIManager.renderHistory();
+
+        updateTipPreview();
+
+    } catch (error) {
+
+        console.error(error);
+
+        NotificationManager.error(
+            "Initialization failed."
+        );
+
+    } finally {
+
+        LoadingManager.hideLoading();
+    }
+
+})();

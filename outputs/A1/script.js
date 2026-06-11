@@ -1500,3 +1500,879 @@ const ValidationEngine =
 
 })();
 
+/* ==========================================================
+   PART 3A - UI FOUNDATION
+   ----------------------------------------------------------
+   - UIManager
+   - Dashboard Rendering
+   - Participant Rendering
+   - History Rendering
+========================================================== */
+
+const UIManager = (() => {
+
+    /* ======================================================
+       HELPERS
+    ====================================================== */
+
+    const clearContainer = (container) => {
+        if (!container) return;
+        container.innerHTML = "";
+    };
+
+    const showEmptyState = (element) => {
+        if (!element) return;
+        element.style.display = "";
+    };
+
+    const hideEmptyState = (element) => {
+        if (!element) return;
+        element.style.display = "none";
+    };
+
+    /* ======================================================
+       DASHBOARD RENDERING
+    ====================================================== */
+
+    const renderDashboard = () => {
+
+        const state = StateManager.getState();
+        const history = state.history || [];
+
+        const totalExpenses = history.length;
+
+        const totalAmountProcessed = history.reduce(
+            (sum, expense) =>
+                sum + Number(expense.finalAmount || 0),
+            0
+        );
+
+        const averageExpense =
+            totalExpenses > 0
+                ? totalAmountProcessed / totalExpenses
+                : 0;
+
+        const mostRecentExpense =
+            history.length > 0
+                ? history[history.length - 1]
+                : null;
+
+        const splitMethodCount = {};
+
+        history.forEach(expense => {
+
+            const method =
+                expense.splitMethod || "unknown";
+
+            splitMethodCount[method] =
+                (splitMethodCount[method] || 0) + 1;
+        });
+
+        let mostUsedMethod = "—";
+        let highestCount = 0;
+
+        Object.entries(splitMethodCount)
+            .forEach(([method, count]) => {
+
+                if (count > highestCount) {
+
+                    highestCount = count;
+                    mostUsedMethod = method;
+                }
+            });
+
+        if (DOM.totalExpensesStat) {
+            DOM.totalExpensesStat.textContent =
+                totalExpenses;
+        }
+
+        if (DOM.totalAmountStat) {
+            DOM.totalAmountStat.textContent =
+                Utils.formatCurrency(
+                    totalAmountProcessed
+                );
+        }
+
+        if (DOM.averageExpenseStat) {
+            DOM.averageExpenseStat.textContent =
+                Utils.formatCurrency(
+                    averageExpense
+                );
+        }
+
+        if (DOM.recentExpenseStat) {
+
+            DOM.recentExpenseStat.textContent =
+                mostRecentExpense
+                    ? mostRecentExpense.expenseName
+                    : "None";
+        }
+
+        if (DOM.popularMethodStat) {
+
+            DOM.popularMethodStat.textContent =
+                mostUsedMethod;
+        }
+    };
+
+    /* ======================================================
+       PARTICIPANT RENDERING
+    ====================================================== */
+
+    const createParticipantCard = (
+        participant
+    ) => {
+
+        const card =
+            document.createElement("div");
+
+        card.className =
+            "participant-card";
+
+        card.dataset.participantId =
+            participant.id;
+
+        card.innerHTML = `
+            <div class="participant-info">
+                <strong>
+                    ${participant.name}
+                </strong>
+            </div>
+
+            <div class="participant-actions">
+
+                <button
+                    type="button"
+                    class="secondary-btn participant-edit-btn"
+                    data-participant-id="${participant.id}"
+                    data-action="edit-participant">
+
+                    Edit
+                </button>
+
+                <button
+                    type="button"
+                    class="danger-btn participant-delete-btn"
+                    data-participant-id="${participant.id}"
+                    data-action="delete-participant">
+
+                    Delete
+                </button>
+
+            </div>
+        `;
+
+        return card;
+    };
+
+    const renderParticipants = () => {
+
+        if (!DOM.participantList) {
+            return;
+        }
+
+        const participants =
+            StateManager.getState()
+                .participants;
+
+        clearContainer(
+            DOM.participantList
+        );
+
+        if (
+            !participants ||
+            participants.length === 0
+        ) {
+
+            if (
+                DOM.participantEmptyState
+            ) {
+
+                DOM.participantList.appendChild(
+                    DOM.participantEmptyState
+                );
+
+                showEmptyState(
+                    DOM.participantEmptyState
+                );
+            }
+
+            return;
+        }
+
+        hideEmptyState(
+            DOM.participantEmptyState
+        );
+
+        participants.forEach(
+            participant => {
+
+                DOM.participantList.appendChild(
+                    createParticipantCard(
+                        participant
+                    )
+                );
+            }
+        );
+    };
+
+    /* ======================================================
+       HISTORY RENDERING
+    ====================================================== */
+
+    const createHistoryCard = (
+        expense
+    ) => {
+
+        const card =
+            document.createElement("div");
+
+        card.className =
+            "history-card";
+
+        card.dataset.expenseId =
+            expense.id;
+
+        const createdDate =
+            expense.createdAt
+                ? new Date(
+                      expense.createdAt
+                  ).toLocaleString()
+                : "Unknown";
+
+        card.innerHTML = `
+            <div class="history-card-header">
+
+                <div>
+
+                    <h4>
+                        ${expense.expenseName}
+                    </h4>
+
+                    <p>
+                        ${createdDate}
+                    </p>
+
+                </div>
+
+                <strong>
+                    ${Utils.formatCurrency(
+                        expense.finalAmount || 0
+                    )}
+                </strong>
+
+            </div>
+
+            <div class="history-card-body">
+
+                <p>
+                    Split Method:
+                    <strong>
+                        ${expense.splitMethod || "N/A"}
+                    </strong>
+                </p>
+
+                <p>
+                    Participants:
+                    <strong>
+                        ${
+                            expense.participants
+                                ? expense.participants.length
+                                : 0
+                        }
+                    </strong>
+                </p>
+
+            </div>
+
+            <div class="history-actions">
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    data-action="view-history"
+                    data-expense-id="${expense.id}">
+
+                    View
+                </button>
+
+                <button
+                    type="button"
+                    class="danger-btn"
+                    data-action="delete-history"
+                    data-expense-id="${expense.id}">
+
+                    Delete
+                </button>
+
+            </div>
+        `;
+
+        return card;
+    };
+
+    const renderHistory = () => {
+
+        if (!DOM.historyContainer) {
+            return;
+        }
+
+        const history =
+            StateManager.getState()
+                .history;
+
+        clearContainer(
+            DOM.historyContainer
+        );
+
+        if (
+            !history ||
+            history.length === 0
+        ) {
+
+            if (
+                DOM.historyEmptyState
+            ) {
+
+                DOM.historyContainer.appendChild(
+                    DOM.historyEmptyState
+                );
+
+                showEmptyState(
+                    DOM.historyEmptyState
+                );
+            }
+
+            return;
+        }
+
+        hideEmptyState(
+            DOM.historyEmptyState
+        );
+
+        const sortedHistory =
+            [...history].sort(
+                (a, b) =>
+                    new Date(
+                        b.createdAt
+                    ) -
+                    new Date(
+                        a.createdAt
+                    )
+            );
+
+        sortedHistory.forEach(
+            expense => {
+
+                DOM.historyContainer.appendChild(
+                    createHistoryCard(
+                        expense
+                    )
+                );
+            }
+        );
+    };
+
+    /* ======================================================
+       FULL REFRESH
+    ====================================================== */
+
+    const refreshAll = () => {
+
+        renderDashboard();
+        renderParticipants();
+        renderHistory();
+    };
+
+    /* ======================================================
+       PUBLIC API
+    ====================================================== */
+
+    return {
+
+        clearContainer,
+
+        showEmptyState,
+
+        hideEmptyState,
+
+        renderDashboard,
+
+        renderParticipants,
+
+        renderHistory,
+
+        refreshAll
+    };
+
+})();
+
+/* ==========================================================
+   PART 3B - SPLIT CONFIGURATION + REVIEW RENDERING
+   ----------------------------------------------------------
+   Adds methods onto existing UIManager
+========================================================== */
+
+Object.assign(UIManager, (() => {
+
+    /* ======================================================
+       VALIDATION STATUS
+    ====================================================== */
+
+    const renderValidationStatus = (
+        message = "",
+        type = "warning"
+    ) => {
+
+        if (!DOM.splitValidationStatus) {
+            return;
+        }
+
+        DOM.splitValidationStatus.className =
+            `validation-status ${type}`;
+
+        DOM.splitValidationStatus.textContent =
+            message;
+
+        if (!message) {
+            DOM.splitValidationStatus.style.display =
+                "none";
+            return;
+        }
+
+        DOM.splitValidationStatus.style.display =
+            "block";
+    };
+
+    /* ======================================================
+       EQUAL SPLIT PREVIEW
+    ====================================================== */
+
+    const renderEqualSplit = (
+        participants,
+        finalAmount
+    ) => {
+
+        const participantCount =
+            participants.length;
+
+        const shares =
+            participantCount > 0
+                ? RoundingEngine.splitEvenly(
+                      finalAmount,
+                      participantCount
+                  )
+                : [];
+
+        const equalShare =
+            shares.length > 0
+                ? shares[0]
+                : 0;
+
+        return `
+            <div class="card">
+
+                <h3>
+                    Equal Split
+                </h3>
+
+                <p>
+                    Participants:
+                    <strong>
+                        ${participantCount}
+                    </strong>
+                </p>
+
+                <p>
+                    Approx Share:
+                    <strong>
+                        ${Utils.formatCurrency(
+                            equalShare
+                        )}
+                    </strong>
+                </p>
+
+                <p>
+                    Final Amount:
+                    <strong>
+                        ${Utils.formatCurrency(
+                            finalAmount
+                        )}
+                    </strong>
+                </p>
+
+            </div>
+        `;
+    };
+
+    /* ======================================================
+       PERCENTAGE SPLIT UI
+    ====================================================== */
+
+    const renderPercentageSplit = (
+        participants
+    ) => {
+
+        return `
+            <div class="card">
+
+                <h3>
+                    Percentage Allocation
+                </h3>
+
+                <p>
+                    Total must equal
+                    <strong>100%</strong>
+                </p>
+
+                ${participants
+                    .map(
+                        participant => `
+                        <div class="form-group">
+
+                            <label>
+                                ${participant.name}
+                            </label>
+
+                            <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                step="0.01"
+
+                                data-percentage-input
+
+                                data-participant-id="${participant.id}"
+
+                                placeholder="Enter percentage"
+                            />
+
+                        </div>
+                    `
+                    )
+                    .join("")}
+
+            </div>
+        `;
+    };
+
+    /* ======================================================
+       CUSTOM SPLIT UI
+    ====================================================== */
+
+    const renderCustomSplit = (
+        participants
+    ) => {
+
+        return `
+            <div class="card">
+
+                <h3>
+                    Custom Amount Allocation
+                </h3>
+
+                <p>
+                    Assigned total must match
+                    final payable amount.
+                </p>
+
+                ${participants
+                    .map(
+                        participant => `
+                        <div class="form-group">
+
+                            <label>
+                                ${participant.name}
+                            </label>
+
+                            <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+
+                                data-custom-amount-input
+
+                                data-participant-id="${participant.id}"
+
+                                placeholder="Enter amount"
+                            />
+
+                        </div>
+                    `
+                    )
+                    .join("")}
+
+            </div>
+        `;
+    };
+
+    /* ======================================================
+       SPLIT CONFIGURATION
+    ====================================================== */
+
+    const renderSplitConfiguration =
+        () => {
+
+            if (
+                !DOM.splitConfiguration
+            ) {
+                return;
+            }
+
+            const state =
+                StateManager.getState();
+
+            const participants =
+                state.participants || [];
+
+            const finalAmount =
+                Number(
+                    state.currentExpense
+                        ?.finalAmount || 0
+                );
+
+            UIManager.clearContainer(
+                DOM.splitConfiguration
+            );
+
+            if (
+                participants.length === 0
+            ) {
+
+                DOM.splitConfiguration.innerHTML =
+                    `
+                    <div class="empty-state">
+                        <h4>
+                            No Participants
+                        </h4>
+                        <p>
+                            Add participants
+                            before configuring
+                            split methods.
+                        </p>
+                    </div>
+                `;
+
+                return;
+            }
+
+            let html = "";
+
+            switch (
+                state.splitMethod
+            ) {
+
+                case "equal":
+
+                    html =
+                        renderEqualSplit(
+                            participants,
+                            finalAmount
+                        );
+
+                    break;
+
+                case "percentage":
+
+                    html =
+                        renderPercentageSplit(
+                            participants
+                        );
+
+                    break;
+
+                case "custom":
+
+                    html =
+                        renderCustomSplit(
+                            participants
+                        );
+
+                    break;
+
+                default:
+
+                    html =
+                        renderEqualSplit(
+                            participants,
+                            finalAmount
+                        );
+            }
+
+            DOM.splitConfiguration.innerHTML =
+                html;
+        };
+
+    /* ======================================================
+       REVIEW RENDERING
+    ====================================================== */
+
+    const renderReview =
+        () => {
+
+            if (
+                !DOM.reviewSummaryContainer
+            ) {
+                return;
+            }
+
+            const state =
+                StateManager.getState();
+
+            const expense =
+                state.currentExpense;
+
+            const participants =
+                state.participants || [];
+
+            if (
+                !expense ||
+                !expense.expenseName
+            ) {
+
+                if (
+                    DOM.reviewEmptyState
+                ) {
+
+                    UIManager.showEmptyState(
+                        DOM.reviewEmptyState
+                    );
+                }
+
+                UIManager.clearContainer(
+                    DOM.reviewSummaryContainer
+                );
+
+                return;
+            }
+
+            if (
+                DOM.reviewEmptyState
+            ) {
+
+                UIManager.hideEmptyState(
+                    DOM.reviewEmptyState
+                );
+            }
+
+            const participantList =
+                participants.length
+                    ? `
+                    <ul>
+                        ${participants
+                            .map(
+                                participant => `
+                                <li>
+                                    ${participant.name}
+                                </li>
+                            `
+                            )
+                            .join("")}
+                    </ul>
+                `
+                    : "<p>No participants added.</p>";
+
+            DOM.reviewSummaryContainer.innerHTML =
+                `
+                <div class="card">
+
+                    <h3>
+                        Expense Review
+                    </h3>
+
+                    <div class="summary-grid">
+
+                        <div>
+                            <strong>
+                                Expense Name
+                            </strong>
+                            <p>
+                                ${expense.expenseName}
+                            </p>
+                        </div>
+
+                        <div>
+                            <strong>
+                                Bill Amount
+                            </strong>
+                            <p>
+                                ${Utils.formatCurrency(
+                                    expense.baseAmount
+                                )}
+                            </p>
+                        </div>
+
+                        <div>
+                            <strong>
+                                Tip %
+                            </strong>
+                            <p>
+                                ${expense.tipPercentage}%
+                            </p>
+                        </div>
+
+                        <div>
+                            <strong>
+                                Tip Amount
+                            </strong>
+                            <p>
+                                ${Utils.formatCurrency(
+                                    expense.tipAmount
+                                )}
+                            </p>
+                        </div>
+
+                        <div>
+                            <strong>
+                                Final Amount
+                            </strong>
+                            <p>
+                                ${Utils.formatCurrency(
+                                    expense.finalAmount
+                                )}
+                            </p>
+                        </div>
+
+                        <div>
+                            <strong>
+                                Split Method
+                            </strong>
+                            <p>
+                                ${state.splitMethod}
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div
+                        style="
+                        margin-top:1.25rem;
+                        ">
+
+                        <strong>
+                            Participants
+                        </strong>
+
+                        ${participantList}
+
+                    </div>
+
+                </div>
+            `;
+        };
+
+    /* ======================================================
+       PUBLIC METHODS
+    ====================================================== */
+
+    return {
+
+        renderSplitConfiguration,
+
+        renderReview,
+
+        renderValidationStatus
+
+    };
+
+})());

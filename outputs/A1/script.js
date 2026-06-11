@@ -382,7 +382,7 @@ const StorageManager = (() => {
             return true;
 
         } catch (
-            error
+        error
         ) {
 
             console.error(
@@ -416,7 +416,7 @@ const StorageManager = (() => {
                 );
 
             } catch (
-                error
+            error
             ) {
 
                 console.error(
@@ -440,7 +440,7 @@ const StorageManager = (() => {
                 return true;
 
             } catch (
-                error
+            error
             ) {
 
                 console.error(
@@ -464,146 +464,146 @@ const StorageManager = (() => {
 ========================================================== */
 
 const NotificationManager =
-(() => {
+    (() => {
 
-    const createNotification =
-        (
-            type = "info",
-            message = ""
-        ) => {
+        const createNotification =
+            (
+                type = "info",
+                message = ""
+            ) => {
 
-            const notification =
-                document.createElement(
-                    "div"
-                );
+                const notification =
+                    document.createElement(
+                        "div"
+                    );
 
-            notification.className =
-                `notification ${ type } `;
+                notification.className =
+                    `notification ${type} `;
 
-            notification.innerHTML =
-                `
-    < strong >
-    ${ type.toUpperCase() }
-                </strong >
-    <div>${message}</div>
+                notification.innerHTML =
+                    `
+< strong >
+${type.toUpperCase()}
+</strong >
+<div>${message}</div>
 `;
 
-            return notification;
-        };
+                return notification;
+            };
 
-    const show = (
-        type,
-        message
-    ) => {
+        const show = (
+            type,
+            message
+        ) => {
 
-        if (
-            !DOM.notificationContainer
-        ) {
-            return;
-        }
+            if (
+                !DOM.notificationContainer
+            ) {
+                return;
+            }
 
-        const notification =
-            createNotification(
-                type,
-                message
-            );
-
-        DOM.notificationContainer.appendChild(
-            notification
-        );
-
-        setTimeout(
-            () => {
-
-                notification.style.animation =
-                    "toastSlideOut 0.3s ease forwards";
-
-                setTimeout(
-                    () => {
-
-                        notification.remove();
-
-                    },
-                    300
+            const notification =
+                createNotification(
+                    type,
+                    message
                 );
 
-            },
-            APP_CONFIG.NOTIFICATION_DURATION
-        );
-    };
+            DOM.notificationContainer.appendChild(
+                notification
+            );
 
-    return {
+            setTimeout(
+                () => {
 
-        success:
-            message =>
-                show(
-                    "success",
-                    message
-                ),
+                    notification.style.animation =
+                        "toastSlideOut 0.3s ease forwards";
 
-        error:
-            message =>
-                show(
-                    "error",
-                    message
-                ),
+                    setTimeout(
+                        () => {
 
-        warning:
-            message =>
-                show(
-                    "warning",
-                    message
-                ),
+                            notification.remove();
 
-        info:
-            message =>
-                show(
-                    "info",
-                    message
-                )
-    };
+                        },
+                        300
+                    );
 
-})();
+                },
+                APP_CONFIG.NOTIFICATION_DURATION
+            );
+        };
+
+        return {
+
+            success:
+                message =>
+                    show(
+                        "success",
+                        message
+                    ),
+
+            error:
+                message =>
+                    show(
+                        "error",
+                        message
+                    ),
+
+            warning:
+                message =>
+                    show(
+                        "warning",
+                        message
+                    ),
+
+            info:
+                message =>
+                    show(
+                        "info",
+                        message
+                    )
+        };
+
+    })();
 
 /* ==========================================================
    LOADING MANAGER
 ========================================================== */
 
 const LoadingManager =
-(() => {
+    (() => {
 
-    const showLoading =
-        () => {
+        const showLoading =
+            () => {
 
-            if (
-                DOM.loadingOverlay
-            ) {
+                if (
+                    DOM.loadingOverlay
+                ) {
 
-                DOM.loadingOverlay.classList.remove(
-                    "hidden"
-                );
-            }
+                    DOM.loadingOverlay.classList.remove(
+                        "hidden"
+                    );
+                }
+            };
+
+        const hideLoading =
+            () => {
+
+                if (
+                    DOM.loadingOverlay
+                ) {
+
+                    DOM.loadingOverlay.classList.add(
+                        "hidden"
+                    );
+                }
+            };
+
+        return {
+            showLoading,
+            hideLoading
         };
 
-    const hideLoading =
-        () => {
-
-            if (
-                DOM.loadingOverlay
-            ) {
-
-                DOM.loadingOverlay.classList.add(
-                    "hidden"
-                );
-            }
-        };
-
-    return {
-        showLoading,
-        hideLoading
-    };
-
-})();
+    })();
 
 /* ==========================================================
    APPLICATION INITIALIZATION
@@ -660,7 +660,7 @@ const App = (() => {
                 );
 
             } catch (
-                error
+            error
             ) {
 
                 console.error(
@@ -829,93 +829,93 @@ const ExpenseManager = (() => {
 ========================================================== */
 
 const ParticipantManager =
-(() => {
+    (() => {
 
-    const addParticipant =
-        (name) => {
+        const addParticipant =
+            (name) => {
 
-            const cleanName =
-                name.trim();
+                const cleanName =
+                    name.trim();
 
-            const participant = {
-                id:
-                    Utils.generateId(),
+                const participant = {
+                    id:
+                        Utils.generateId(),
 
-                name:
-                    cleanName
+                    name:
+                        cleanName
+                };
+
+                const state =
+                    StateManager.getState();
+
+                StateManager.updateState({
+                    participants: [
+                        ...state.participants,
+                        participant
+                    ]
+                });
+
+                return participant;
             };
 
-            const state =
-                StateManager.getState();
+        const updateParticipant =
+            (
+                participantId,
+                newName
+            ) => {
 
-            StateManager.updateState({
-                participants: [
-                    ...state.participants,
-                    participant
-                ]
-            });
+                const state =
+                    StateManager.getState();
 
-            return participant;
+                const participants =
+                    state.participants.map(
+                        participant =>
+                            participant.id ===
+                                participantId
+                                ? {
+                                    ...participant,
+                                    name:
+                                        newName.trim()
+                                }
+                                : participant
+                    );
+
+                StateManager.updateState({
+                    participants
+                });
+
+                return participants;
+            };
+
+        const removeParticipant =
+            (
+                participantId
+            ) => {
+
+                const state =
+                    StateManager.getState();
+
+                const participants =
+                    state.participants.filter(
+                        participant =>
+                            participant.id !==
+                            participantId
+                    );
+
+                StateManager.updateState({
+                    participants
+                });
+
+                return participants;
+            };
+
+        return {
+            addParticipant,
+            updateParticipant,
+            removeParticipant
         };
 
-    const updateParticipant =
-        (
-            participantId,
-            newName
-        ) => {
-
-            const state =
-                StateManager.getState();
-
-            const participants =
-                state.participants.map(
-                    participant =>
-                        participant.id ===
-                        participantId
-                            ? {
-                                  ...participant,
-                                  name:
-                                      newName.trim()
-                              }
-                            : participant
-                );
-
-            StateManager.updateState({
-                participants
-            });
-
-            return participants;
-        };
-
-    const removeParticipant =
-        (
-            participantId
-        ) => {
-
-            const state =
-                StateManager.getState();
-
-            const participants =
-                state.participants.filter(
-                    participant =>
-                        participant.id !==
-                        participantId
-                );
-
-            StateManager.updateState({
-                participants
-            });
-
-            return participants;
-        };
-
-    return {
-        addParticipant,
-        updateParticipant,
-        removeParticipant
-    };
-
-})();
+    })();
 
 /* ==========================================================
    TIP ENGINE
@@ -975,7 +975,7 @@ const TipEngine = (() => {
             return (
                 RoundingEngine.fromPaise(
                     basePaise +
-                        tipPaise
+                    tipPaise
                 )
             );
         };
@@ -992,153 +992,153 @@ const TipEngine = (() => {
 ========================================================== */
 
 const RoundingEngine =
-(() => {
+    (() => {
 
-    const toPaise =
-        (amount) => {
+        const toPaise =
+            (amount) => {
 
-            return Math.round(
-                Number(amount) * 100
-            );
-        };
-
-    const fromPaise =
-        (paise) => {
-
-            return Number(
-                (paise / 100).toFixed(
-                    2
-                )
-            );
-        };
-
-    const distributeRemainder =
-        (
-            shares,
-            remainder
-        ) => {
-
-            for (
-                let i = 0;
-                i < remainder;
-                i++
-            ) {
-                shares[
-                    i %
-                        shares.length
-                ] += 1;
-            }
-
-            return shares;
-        };
-
-    const splitEvenly =
-        (
-            totalAmount,
-            participantCount
-        ) => {
-
-            const totalPaise =
-                toPaise(
-                    totalAmount
+                return Math.round(
+                    Number(amount) * 100
                 );
+            };
 
-            const baseShare =
-                Math.floor(
-                    totalPaise /
-                        participantCount
-                );
+        const fromPaise =
+            (paise) => {
 
-            const remainder =
-                totalPaise %
-                participantCount;
-
-            const shares =
-                Array(
-                    participantCount
-                ).fill(baseShare);
-
-            distributeRemainder(
-                shares,
-                remainder
-            );
-
-            return shares.map(
-                fromPaise
-            );
-        };
-
-    const splitByPercentage =
-        (
-            totalAmount,
-            percentages
-        ) => {
-
-            const totalPaise =
-                toPaise(
-                    totalAmount
-                );
-
-            const shares =
-                percentages.map(
-                    percentage =>
-                        Math.floor(
-                            (
-                                totalPaise *
-                                percentage
-                            ) / 100
-                        )
-                );
-
-            const allocated =
-                shares.reduce(
-                    (
-                        total,
-                        value
-                    ) =>
-                        total +
-                        value,
-                    0
-                );
-
-            const remainder =
-                totalPaise -
-                allocated;
-
-            distributeRemainder(
-                shares,
-                remainder
-            );
-
-            return shares.map(
-                fromPaise
-            );
-        };
-
-    const splitByCustomAmounts =
-        (
-            customAmounts
-        ) => {
-
-            return customAmounts.map(
-                amount =>
-                    fromPaise(
-                        toPaise(
-                            amount
-                        )
+                return Number(
+                    (paise / 100).toFixed(
+                        2
                     )
-            );
+                );
+            };
+
+        const distributeRemainder =
+            (
+                shares,
+                remainder
+            ) => {
+
+                for (
+                    let i = 0;
+                    i < remainder;
+                    i++
+                ) {
+                    shares[
+                        i %
+                        shares.length
+                    ] += 1;
+                }
+
+                return shares;
+            };
+
+        const splitEvenly =
+            (
+                totalAmount,
+                participantCount
+            ) => {
+
+                const totalPaise =
+                    toPaise(
+                        totalAmount
+                    );
+
+                const baseShare =
+                    Math.floor(
+                        totalPaise /
+                        participantCount
+                    );
+
+                const remainder =
+                    totalPaise %
+                    participantCount;
+
+                const shares =
+                    Array(
+                        participantCount
+                    ).fill(baseShare);
+
+                distributeRemainder(
+                    shares,
+                    remainder
+                );
+
+                return shares.map(
+                    fromPaise
+                );
+            };
+
+        const splitByPercentage =
+            (
+                totalAmount,
+                percentages
+            ) => {
+
+                const totalPaise =
+                    toPaise(
+                        totalAmount
+                    );
+
+                const shares =
+                    percentages.map(
+                        percentage =>
+                            Math.floor(
+                                (
+                                    totalPaise *
+                                    percentage
+                                ) / 100
+                            )
+                    );
+
+                const allocated =
+                    shares.reduce(
+                        (
+                            total,
+                            value
+                        ) =>
+                            total +
+                            value,
+                        0
+                    );
+
+                const remainder =
+                    totalPaise -
+                    allocated;
+
+                distributeRemainder(
+                    shares,
+                    remainder
+                );
+
+                return shares.map(
+                    fromPaise
+                );
+            };
+
+        const splitByCustomAmounts =
+            (
+                customAmounts
+            ) => {
+
+                return customAmounts.map(
+                    amount =>
+                        fromPaise(
+                            toPaise(
+                                amount
+                            )
+                        )
+                );
+            };
+
+        return {
+            toPaise,
+            fromPaise,
+            splitEvenly,
+            splitByPercentage,
+            splitByCustomAmounts
         };
 
-    return {
-        toPaise,
-        fromPaise,
-        splitEvenly,
-        splitByPercentage,
-        splitByCustomAmounts
-    };
-
-})();
+    })();
 
 /* ==========================================================
    SPLIT ENGINE
@@ -1181,7 +1181,7 @@ const SplitEngine = (() => {
 
                     amount:
                         shares[
-                            index
+                        index
                         ]
                 })
             );
@@ -1214,13 +1214,13 @@ const SplitEngine = (() => {
                     percentage:
                         Number(
                             percentages[
-                                index
+                            index
                             ]
                         ),
 
                     amount:
                         shares[
-                            index
+                        index
                         ]
                 })
             );
@@ -1263,20 +1263,20 @@ const SplitEngine = (() => {
                         total === 0
                             ? 0
                             : Number(
-                                  (
-                                      (shares[
-                                          index
-                                      ] /
-                                          total) *
-                                      100
-                                  ).toFixed(
-                                      2
-                                  )
-                              ),
+                                (
+                                    (shares[
+                                        index
+                                    ] /
+                                        total) *
+                                    100
+                                ).toFixed(
+                                    2
+                                )
+                            ),
 
                     amount:
                         shares[
-                            index
+                        index
                         ]
                 })
             );
@@ -1295,210 +1295,210 @@ const SplitEngine = (() => {
 ========================================================== */
 
 const ValidationEngine =
-(() => {
+    (() => {
 
-    const validateExpense =
-        (
-            expenseName,
-            billAmount
-        ) => {
+        const validateExpense =
+            (
+                expenseName,
+                billAmount
+            ) => {
 
-            const errors =
-                {};
-
-            if (
-                Utils.isEmpty(
-                    expenseName
-                )
-            ) {
-
-                errors.expenseName =
-                    "Expense name is required.";
-            }
-
-            if (
-                Utils.isEmpty(
-                    billAmount
-                )
-            ) {
-
-                errors.billAmount =
-                    "Bill amount is required.";
-            } else {
-
-                const amount =
-                    Number(
-                        billAmount
-                    );
+                const errors =
+                    {};
 
                 if (
-                    Number.isNaN(
-                        amount
+                    Utils.isEmpty(
+                        expenseName
+                    )
+                ) {
+
+                    errors.expenseName =
+                        "Expense name is required.";
+                }
+
+                if (
+                    Utils.isEmpty(
+                        billAmount
                     )
                 ) {
 
                     errors.billAmount =
-                        "Invalid bill amount.";
+                        "Bill amount is required.";
+                } else {
+
+                    const amount =
+                        Number(
+                            billAmount
+                        );
+
+                    if (
+                        Number.isNaN(
+                            amount
+                        )
+                    ) {
+
+                        errors.billAmount =
+                            "Invalid bill amount.";
+                    }
+
+                    if (
+                        amount <= 0
+                    ) {
+
+                        errors.billAmount =
+                            "Bill amount must be greater than zero.";
+                    }
+                }
+
+                return {
+                    valid:
+                        Object.keys(
+                            errors
+                        ).length ===
+                        0,
+
+                    errors
+                };
+            };
+
+        const validateParticipants =
+            (
+                participants
+            ) => {
+
+                const errors =
+                    [];
+
+                if (
+                    !participants ||
+                    participants.length ===
+                    0
+                ) {
+
+                    errors.push(
+                        "At least one participant is required."
+                    );
+                }
+
+                const names =
+                    participants.map(
+                        participant =>
+                            participant.name
+                                .trim()
+                                .toLowerCase()
+                    );
+
+                const duplicates =
+                    names.filter(
+                        (
+                            name,
+                            index
+                        ) =>
+                            names.indexOf(
+                                name
+                            ) !== index
+                    );
+
+                if (
+                    duplicates.length
+                ) {
+
+                    errors.push(
+                        "Duplicate participant names found."
+                    );
                 }
 
                 if (
-                    amount <= 0
+                    names.some(
+                        name =>
+                            !name
+                    )
                 ) {
 
-                    errors.billAmount =
-                        "Bill amount must be greater than zero.";
+                    errors.push(
+                        "Participant names cannot be empty."
+                    );
                 }
-            }
 
-            return {
-                valid:
-                    Object.keys(
-                        errors
-                    ).length ===
-                    0,
+                return {
+                    valid:
+                        errors.length ===
+                        0,
 
-                errors
+                    errors
+                };
             };
-        };
 
-    const validateParticipants =
-        (
-            participants
-        ) => {
+        const validatePercentages =
+            (
+                percentages
+            ) => {
 
-            const errors =
-                [];
-
-            if (
-                !participants ||
-                participants.length ===
-                    0
-            ) {
-
-                errors.push(
-                    "At least one participant is required."
-                );
-            }
-
-            const names =
-                participants.map(
-                    participant =>
-                        participant.name
-                            .trim()
-                            .toLowerCase()
-                );
-
-            const duplicates =
-                names.filter(
-                    (
-                        name,
-                        index
-                    ) =>
-                        names.indexOf(
-                            name
-                        ) !== index
-                );
-
-            if (
-                duplicates.length
-            ) {
-
-                errors.push(
-                    "Duplicate participant names found."
-                );
-            }
-
-            if (
-                names.some(
-                    name =>
-                        !name
-                )
-            ) {
-
-                errors.push(
-                    "Participant names cannot be empty."
-                );
-            }
-
-            return {
-                valid:
-                    errors.length ===
-                    0,
-
-                errors
-            };
-        };
-
-    const validatePercentages =
-        (
-            percentages
-        ) => {
-
-            const total =
-                percentages.reduce(
-                    (
-                        sum,
-                        value
-                    ) =>
-                        sum +
-                        Number(
+                const total =
+                    percentages.reduce(
+                        (
+                            sum,
                             value
-                        ),
-                    0
-                );
+                        ) =>
+                            sum +
+                            Number(
+                                value
+                            ),
+                        0
+                    );
 
-            return {
-                valid:
-                    Math.abs(
-                        total -
+                return {
+                    valid:
+                        Math.abs(
+                            total -
                             100
-                    ) < 0.0001,
+                        ) < 0.0001,
 
-                total
-            };
-        };
-
-    const validateCustomAmounts =
-        (
-            customAmounts,
-            finalAmount
-        ) => {
-
-            const total =
-                customAmounts.reduce(
-                    (
-                        sum,
-                        value
-                    ) =>
-                        sum +
-                        Number(
-                            value
-                        ),
-                    0
-                );
-
-            const valid =
-                RoundingEngine.toPaise(
                     total
-                ) ===
-                RoundingEngine.toPaise(
-                    finalAmount
-                );
-
-            return {
-                valid,
-                total
+                };
             };
+
+        const validateCustomAmounts =
+            (
+                customAmounts,
+                finalAmount
+            ) => {
+
+                const total =
+                    customAmounts.reduce(
+                        (
+                            sum,
+                            value
+                        ) =>
+                            sum +
+                            Number(
+                                value
+                            ),
+                        0
+                    );
+
+                const valid =
+                    RoundingEngine.toPaise(
+                        total
+                    ) ===
+                    RoundingEngine.toPaise(
+                        finalAmount
+                    );
+
+                return {
+                    valid,
+                    total
+                };
+            };
+
+        return {
+            validateExpense,
+            validateParticipants,
+            validatePercentages,
+            validateCustomAmounts
         };
 
-    return {
-        validateExpense,
-        validateParticipants,
-        validatePercentages,
-        validateCustomAmounts
-    };
-
-})();
+    })();
 
 /* ==========================================================
    PART 3A - UI FOUNDATION
@@ -1736,8 +1736,8 @@ const UIManager = (() => {
         const createdDate =
             expense.createdAt
                 ? new Date(
-                      expense.createdAt
-                  ).toLocaleString()
+                    expense.createdAt
+                ).toLocaleString()
                 : "Unknown";
 
         card.innerHTML = `
@@ -1757,8 +1757,8 @@ const UIManager = (() => {
 
                 <strong>
                     ${Utils.formatCurrency(
-                        expense.finalAmount || 0
-                    )}
+            expense.finalAmount || 0
+        )}
                 </strong>
 
             </div>
@@ -1775,11 +1775,10 @@ const UIManager = (() => {
                 <p>
                     Participants:
                     <strong>
-                        ${
-                            expense.participants
-                                ? expense.participants.length
-                                : 0
-                        }
+                        ${expense.participants
+                ? expense.participants.length
+                : 0
+            }
                     </strong>
                 </p>
 
@@ -1959,9 +1958,9 @@ Object.assign(UIManager, (() => {
         const shares =
             participantCount > 0
                 ? RoundingEngine.splitEvenly(
-                      finalAmount,
-                      participantCount
-                  )
+                    finalAmount,
+                    participantCount
+                )
                 : [];
 
         const equalShare =
@@ -1987,8 +1986,8 @@ Object.assign(UIManager, (() => {
                     Approx Share:
                     <strong>
                         ${Utils.formatCurrency(
-                            equalShare
-                        )}
+            equalShare
+        )}
                     </strong>
                 </p>
 
@@ -1996,8 +1995,8 @@ Object.assign(UIManager, (() => {
                     Final Amount:
                     <strong>
                         ${Utils.formatCurrency(
-                            finalAmount
-                        )}
+            finalAmount
+        )}
                     </strong>
                 </p>
 
@@ -2026,8 +2025,8 @@ Object.assign(UIManager, (() => {
                 </p>
 
                 ${participants
-                    .map(
-                        participant => `
+                .map(
+                    participant => `
                         <div class="form-group">
 
                             <label>
@@ -2049,8 +2048,8 @@ Object.assign(UIManager, (() => {
 
                         </div>
                     `
-                    )
-                    .join("")}
+                )
+                .join("")}
 
             </div>
         `;
@@ -2077,8 +2076,8 @@ Object.assign(UIManager, (() => {
                 </p>
 
                 ${participants
-                    .map(
-                        participant => `
+                .map(
+                    participant => `
                         <div class="form-group">
 
                             <label>
@@ -2099,8 +2098,8 @@ Object.assign(UIManager, (() => {
 
                         </div>
                     `
-                    )
-                    .join("")}
+                )
+                .join("")}
 
             </div>
         `;
@@ -2159,7 +2158,7 @@ Object.assign(UIManager, (() => {
             let html = "";
 
             switch (
-                state.splitMethod
+            state.splitMethod
             ) {
 
                 case "equal":
@@ -2260,14 +2259,14 @@ Object.assign(UIManager, (() => {
                     ? `
                     <ul>
                         ${participants
-                            .map(
-                                participant => `
+                        .map(
+                            participant => `
                                 <li>
                                     ${participant.name}
                                 </li>
                             `
-                            )
-                            .join("")}
+                        )
+                        .join("")}
                     </ul>
                 `
                     : "<p>No participants added.</p>";
@@ -2297,8 +2296,8 @@ Object.assign(UIManager, (() => {
                             </strong>
                             <p>
                                 ${Utils.formatCurrency(
-                                    expense.baseAmount
-                                )}
+                    expense.baseAmount
+                )}
                             </p>
                         </div>
 
@@ -2317,8 +2316,8 @@ Object.assign(UIManager, (() => {
                             </strong>
                             <p>
                                 ${Utils.formatCurrency(
-                                    expense.tipAmount
-                                )}
+                    expense.tipAmount
+                )}
                             </p>
                         </div>
 
@@ -2328,8 +2327,8 @@ Object.assign(UIManager, (() => {
                             </strong>
                             <p>
                                 ${Utils.formatCurrency(
-                                    expense.finalAmount
-                                )}
+                    expense.finalAmount
+                )}
                             </p>
                         </div>
 
@@ -2414,8 +2413,8 @@ Object.assign(UIManager, (() => {
         const createdDate =
             expense.createdAt
                 ? new Date(
-                      expense.createdAt
-                  ).toLocaleString()
+                    expense.createdAt
+                ).toLocaleString()
                 : "Not Available";
 
         DOM.summaryCards.innerHTML = `
@@ -2439,8 +2438,8 @@ Object.assign(UIManager, (() => {
 
                 <div class="stat-value">
                     ${Utils.formatCurrency(
-                        expense.finalAmount
-                    )}
+            expense.finalAmount
+        )}
                 </div>
 
             </div>
@@ -2453,8 +2452,8 @@ Object.assign(UIManager, (() => {
 
                 <div class="stat-value">
                     ${Utils.formatCurrency(
-                        expense.tipAmount
-                    )}
+            expense.tipAmount
+        )}
                 </div>
 
             </div>
@@ -2652,8 +2651,8 @@ Object.assign(UIManager, (() => {
 
                         <p>
                             ${participant.percentage.toFixed(
-                                2
-                            )}%
+                            2
+                        )}%
                         </p>
 
                         <hr
@@ -2672,8 +2671,8 @@ Object.assign(UIManager, (() => {
 
                         <h2>
                             ${Utils.formatCurrency(
-                                participant.amount
-                            )}
+                            participant.amount
+                        )}
                         </h2>
                     `;
 
@@ -2894,8 +2893,8 @@ Object.assign(UIManager, (() => {
 
             const tipPercentage =
                 tipMap[
-                    DOM.serviceQuality
-                        ?.value
+                DOM.serviceQuality
+                    ?.value
                 ] || 15;
 
             return ExpenseManager.createExpense(
@@ -2936,7 +2935,7 @@ Object.assign(UIManager, (() => {
                 [];
 
             switch (
-                state.splitMethod
+            state.splitMethod
             ) {
 
                 case "equal":
@@ -3109,6 +3108,10 @@ Object.assign(UIManager, (() => {
                     result.valid
                         ? "success"
                         : "error"
+                );
+
+                updateSplitNavigationState(
+                    result.valid
                 );
 
                 return result.valid;
@@ -3285,21 +3288,11 @@ Object.assign(UIManager, (() => {
             }
 
             switch (
-                action
+            action
             ) {
 
                 case "new-expense":
-
-                    ExpenseManager.resetExpense();
-
-                    UIManager.refreshAll();
-
-                    NotificationManager.info(
-                        "New expense started."
-                    );
-
-                    break;
-
+                    return;
                 case "add-participant":
 
                     addParticipant();
@@ -3388,13 +3381,20 @@ Object.assign(UIManager, (() => {
                         )
                     ].map(
                         input =>
-                            Number(
-                                input.value ||
-                                    0
+                            Math.max(
+                                0,
+                                Math.min(
+                                    100,
+                                    Number(
+                                        input.value || 0
+                                    )
+                                )
                             )
                     );
 
                 validateSplit();
+                UIManager.renderReview?.();
+
             }
 
             if (
@@ -3410,9 +3410,11 @@ Object.assign(UIManager, (() => {
                         )
                     ].map(
                         input =>
-                            Number(
-                                input.value ||
-                                    0
+                            Math.max(
+                                0,
+                                Number(
+                                    input.value || 0
+                                )
                             )
                     );
 
@@ -3749,7 +3751,7 @@ document
                     }
 
                 } catch (
-                    error
+                error
                 ) {
 
                     console.error(
@@ -3984,11 +3986,11 @@ document.addEventListener(
                     state.participants.some(
                         p =>
                             p.id !==
-                                participantId &&
+                            participantId &&
                             p.name
                                 .trim()
                                 .toLowerCase() ===
-                                cleanName.toLowerCase()
+                            cleanName.toLowerCase()
                     );
 
                 if (
@@ -4241,8 +4243,8 @@ document.addEventListener(
 
                 const latest =
                     state.history[
-                        state.history.length -
-                            1
+                    state.history.length -
+                    1
                     ];
 
                 const current =
@@ -4251,11 +4253,11 @@ document.addEventListener(
                 if (
                     latest &&
                     latest.expenseName ===
-                        current.expenseName &&
+                    current.expenseName &&
                     latest.finalAmount ===
-                        current.finalAmount &&
+                    current.finalAmount &&
                     latest.createdAt ===
-                        current.createdAt
+                    current.createdAt
                 ) {
 
                     NotificationManager.info?.(
@@ -4298,7 +4300,7 @@ document.addEventListener(
             }
 
             switch (
-                action
+            action
             ) {
 
                 case "edit-participant":
@@ -4407,3 +4409,17 @@ document.addEventListener(
     rerenderHistoryUI();
 
 })();
+
+function updateSplitNavigationState(valid) {
+
+    if (!DOM.nextStepBtn) return;
+
+    const currentStep =
+        StateManager.getState()
+            .currentStep;
+
+    if (currentStep !== 3) return;
+
+    DOM.nextStepBtn.disabled =
+        !valid;
+}

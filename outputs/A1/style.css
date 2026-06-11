@@ -1,4 +1,4 @@
-```css
+
 /* ==========================================================
    PART 1
    FOUNDATION • LAYOUT • DASHBOARD
@@ -636,8 +636,7 @@ textarea:focus-visible,
         max-width: 1700px;
     }
 }
-```
-```css
+
 /* ==========================================================
    PART 2
    WIZARD • FORMS • PARTICIPANTS • SPLIT METHODS • REVIEW
@@ -1204,8 +1203,7 @@ textarea:focus-visible,
         gap: 1.25rem;
     }
 }
-```
-```css
+
 /* ==========================================================
    PART 3
    RESULTS • HISTORY • NOTIFICATIONS • LOADING • RESPONSIVE
@@ -1785,4 +1783,4 @@ textarea:focus-visible,
             3rem;
     }
 }
-```
+

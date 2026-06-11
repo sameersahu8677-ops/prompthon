@@ -1,0 +1,478 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description"
+        content="Smart Bill Splitter & Expense Tracker - Fairly split expenses with financial-grade accuracy." />
+    <meta name="theme-color" content="#0f172a" />
+
+    <title>Smart Bill Splitter & Expense Tracker</title>
+
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden" aria-hidden="true">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="notification-container" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- App Wrapper -->
+    <div class="app-shell">
+
+        <!-- Sidebar / Navigation Placeholder -->
+        <aside class="sidebar" aria-label="Application Navigation">
+            <div class="sidebar-brand">
+                <h2>💸 Smart Split</h2>
+                <p>Expense Manager</p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-link active" data-target="dashboardSection">
+                    Dashboard
+                </button>
+
+                <button class="nav-link" data-target="wizardSection">
+                    New Expense
+                </button>
+
+                <button class="nav-link" data-target="historySection">
+                    History
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-layout">
+
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-left">
+                    <h1>Smart Bill Splitter & Expense Tracker</h1>
+                    <p>
+                        Split expenses fairly with financial-grade precision.
+                    </p>
+                </div>
+
+                <div class="header-right">
+                    <button id="newExpenseBtn" class="primary-btn" type="button">
+                        + New Expense
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main id="mainContent">
+
+                <!-- Dashboard -->
+                <section id="dashboardSection" class="dashboard-section" aria-labelledby="dashboardHeading">
+
+                    <div class="section-header">
+                        <h2 id="dashboardHeading">Dashboard</h2>
+                        <p>Overview of your expense activity.</p>
+                    </div>
+
+                    <div class="stats-grid">
+
+                        <article class="stat-card">
+                            <span class="stat-label">
+                                Total Expenses Saved
+                            </span>
+
+                            <h3 id="totalExpensesStat" class="stat-value">
+                                0
+                            </h3>
+                        </article>
+
+                        <article class="stat-card">
+                            <span class="stat-label">
+                                Total Amount Processed
+                            </span>
+
+                            <h3 id="totalAmountStat" class="stat-value">
+                                ₹0.00
+                            </h3>
+                        </article>
+
+                        <article class="stat-card">
+                            <span class="stat-label">
+                                Average Expense
+                            </span>
+
+                            <h3 id="averageExpenseStat" class="stat-value">
+                                ₹0.00
+                            </h3>
+                        </article>
+
+                        <article class="stat-card">
+                            <span class="stat-label">
+                                Most Recent Expense
+                            </span>
+
+                            <h3 id="recentExpenseStat" class="stat-value">
+                                None
+                            </h3>
+                        </article>
+
+                        <article class="stat-card">
+                            <span class="stat-label">
+                                Popular Split Method
+                            </span>
+
+                            <h3 id="popularMethodStat" class="stat-value">
+                                —
+                            </h3>
+                        </article>
+
+                    </div>
+                </section>
+
+                <!-- Wizard Section -->
+                <section id="wizardSection" class="wizard-section" aria-labelledby="wizardHeading">
+
+                    <div class="section-header">
+                        <h2 id="wizardHeading">
+                            Create New Expense
+                        </h2>
+
+                        <p>
+                            Follow the guided workflow to split expenses.
+                        </p>
+                    </div>
+
+                    <!-- Step Indicator -->
+                    <div class="wizard-progress" aria-label="Expense Creation Progress">
+
+                        <div class="wizard-step active" data-step="1">
+                            <span>1</span>
+                            <p>Expense</p>
+                        </div>
+
+                        <div class="wizard-step" data-step="2">
+                            <span>2</span>
+                            <p>Participants</p>
+                        </div>
+
+                        <div class="wizard-step" data-step="3">
+                            <span>3</span>
+                            <p>Split</p>
+                        </div>
+
+                        <div class="wizard-step" data-step="4">
+                            <span>4</span>
+                            <p>Review</p>
+                        </div>
+
+                        <div class="wizard-step" data-step="5">
+                            <span>5</span>
+                            <p>Results</p>
+                        </div>
+
+                    </div>
+
+                    <!-- Step 1 -->
+                    <section id="stepExpense" class="wizard-panel active" aria-labelledby="expenseDetailsHeading">
+
+                        <div class="card">
+
+                            <h3 id="expenseDetailsHeading">
+                                Expense Details
+                            </h3>
+
+                            <form id="expenseForm">
+
+                                <div class="form-group">
+                                    <label for="expenseName">
+                                        Expense Name
+                                    </label>
+
+                                    <input id="expenseName" type="text" placeholder="Dinner, Rent, Groceries..."
+                                        autocomplete="off" required />
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="billAmount">
+                                        Bill Amount (₹)
+                                    </label>
+
+                                    <input id="billAmount" type="number" min="0" step="0.01" placeholder="0.00"
+                                        required />
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="serviceQuality">
+                                        Service Quality
+                                    </label>
+
+                                    <select id="serviceQuality">
+                                        <option value="5">
+                                            Poor (5%)
+                                        </option>
+
+                                        <option value="15" selected>
+                                            Good (15%)
+                                        </option>
+
+                                        <option value="20">
+                                            Excellent (20%)
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="tip-preview">
+                                    <div>
+                                        <span>Tip Amount</span>
+                                        <strong id="tipPreview">
+                                            ₹0.00
+                                        </strong>
+                                    </div>
+
+                                    <div>
+                                        <span>Final Total</span>
+                                        <strong id="totalPreview">
+                                            ₹0.00
+                                        </strong>
+                                    </div>
+                                </div>
+
+                            </form>
+
+                        </div>
+
+                    </section>
+
+                    <!-- Step 2 -->
+                    <section id="stepParticipants" class="wizard-panel">
+
+                        <div class="card">
+
+                            <div class="card-header">
+                                <h3>Participants</h3>
+
+                                <button type="button" id="addParticipantBtn" class="primary-btn">
+                                    + Add Participant
+                                </button>
+                            </div>
+
+                            <div id="participantList" class="participant-list">
+
+                                <div class="empty-state" id="participantEmptyState">
+                                    <h4>
+                                        No participants added yet.
+                                    </h4>
+
+                                    <p>
+                                        Add people who will share this expense.
+                                    </p>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <!-- Step 3 -->
+                    <section id="stepSplitMethod" class="wizard-panel">
+
+                        <div class="card">
+
+                            <h3>Split Method</h3>
+
+                            <div class="split-method-selector">
+
+                                <label class="method-card">
+                                    <input type="radio" name="splitMethod" value="equal" checked />
+
+                                    <span>
+                                        Equal Split
+                                    </span>
+                                </label>
+
+                                <label class="method-card">
+                                    <input type="radio" name="splitMethod" value="percentage" />
+
+                                    <span>
+                                        Percentage Split
+                                    </span>
+                                </label>
+
+                                <label class="method-card">
+                                    <input type="radio" name="splitMethod" value="custom" />
+
+                                    <span>
+                                        Custom Amount Split
+                                    </span>
+                                </label>
+
+                            </div>
+
+                            <div id="splitConfiguration" class="split-config"></div>
+
+                            <div id="splitValidationStatus" class="validation-status"></div>
+
+                        </div>
+
+                    </section>
+
+                    <!-- Step 4 -->
+                    <section id="stepReview" class="wizard-panel">
+
+                        <div class="card">
+
+                            <h3>Review Expense</h3>
+
+                            <div id="reviewContent" class="review-content">
+
+                                <div class="empty-state">
+                                    <h4>
+                                        Nothing to review yet.
+                                    </h4>
+
+                                    <p>
+                                        Complete previous steps first.
+                                    </p>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <!-- Step 5 -->
+                    <section id="stepResults" class="wizard-panel">
+
+                        <div class="card">
+
+                            <div class="card-header">
+                                <h3>Results</h3>
+
+                                <button type="button" id="saveResultBtn" class="secondary-btn">
+                                    Save Result
+                                </button>
+                            </div>
+
+                            <div id="resultsContainer">
+
+                                <div class="empty-state">
+                                    <h4>
+                                        No calculation performed yet.
+                                    </h4>
+
+                                    <p>
+                                        Complete the wizard to generate results.
+                                    </p>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <!-- Wizard Controls -->
+                    <div class="wizard-controls">
+
+                        <button type="button" id="prevStepBtn" class="secondary-btn">
+                            Previous
+                        </button>
+
+                        <button type="button" id="nextStepBtn" class="primary-btn">
+                            Next
+                        </button>
+
+                    </div>
+
+                </section>
+
+                <!-- Results Summary Section -->
+                <section id="summarySection" class="summary-section">
+
+                    <div class="section-header">
+                        <h2>Expense Summary</h2>
+                    </div>
+
+                    <div id="summaryCards" class="summary-grid">
+
+                        <div class="empty-state">
+                            <h4>
+                                No calculation performed yet.
+                            </h4>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- History -->
+                <section id="historySection" class="history-section">
+
+                    <div class="section-header">
+
+                        <h2>Expense History</h2>
+
+                        <div class="history-actions">
+
+                            <button id="refreshHistoryBtn" type="button" class="secondary-btn">
+                                Refresh
+                            </button>
+
+                            <button id="clearHistoryBtn" type="button" class="danger-btn">
+                                Clear All
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <div id="historyContainer" class="history-container">
+
+                        <div id="historyEmptyState" class="empty-state">
+
+                            <h4>
+                                No expenses in history.
+                            </h4>
+
+                            <p>
+                                Calculated expenses will appear here automatically.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </main>
+
+            <!-- Footer -->
+            <footer class="main-footer">
+                <p>
+                    Smart Bill Splitter & Expense Tracker
+                </p>
+
+                <p>
+                    Financial-grade rounding • Local Storage Persistence • Responsive Design
+                </p>
+            </footer>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
+```

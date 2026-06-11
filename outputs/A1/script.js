@@ -3449,3 +3449,961 @@ Object.assign(UIManager, (() => {
     }
 
 })();
+
+/* ==========================================================
+   PART 5A - WIZARD & STATE SYNCHRONIZATION PATCH
+   ----------------------------------------------------------
+   Safe to append at end of existing script.js
+========================================================== */
+
+const WizardManager = (() => {
+
+    const getPanels = () =>
+        [...document.querySelectorAll(".wizard-panel")];
+
+    const getSteps = () =>
+        [...document.querySelectorAll(".wizard-step")];
+
+    const getMaxStep = () =>
+        getPanels().length || 5;
+
+    const updateButtonStates = (
+        currentStep
+    ) => {
+
+        if (DOM.prevStepBtn) {
+
+            DOM.prevStepBtn.disabled =
+                currentStep === 1;
+        }
+
+        if (!DOM.nextStepBtn) {
+            return;
+        }
+
+        DOM.nextStepBtn.style.display =
+            "";
+
+        DOM.nextStepBtn.disabled =
+            false;
+
+        DOM.nextStepBtn.textContent =
+            "Next";
+
+        if (currentStep === 4) {
+
+            DOM.nextStepBtn.textContent =
+                "Calculate";
+        }
+
+        if (currentStep >= 5) {
+
+            DOM.nextStepBtn.style.display =
+                "none";
+        }
+    };
+
+    const updateWizardUI = (
+        currentStep
+    ) => {
+
+        const panels =
+            getPanels();
+
+        const steps =
+            getSteps();
+
+        panels.forEach(panel => {
+
+            const step =
+                Number(
+                    panel.dataset.step
+                );
+
+            if (
+                step === currentStep
+            ) {
+
+                panel.style.display =
+                    "";
+
+                panel.classList.add(
+                    "active"
+                );
+
+            } else {
+
+                panel.style.display =
+                    "none";
+
+                panel.classList.remove(
+                    "active"
+                );
+            }
+        });
+
+        steps.forEach(stepEl => {
+
+            const step =
+                Number(
+                    stepEl.dataset.step
+                );
+
+            stepEl.classList.remove(
+                "active",
+                "completed"
+            );
+
+            if (
+                step < currentStep
+            ) {
+
+                stepEl.classList.add(
+                    "completed"
+                );
+
+            } else if (
+                step === currentStep
+            ) {
+
+                stepEl.classList.add(
+                    "active"
+                );
+            }
+        });
+
+        if (
+            DOM.wizardState
+        ) {
+
+            DOM.wizardState.dataset.currentStep =
+                currentStep;
+        }
+
+        updateButtonStates(
+            currentStep
+        );
+    };
+
+    const runStepHooks = (
+        step
+    ) => {
+
+        try {
+
+            switch (step) {
+
+                case 3:
+
+                    if (
+                        UIManager.renderSplitConfiguration
+                    ) {
+
+                        UIManager.renderSplitConfiguration();
+                    }
+
+                    break;
+
+                case 4:
+
+                    if (
+                        UIManager.renderReview
+                    ) {
+
+                        UIManager.renderReview();
+                    }
+
+                    break;
+
+                case 5:
+
+                    if (
+                        UIManager.renderResults
+                    ) {
+
+                        UIManager.renderResults();
+                    }
+
+                    break;
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Step hook error:",
+                error
+            );
+        }
+    };
+
+    const goToStep = (
+        step
+    ) => {
+
+        const maxStep =
+            getMaxStep();
+
+        const targetStep =
+            Math.max(
+                1,
+                Math.min(
+                    step,
+                    maxStep
+                )
+            );
+
+        StateManager.setCurrentStep(
+            targetStep
+        );
+
+        updateWizardUI(
+            targetStep
+        );
+
+        runStepHooks(
+            targetStep
+        );
+    };
+
+    const nextStep =
+        () => {
+
+            const currentStep =
+                StateManager.getState()
+                    .currentStep;
+
+            goToStep(
+                currentStep + 1
+            );
+        };
+
+    const previousStep =
+        () => {
+
+            const currentStep =
+                StateManager.getState()
+                    .currentStep;
+
+            goToStep(
+                currentStep - 1
+            );
+        };
+
+    return {
+
+        goToStep,
+
+        nextStep,
+
+        previousStep,
+
+        updateWizardUI
+
+    };
+
+})();
+
+/* ==========================================================
+   GLOBAL BRIDGE
+   ----------------------------------------------------------
+   Existing Part 4 checks:
+   typeof goToStep === "function"
+========================================================== */
+
+function goToStep(step) {
+
+    WizardManager.goToStep(
+        step
+    );
+}
+
+/* ==========================================================
+   SPLIT METHOD SYNCHRONIZATION
+========================================================== */
+
+document
+    .querySelectorAll(
+        'input[name="splitMethod"]'
+    )
+    .forEach(radio => {
+
+        radio.addEventListener(
+            "change",
+            event => {
+
+                const method =
+                    event.target.value;
+
+                StateManager.updateState({
+                    splitMethod:
+                        method
+                });
+
+                try {
+
+                    if (
+                        UIManager.renderSplitConfiguration
+                    ) {
+
+                        UIManager.renderSplitConfiguration();
+                    }
+
+                } catch (
+                    error
+                ) {
+
+                    console.error(
+                        error
+                    );
+                }
+            }
+        );
+    });
+
+/* ==========================================================
+   SERVICE QUALITY PATCH
+   ----------------------------------------------------------
+   HTML values:
+   5 / 15 / 20
+========================================================== */
+
+(() => {
+
+    const originalBuildExpense =
+        buildExpense;
+
+    if (
+        typeof originalBuildExpense ===
+        "function"
+    ) {
+
+        window.buildExpense =
+            function () {
+
+                const tipPercentage =
+                    Number(
+                        DOM.serviceQuality
+                            ?.value || 15
+                    );
+
+                return ExpenseManager.createExpense(
+                    {
+                        expenseName:
+                            DOM.expenseName
+                                ?.value,
+
+                        baseAmount:
+                            Number(
+                                DOM.billAmount
+                                    ?.value
+                            ),
+
+                        tipPercentage
+                    }
+                );
+            };
+    }
+
+})();
+
+/* ==========================================================
+   INITIALIZATION
+========================================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        setTimeout(() => {
+
+            WizardManager.goToStep(
+                1
+            );
+
+            const selectedMethod =
+                document.querySelector(
+                    'input[name="splitMethod"]:checked'
+                );
+
+            if (
+                selectedMethod
+            ) {
+
+                StateManager.updateState(
+                    {
+                        splitMethod:
+                            selectedMethod.value
+                    }
+                );
+            }
+
+        }, 50);
+    }
+);
+
+/* ==========================================================
+   PART 5B - FINAL INTEGRATION PATCH
+   ----------------------------------------------------------
+   Safe to append at end of existing script.js
+========================================================== */
+
+(() => {
+
+    /* ======================================================
+       SAFE RERENDER
+    ====================================================== */
+
+    const rerenderExpenseUI =
+        () => {
+
+            try {
+
+                UIManager.renderParticipants?.();
+                UIManager.renderSplitConfiguration?.();
+                UIManager.renderReview?.();
+
+            } catch (error) {
+
+                console.error(error);
+            }
+        };
+
+    const rerenderHistoryUI =
+        () => {
+
+            try {
+
+                UIManager.renderHistory?.();
+                UIManager.renderDashboard?.();
+
+            } catch (error) {
+
+                console.error(error);
+            }
+        };
+
+    /* ======================================================
+       NOTIFICATION PATCH
+    ====================================================== */
+
+    if (
+        NotificationManager &&
+        DOM.notificationContainer
+    ) {
+
+        NotificationManager.showFixed =
+            function (
+                type = "info",
+                message = ""
+            ) {
+
+                const toast =
+                    document.createElement(
+                        "div"
+                    );
+
+                toast.className =
+                    `notification ${type}`;
+
+                toast.innerHTML =
+                    `
+                    <strong>
+                        ${type.toUpperCase()}
+                    </strong>
+                    <div>
+                        ${message}
+                    </div>
+                `;
+
+                DOM.notificationContainer.appendChild(
+                    toast
+                );
+
+                setTimeout(() => {
+
+                    toast.remove();
+
+                }, 3500);
+            };
+    }
+
+    /* ======================================================
+       PARTICIPANT EDIT
+    ====================================================== */
+
+    const editParticipant =
+        (
+            participantId
+        ) => {
+
+            try {
+
+                const state =
+                    StateManager.getState();
+
+                const participant =
+                    state.participants.find(
+                        p =>
+                            p.id ===
+                            participantId
+                    );
+
+                if (
+                    !participant
+                ) {
+                    return;
+                }
+
+                const newName =
+                    prompt(
+                        "Edit participant name",
+                        participant.name
+                    );
+
+                if (
+                    newName === null
+                ) {
+                    return;
+                }
+
+                const cleanName =
+                    newName.trim();
+
+                if (
+                    !cleanName
+                ) {
+
+                    NotificationManager.error?.(
+                        "Participant name cannot be empty."
+                    );
+
+                    return;
+                }
+
+                const duplicate =
+                    state.participants.some(
+                        p =>
+                            p.id !==
+                                participantId &&
+                            p.name
+                                .trim()
+                                .toLowerCase() ===
+                                cleanName.toLowerCase()
+                    );
+
+                if (
+                    duplicate
+                ) {
+
+                    NotificationManager.error?.(
+                        "Duplicate participant name."
+                    );
+
+                    return;
+                }
+
+                ParticipantManager.updateParticipant(
+                    participantId,
+                    cleanName
+                );
+
+                rerenderExpenseUI();
+
+                NotificationManager.success?.(
+                    "Participant updated."
+                );
+
+            } catch (error) {
+
+                console.error(error);
+
+                NotificationManager.error?.(
+                    "Unable to edit participant."
+                );
+            }
+        };
+
+    /* ======================================================
+       PARTICIPANT DELETE
+    ====================================================== */
+
+    const deleteParticipant =
+        (
+            participantId
+        ) => {
+
+            try {
+
+                ParticipantManager.removeParticipant(
+                    participantId
+                );
+
+                rerenderExpenseUI();
+
+                NotificationManager.success?.(
+                    "Participant removed."
+                );
+
+            } catch (error) {
+
+                console.error(error);
+
+                NotificationManager.error?.(
+                    "Unable to remove participant."
+                );
+            }
+        };
+
+    /* ======================================================
+       HISTORY VIEW
+    ====================================================== */
+
+    const viewHistoryRecord =
+        (
+            expenseId
+        ) => {
+
+            try {
+
+                const state =
+                    StateManager.getState();
+
+                const record =
+                    state.history.find(
+                        item =>
+                            item.id ===
+                            expenseId
+                    );
+
+                if (
+                    !record
+                ) {
+                    return;
+                }
+
+                StateManager.updateState({
+                    currentExpense: {
+                        expenseName:
+                            record.expenseName,
+
+                        baseAmount:
+                            record.baseAmount,
+
+                        tipPercentage:
+                            record.tipPercentage,
+
+                        tipAmount:
+                            record.tipAmount,
+
+                        finalAmount:
+                            record.finalAmount,
+
+                        createdAt:
+                            record.createdAt
+                    },
+
+                    participants:
+                        record.participants ||
+                        [],
+
+                    results:
+                        record.shares ||
+                        [],
+
+                    splitMethod:
+                        record.splitMethod
+                });
+
+                UIManager.renderReview?.();
+
+                UIManager.renderSummaryCards?.();
+
+                UIManager.renderSettlementSummary?.();
+
+                UIManager.renderResults?.();
+
+                WizardManager.goToStep(
+                    5
+                );
+
+                NotificationManager.info?.(
+                    "History record loaded."
+                );
+
+            } catch (error) {
+
+                console.error(error);
+
+                NotificationManager.error?.(
+                    "Unable to load history."
+                );
+            }
+        };
+
+    /* ======================================================
+       COMPLETE RESET
+    ====================================================== */
+
+    const completeReset =
+        () => {
+
+            try {
+
+                ExpenseManager.resetExpense();
+
+                if (
+                    DOM.expenseName
+                ) {
+                    DOM.expenseName.value =
+                        "";
+                }
+
+                if (
+                    DOM.billAmount
+                ) {
+                    DOM.billAmount.value =
+                        "";
+                }
+
+                if (
+                    DOM.serviceQuality
+                ) {
+                    DOM.serviceQuality.value =
+                        "15";
+                }
+
+                if (
+                    DOM.expenseNameError
+                ) {
+                    DOM.expenseNameError.textContent =
+                        "";
+                }
+
+                if (
+                    DOM.billAmountError
+                ) {
+                    DOM.billAmountError.textContent =
+                        "";
+                }
+
+                UIManager.clearContainer?.(
+                    DOM.splitConfiguration
+                );
+
+                UIManager.clearContainer?.(
+                    DOM.reviewSummaryContainer
+                );
+
+                UIManager.clearContainer?.(
+                    DOM.participantBreakdownContainer
+                );
+
+                UIManager.clearContainer?.(
+                    DOM.settlementSummaryContainer
+                );
+
+                UIManager.clearContainer?.(
+                    DOM.summaryCards
+                );
+
+                UIManager.renderParticipants?.();
+
+                WizardManager.goToStep(
+                    1
+                );
+
+                NotificationManager.info?.(
+                    "New expense started."
+                );
+
+            } catch (error) {
+
+                console.error(error);
+            }
+        };
+
+    /* ======================================================
+       DUPLICATE SAVE PROTECTION
+    ====================================================== */
+
+    const originalSaveHistory =
+        StorageManager.saveHistory;
+
+    StorageManager.saveHistory =
+        function (
+            history
+        ) {
+
+            try {
+
+                const state =
+                    StateManager.getState();
+
+                const latest =
+                    state.history[
+                        state.history.length -
+                            1
+                    ];
+
+                const current =
+                    state.currentExpense;
+
+                if (
+                    latest &&
+                    latest.expenseName ===
+                        current.expenseName &&
+                    latest.finalAmount ===
+                        current.finalAmount &&
+                    latest.createdAt ===
+                        current.createdAt
+                ) {
+
+                    NotificationManager.info?.(
+                        "Expense already saved."
+                    );
+
+                    return true;
+                }
+
+                return originalSaveHistory(
+                    history
+                );
+
+            } catch (error) {
+
+                console.error(error);
+
+                return originalSaveHistory(
+                    history
+                );
+            }
+        };
+
+    /* ======================================================
+       GLOBAL EVENT PATCHES
+    ====================================================== */
+
+    document.addEventListener(
+        "click",
+        event => {
+
+            const action =
+                event.target.dataset
+                    ?.action;
+
+            if (
+                !action
+            ) {
+                return;
+            }
+
+            switch (
+                action
+            ) {
+
+                case "edit-participant":
+
+                    editParticipant(
+                        event.target
+                            .dataset
+                            .participantId
+                    );
+
+                    break;
+
+                case "delete-participant":
+
+                    deleteParticipant(
+                        event.target
+                            .dataset
+                            .participantId
+                    );
+
+                    break;
+
+                case "view-history":
+
+                    viewHistoryRecord(
+                        event.target
+                            .dataset
+                            .expenseId
+                    );
+
+                    break;
+
+                case "new-expense":
+
+                    completeReset();
+
+                    break;
+            }
+        }
+    );
+
+    /* ======================================================
+       AUTO UI SYNCHRONIZATION
+    ====================================================== */
+
+    const originalAddParticipant =
+        ParticipantManager.addParticipant;
+
+    ParticipantManager.addParticipant =
+        function (
+            name
+        ) {
+
+            const result =
+                originalAddParticipant(
+                    name
+                );
+
+            rerenderExpenseUI();
+
+            return result;
+        };
+
+    const originalRemoveParticipant =
+        ParticipantManager.removeParticipant;
+
+    ParticipantManager.removeParticipant =
+        function (
+            id
+        ) {
+
+            const result =
+                originalRemoveParticipant(
+                    id
+                );
+
+            rerenderExpenseUI();
+
+            return result;
+        };
+
+    const originalUpdateParticipant =
+        ParticipantManager.updateParticipant;
+
+    ParticipantManager.updateParticipant =
+        function (
+            id,
+            name
+        ) {
+
+            const result =
+                originalUpdateParticipant(
+                    id,
+                    name
+                );
+
+            rerenderExpenseUI();
+
+            return result;
+        };
+
+    /* ======================================================
+       HISTORY REFRESH PATCH
+    ====================================================== */
+
+    rerenderHistoryUI();
+
+})();

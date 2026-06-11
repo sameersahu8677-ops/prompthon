@@ -637,3 +637,571 @@ textarea:focus-visible,
     }
 }
 ```
+```css
+/* ==========================================================
+   PART 2
+   WIZARD • FORMS • PARTICIPANTS • SPLIT METHODS • REVIEW
+========================================================== */
+
+/* ==========================================================
+   WIZARD SECTION
+========================================================== */
+
+.wizard-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+/* ==========================================================
+   WIZARD PROGRESS BAR
+========================================================== */
+
+.wizard-progress {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+
+    padding: 1rem;
+
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+
+    box-shadow: var(--shadow-sm);
+
+    overflow-x: auto;
+}
+
+.wizard-step {
+    flex: 1;
+    min-width: 80px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.65rem;
+
+    text-align: center;
+
+    position: relative;
+
+    transition:
+        transform var(--transition),
+        color var(--transition);
+}
+
+.wizard-step span {
+    width: 44px;
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #f4eee8;
+    border: 2px solid var(--border);
+
+    font-weight: 700;
+
+    color: var(--text-muted);
+
+    transition: all var(--transition);
+}
+
+.wizard-step p {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.wizard-step.active span {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+
+    box-shadow:
+        0 0 0 8px rgba(198, 124, 78, 0.12);
+}
+
+.wizard-step.active p {
+    color: var(--primary);
+}
+
+.wizard-step.completed span {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+}
+
+.wizard-step:hover {
+    transform: translateY(-2px);
+}
+
+/* ==========================================================
+   WIZARD PANELS
+========================================================== */
+
+.wizard-panel {
+    display: none;
+
+    animation: wizardFade 0.35s ease;
+}
+
+.wizard-panel.active {
+    display: block;
+}
+
+@keyframes wizardFade {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==========================================================
+   FORMS
+========================================================== */
+
+#expenseForm {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.form-group label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* ==========================================================
+   INPUTS
+========================================================== */
+
+#expenseName,
+#billAmount,
+#serviceQuality,
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+
+    padding: 0.95rem 1rem;
+
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+
+    background: var(--surface);
+
+    color: var(--text);
+
+    transition:
+        border-color var(--transition),
+        box-shadow var(--transition),
+        background-color var(--transition);
+}
+
+#expenseName::placeholder,
+#billAmount::placeholder {
+    color: #9a9a9a;
+}
+
+#expenseName:hover,
+#billAmount:hover,
+#serviceQuality:hover {
+    border-color: var(--accent);
+}
+
+#expenseName:focus,
+#billAmount:focus,
+#serviceQuality:focus,
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+
+    border-color: var(--primary);
+
+    box-shadow:
+        0 0 0 4px rgba(198, 124, 78, 0.15);
+
+    background: #fffdfb;
+}
+
+/* ==========================================================
+   VALIDATION STATES
+========================================================== */
+
+.input-valid {
+    border-color: var(--success) !important;
+}
+
+.input-invalid {
+    border-color: var(--danger) !important;
+}
+
+.validation-status {
+    margin-top: 1rem;
+
+    padding: 0.9rem 1rem;
+
+    border-radius: var(--radius-md);
+
+    font-size: 0.92rem;
+    font-weight: 600;
+
+    background: #faf7f3;
+    border: 1px dashed var(--border);
+
+    transition: all var(--transition);
+}
+
+.validation-status.success {
+    background: rgba(76, 175, 80, 0.08);
+    border-color: var(--success);
+    color: var(--success);
+}
+
+.validation-status.error {
+    background: rgba(229, 57, 53, 0.08);
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+.validation-status.warning {
+    background: rgba(255, 152, 0, 0.08);
+    border-color: var(--warning);
+    color: var(--warning);
+}
+
+/* ==========================================================
+   TIP PREVIEW
+========================================================== */
+
+.tip-preview {
+    margin-top: 0.5rem;
+
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+.tip-preview > div {
+    background: #fcfaf8;
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-md);
+
+    padding: 1rem;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    transition: var(--transition);
+}
+
+.tip-preview > div:hover {
+    transform: translateY(-2px);
+}
+
+.tip-preview span {
+    color: var(--text-muted);
+}
+
+.tip-preview strong {
+    color: var(--primary);
+    font-size: 1.05rem;
+}
+
+/* ==========================================================
+   PARTICIPANTS
+========================================================== */
+
+.participant-list,
+#participantList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    margin-top: 1rem;
+}
+
+/* Participant cards generated by JS */
+.participant-list > div,
+#participantList > div:not(.empty-state) {
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-md);
+
+    padding: 1rem;
+
+    box-shadow: var(--shadow-sm);
+
+    transition:
+        transform var(--transition),
+        box-shadow var(--transition);
+}
+
+.participant-list > div:hover,
+#participantList > div:not(.empty-state):hover {
+    transform: translateY(-2px);
+
+    box-shadow: var(--shadow-md);
+}
+
+/* ==========================================================
+   PARTICIPANT EMPTY STATE
+========================================================== */
+
+#participantEmptyState {
+    margin-top: 0.5rem;
+}
+
+/* ==========================================================
+   SPLIT METHOD SELECTOR
+========================================================== */
+
+.split-method-selector {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+
+    margin-top: 1rem;
+}
+
+/* ==========================================================
+   METHOD CARDS
+========================================================== */
+
+.method-card {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+
+    padding: 1rem 1.2rem;
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+
+    cursor: pointer;
+
+    transition:
+        transform var(--transition),
+        border-color var(--transition),
+        box-shadow var(--transition);
+}
+
+.method-card:hover {
+    transform: translateY(-3px);
+
+    border-color: var(--accent);
+
+    box-shadow: var(--shadow-md);
+}
+
+.method-card input[type="radio"] {
+    accent-color: var(--primary);
+    transform: scale(1.15);
+}
+
+.method-card span {
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* ==========================================================
+   SPLIT CONFIGURATION
+========================================================== */
+
+.split-config {
+    margin-top: 1.25rem;
+
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* ==========================================================
+   REVIEW SCREEN
+========================================================== */
+
+.review-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.review-content > div {
+    background: #fcfaf8;
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-md);
+
+    padding: 1rem;
+
+    transition:
+        transform var(--transition),
+        box-shadow var(--transition);
+}
+
+.review-content > div:hover {
+    transform: translateY(-2px);
+
+    box-shadow: var(--shadow-sm);
+}
+
+.review-content h4 {
+    margin-bottom: 0.6rem;
+    color: var(--primary);
+}
+
+.review-content p,
+.review-content li {
+    color: var(--text-muted);
+}
+
+/* ==========================================================
+   REVIEW SUMMARY GRID
+========================================================== */
+
+.review-content .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+/* ==========================================================
+   WIZARD CONTROLS
+========================================================== */
+
+.wizard-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    margin-top: 0.5rem;
+}
+
+#prevStepBtn,
+#nextStepBtn {
+    width: 100%;
+}
+
+/* ==========================================================
+   PROCESSING STATES
+========================================================== */
+
+.processing {
+    pointer-events: none;
+    opacity: 0.65;
+}
+
+.processing * {
+    cursor: wait !important;
+}
+
+#nextStepBtn:disabled,
+#prevStepBtn:disabled {
+    opacity: 0.6;
+}
+
+/* ==========================================================
+   SUBTLE ANIMATIONS
+========================================================== */
+
+@keyframes pulseGlow {
+    0% {
+        box-shadow:
+            0 0 0 0 rgba(198, 124, 78, 0.2);
+    }
+
+    100% {
+        box-shadow:
+            0 0 0 10px rgba(198, 124, 78, 0);
+    }
+}
+
+.wizard-step.active span {
+    animation:
+        pulseGlow 1.8s infinite;
+}
+
+/* ==========================================================
+   TABLET
+========================================================== */
+
+@media (min-width: 768px) {
+
+    .tip-preview {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .split-method-selector {
+        grid-template-columns:
+            repeat(3, 1fr);
+    }
+
+    .wizard-controls {
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+
+    #prevStepBtn,
+    #nextStepBtn {
+        width: auto;
+        min-width: 140px;
+    }
+
+    .review-content .summary-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+}
+
+/* ==========================================================
+   DESKTOP
+========================================================== */
+
+@media (min-width: 1025px) {
+
+    .wizard-progress {
+        padding: 1.25rem 1.5rem;
+    }
+
+    .wizard-step p {
+        font-size: 0.9rem;
+    }
+
+    .participant-list,
+    #participantList {
+        gap: 1.25rem;
+    }
+
+    .review-content {
+        gap: 1.25rem;
+    }
+}
+```

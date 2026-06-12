@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Budget & Pocket Money Manager</title>
+    <meta name="description"
+        content="A smart budget and pocket money manager for college students to track expenses, monitor spending, and avoid overspending.">
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+
+    <!-- Notification Area -->
+    <div id="notification-container" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Header -->
+    <header class="site-header">
+        <div class="container">
+            <h1>Smart Budget & Pocket Money Manager</h1>
+            <p class="tagline">
+                Track your spending, stay within budget, and build smarter financial habits.
+            </p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+
+        <!-- Budget Setup Section -->
+        <section class="card budget-setup-section" aria-labelledby="budget-setup-heading">
+            <h2 id="budget-setup-heading">Monthly Budget Setup</h2>
+
+            <form id="budget-form" novalidate>
+                <div class="form-group">
+                    <label for="budget-input">
+                        Monthly Budget Amount (₹)
+                    </label>
+
+                    <input type="number" id="budget-input" name="budget" min="0" step="0.01" inputmode="decimal"
+                        placeholder="Enter your monthly budget" required>
+                </div>
+
+                <button type="submit" id="budget-submit-btn">
+                    Save / Update Budget
+                </button>
+
+                <div id="budget-error" class="form-message" aria-live="polite"></div>
+            </form>
+        </section>
+
+        <!-- Dashboard -->
+        <section id="dashboard" aria-labelledby="dashboard-heading" hidden>
+
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <h2 id="dashboard-heading">Dashboard</h2>
+                <p id="current-month"></p>
+            </div>
+
+            <!-- Budget Summary -->
+            <section class="card" aria-labelledby="budget-summary-heading">
+                <h3 id="budget-summary-heading">
+                    Budget Summary
+                </h3>
+
+                <div class="summary-grid">
+
+                    <article class="summary-item">
+                        <h4>Total Budget</h4>
+                        <p id="total-budget"></p>
+                    </article>
+
+                    <article class="summary-item">
+                        <h4>Total Spent</h4>
+                        <p id="total-spent"></p>
+                    </article>
+
+                    <article class="summary-item">
+                        <h4>Remaining Budget</h4>
+                        <p id="remaining-budget"></p>
+                    </article>
+
+                </div>
+
+                <p id="overspending-message" aria-live="polite"></p>
+            </section>
+
+            <!-- Budget Indicator -->
+            <section class="card" aria-labelledby="budget-indicator-heading">
+                <h3 id="budget-indicator-heading">
+                    Budget Usage
+                </h3>
+
+                <div id="budget-progress" class="progress-bar" role="progressbar" aria-label="Budget usage progress"
+                    aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                    <div id="budget-progress-fill"></div>
+                </div>
+
+                <p id="budget-percentage"></p>
+            </section>
+
+            <!-- Financial Health -->
+            <section class="card" aria-labelledby="financial-health-heading">
+                <h3 id="financial-health-heading">
+                    Financial Health
+                </h3>
+
+                <div id="risk-status"></div>
+                <p id="risk-status-message"></p>
+            </section>
+
+            <!-- Spending Velocity -->
+            <section id="velocity-card" class="card" aria-labelledby="velocity-heading">
+                <h3 id="velocity-heading">
+                    Spending Velocity Analysis
+                </h3>
+
+                <p id="velocity-message"></p>
+
+                <div class="analytics-grid">
+
+                    <article class="analytics-item">
+                        <h4>Projected Monthly Spend</h4>
+                        <p id="projected-spend"></p>
+                    </article>
+
+                    <article class="analytics-item">
+                        <h4>Days Until Budget Exhaustion</h4>
+                        <p id="days-to-exhaustion"></p>
+                    </article>
+
+                    <article class="analytics-item">
+                        <h4>Suggested Daily Limit</h4>
+                        <p id="suggested-daily-limit"></p>
+                    </article>
+
+                </div>
+            </section>
+
+            <!-- Category Analytics -->
+            <section class="card" aria-labelledby="category-analytics-heading">
+                <h3 id="category-analytics-heading">
+                    Category Analytics
+                </h3>
+
+                <div class="category-list">
+
+                    <article class="category-row">
+                        <h4>Food</h4>
+
+                        <div class="category-data">
+                            <span id="food-total"></span>
+                            <span id="food-percent"></span>
+                        </div>
+                    </article>
+
+                    <article class="category-row">
+                        <h4>Entertainment</h4>
+
+                        <div class="category-data">
+                            <span id="entertainment-total"></span>
+                            <span id="entertainment-percent"></span>
+                        </div>
+                    </article>
+
+                    <article class="category-row">
+                        <h4>Books/Stationery</h4>
+
+                        <div class="category-data">
+                            <span id="books-total"></span>
+                            <span id="books-percent"></span>
+                        </div>
+                    </article>
+
+                </div>
+            </section>
+
+            <!-- Expense Entry -->
+            <section class="card" aria-labelledby="expense-entry-heading">
+                <h3 id="expense-entry-heading">
+                    Add Expense
+                </h3>
+
+                <form id="expense-form" novalidate>
+
+                    <div class="form-group">
+                        <label for="expense-amount">
+                            Amount (₹)
+                        </label>
+
+                        <input type="number" id="expense-amount" name="amount" min="0" step="0.01" inputmode="decimal"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expense-category">
+                            Category
+                        </label>
+
+                        <select id="expense-category" name="category" required>
+                            <option value="">
+                                Select Category
+                            </option>
+                            <option value="Food">
+                                Food
+                            </option>
+                            <option value="Entertainment">
+                                Entertainment
+                            </option>
+                            <option value="Books/Stationery">
+                                Books/Stationery
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expense-date">
+                            Date
+                        </label>
+
+                        <input type="date" id="expense-date" name="date" required>
+                    </div>
+
+                    <button type="submit" id="expense-submit-btn">
+                        Add Expense
+                    </button>
+
+                    <div id="expense-error" class="form-message" aria-live="polite"></div>
+
+                </form>
+            </section>
+
+            <!-- Expense History -->
+            <section class="card" aria-labelledby="expense-history-heading">
+                <h3 id="expense-history-heading">
+                    Expense History
+                </h3>
+
+                <div class="history-controls">
+
+                    <label for="history-filter">
+                        Filter by Category
+                    </label>
+
+                    <select id="history-filter">
+                        <option value="All">All</option>
+                        <option value="Food">Food</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Books/Stationery">
+                            Books/Stationery
+                        </option>
+                    </select>
+
+                </div>
+
+                <div id="history-empty-state" aria-live="polite">
+                    No expenses recorded yet.
+                </div>
+
+                <div id="history-content">
+
+                    <div class="table-wrapper">
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Category</th>
+                                    <th scope="col">Amount</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="expense-table-body">
+                            </tbody>
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </section>
+
+    </main>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title"
+        aria-describedby="delete-modal-description" hidden>
+        <div class="modal-content">
+
+            <h2 id="delete-modal-title">
+                Confirm Deletion
+            </h2>
+
+            <p id="delete-modal-description">
+                Are you sure you want to delete this expense?
+            </p>
+
+            <div class="modal-actions">
+
+                <button type="button" id="cancel-delete-btn">
+                    Cancel
+                </button>
+
+                <button type="button" id="confirm-delete-btn">
+                    Delete
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+
+</body>
+
+</html>

@@ -49,9 +49,9 @@
   }
 
   button {
-      cursor: pointer;
       border: none;
       background: none;
+      cursor: pointer;
   }
 
   table {
@@ -64,24 +64,28 @@
 ======================================== */
 
   :root {
-      /* Colors */
-      --color-primary: #2563eb;
-      --color-primary-dark: #1d4ed8;
-      --color-primary-light: #dbeafe;
+      /* Brand Colors */
+      --color-primary: #0f766e;
+      --color-primary-hover: #115e59;
+      --color-accent: #14b8a6;
 
-      --color-success: #16a34a;
-      --color-warning: #d97706;
-      --color-danger: #dc2626;
-
-      --color-background: #f8fafc;
+      /* Surfaces */
+      --color-background: #f0fdfa;
       --color-surface: #ffffff;
-      --color-surface-muted: #f1f5f9;
+      --color-surface-soft: #ecfdf5;
 
-      --color-border: #e2e8f0;
+      /* Borders */
+      --color-border: #ccfbf1;
 
-      --color-text-primary: #0f172a;
+      /* Text */
+      --color-text-primary: #134e4a;
       --color-text-secondary: #475569;
       --color-text-muted: #64748b;
+
+      /* Feedback */
+      --color-success: #059669;
+      --color-warning: #d97706;
+      --color-danger: #dc2626;
 
       /* Typography */
       --font-family:
@@ -97,18 +101,18 @@
 
       /* Radius */
       --radius-sm: 0.5rem;
-      --radius-md: 0.75rem;
-      --radius-lg: 1rem;
+      --radius-md: 0.875rem;
+      --radius-lg: 1.25rem;
 
       /* Shadows */
       --shadow-sm:
-          0 1px 2px rgba(15, 23, 42, 0.05);
+          0 2px 6px rgba(15, 118, 110, 0.05);
 
       --shadow-md:
-          0 4px 12px rgba(15, 23, 42, 0.08);
+          0 8px 20px rgba(15, 118, 110, 0.08);
 
       --shadow-lg:
-          0 12px 24px rgba(15, 23, 42, 0.10);
+          0 16px 32px rgba(15, 118, 110, 0.12);
 
       /* Spacing */
       --space-xs: 0.5rem;
@@ -123,7 +127,7 @@
 
       /* Focus */
       --focus-ring:
-          0 0 0 3px rgba(37, 99, 235, 0.25);
+          0 0 0 4px rgba(20, 184, 166, 0.2);
   }
 
   /* ========================================
@@ -142,21 +146,23 @@
   h2,
   h3,
   h4 {
+      color: var(--color-text-primary);
       line-height: var(--line-height-heading);
       font-weight: 700;
-      color: var(--color-text-primary);
   }
 
   h1 {
       font-size: 2rem;
+      letter-spacing: -0.03em;
   }
 
   h2 {
       font-size: 1.5rem;
+      letter-spacing: -0.02em;
   }
 
   h3 {
-      font-size: 1.25rem;
+      font-size: 1.2rem;
   }
 
   h4 {
@@ -181,9 +187,14 @@
 ======================================== */
 
   .site-header {
-      background-color: var(--color-surface);
+      background: linear-gradient(135deg,
+              var(--color-surface),
+              var(--color-surface-soft));
+
       border-bottom: 1px solid var(--color-border);
-      padding: var(--space-xl) 0;
+
+      padding: var(--space-2xl) 0;
+
       box-shadow: var(--shadow-sm);
   }
 
@@ -192,7 +203,7 @@
   }
 
   .tagline {
-      max-width: 42rem;
+      max-width: 40rem;
       color: var(--color-text-secondary);
       font-size: 1rem;
   }
@@ -215,11 +226,14 @@
 
   .card {
       background-color: var(--color-surface);
+
       border: 1px solid var(--color-border);
       border-radius: var(--radius-lg);
+
       box-shadow: var(--shadow-md);
 
       padding: var(--space-lg);
+
       margin-bottom: var(--space-lg);
   }
 
@@ -233,7 +247,7 @@
   }
 
   /* ========================================
-   FORM STYLING
+   FORMS
 ======================================== */
 
   form {
@@ -257,12 +271,12 @@
   select {
       width: 100%;
 
-      padding: 0.875rem 1rem;
+      padding: 0.9rem 1rem;
+
+      background-color: var(--color-surface);
 
       border: 1px solid var(--color-border);
       border-radius: var(--radius-md);
-
-      background-color: var(--color-surface);
 
       color: var(--color-text-primary);
 
@@ -271,6 +285,12 @@
 
   input::placeholder {
       color: var(--color-text-muted);
+  }
+
+  select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
   }
 
   /* ========================================
@@ -284,15 +304,20 @@
 
       min-height: 48px;
 
-      padding: 0.875rem 1.25rem;
+      padding: 0.9rem 1.25rem;
 
       border-radius: var(--radius-md);
 
       background-color: var(--color-primary);
+
       color: #ffffff;
 
       font-weight: 600;
       text-align: center;
+  }
+
+  button:hover {
+      background-color: var(--color-primary-hover);
   }
 
   button:disabled {
@@ -306,6 +331,7 @@
 
   .form-message {
       min-height: 1.5rem;
+
       font-size: 0.875rem;
       font-weight: 500;
   }
@@ -320,16 +346,18 @@
 
   .visually-hidden {
       position: absolute;
+
       width: 1px;
       height: 1px;
 
-      padding: 0;
       margin: -1px;
+      padding: 0;
 
       overflow: hidden;
 
-      clip: rect(0, 0, 0, 0);
       white-space: nowrap;
+
+      clip: rect(0, 0, 0, 0);
 
       border: 0;
   }
@@ -337,15 +365,6 @@
   /* ========================================
    ACCESSIBILITY & FOCUS STATES
 ======================================== */
-
-  button:hover {
-      background-color: var(--color-primary-dark);
-  }
-
-  input:hover,
-  select:hover {
-      border-color: #cbd5e1;
-  }
 
   button:focus-visible,
   input:focus-visible,
@@ -356,237 +375,10 @@
 
   input:focus-visible,
   select:focus-visible {
-      border-color: var(--color-primary);
+      border-color: var(--color-accent);
   }
 
-  css
-  /* ========================================
-   BUDGET SUMMARY
-======================================== */
-
-  .summary-grid {
-      display: grid;
-      gap: var(--space-md);
-  }
-
-  .summary-item {
-      padding: var(--space-md);
-      background-color: var(--color-surface-muted);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-  }
-
-  .summary-item p {
-      margin-top: var(--space-xs);
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--color-text-primary);
-      word-break: break-word;
-  }
-
-  /* ========================================
-   BUDGET PROGRESS
-======================================== */
-
-  .progress-bar,
-  #budget-progress {
-      width: 100%;
-      height: 1rem;
-
-      background-color: var(--color-surface-muted);
-
-      border: 1px solid var(--color-border);
-      border-radius: 999px;
-
-      overflow: hidden;
-  }
-
-  #budget-progress-fill {
-      width: 0%;
-      height: 100%;
-
-      background-color: var(--color-primary);
-
-      border-radius: inherit;
-  }
-
-  #budget-percentage {
-      margin-top: var(--space-sm);
-
-      text-align: right;
-      font-weight: 600;
-
-      color: var(--color-text-primary);
-  }
-
-  /* ========================================
-   FINANCIAL HEALTH
-======================================== */
-
-  #risk-status {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-
-      min-width: 120px;
-
-      padding: 0.6rem 1rem;
-
-      border-radius: 999px;
-
-      font-weight: 700;
-      font-size: 0.95rem;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-  }
-
-  #risk-status-message {
-      margin-top: var(--space-sm);
-  }
-
-  /* ========================================
-   VELOCITY ANALYTICS
-======================================== */
-
-  #velocity-card {
-      position: relative;
-  }
-
-  #velocity-message {
-      margin-bottom: var(--space-lg);
-
-      padding: var(--space-md);
-
-      background-color: var(--color-surface-muted);
-
-      border-left: 4px solid var(--color-primary);
-      border-radius: var(--radius-sm);
-
-      font-weight: 500;
-  }
-
-  .analytics-grid {
-      display: grid;
-      gap: var(--space-md);
-  }
-
-  .analytics-item {
-      padding: var(--space-md);
-
-      background-color: var(--color-surface-muted);
-
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-  }
-
-  .analytics-item p {
-      margin-top: var(--space-xs);
-
-      font-size: 1.25rem;
-      font-weight: 700;
-
-      color: var(--color-text-primary);
-  }
-
-  /* ========================================
-   CATEGORY ANALYTICS
-======================================== */
-
-  .category-list {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-md);
-  }
-
-  .category-row {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-sm);
-
-      padding: var(--space-md);
-
-      background-color: var(--color-surface-muted);
-
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-  }
-
-  .category-data {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: var(--space-md);
-
-      flex-wrap: wrap;
-  }
-
-  .category-data span {
-      font-weight: 600;
-      color: var(--color-text-primary);
-  }
-
-  /* ========================================
-   OVESPENDING ALERT
-======================================== */
-
-  #overspending-message {
-      margin-top: var(--space-md);
-
-      font-weight: 600;
-      color: var(--color-danger);
-  }
-
-  /* ========================================
-   EMPTY STATES
-======================================== */
-
-  #history-empty-state {
-      padding: var(--space-lg);
-
-      text-align: center;
-
-      background-color: var(--color-surface-muted);
-
-      border: 1px dashed var(--color-border);
-      border-radius: var(--radius-md);
-
-      color: var(--color-text-muted);
-  }
-
-  /* ========================================
-   STATUS UTILITIES
-======================================== */
-
-  .safe {
-      background-color: rgba(22, 163, 74, 0.12);
-      border: 1px solid rgba(22, 163, 74, 0.25);
-      color: var(--color-success);
-  }
-
-  .watch {
-      background-color: rgba(217, 119, 6, 0.12);
-      border: 1px solid rgba(217, 119, 6, 0.25);
-      color: var(--color-warning);
-  }
-
-  .risk {
-      background-color: rgba(220, 38, 38, 0.12);
-      border: 1px solid rgba(220, 38, 38, 0.25);
-      color: var(--color-danger);
-  }
-
-  /* ========================================
-   DASHBOARD EMPHASIS HELPERS
-======================================== */
-
-  .summary-item,
-  .analytics-item,
-  .category-row {
-      box-shadow: var(--shadow-sm);
-  }
-
-  .summary-item:hover,
-  .analytics-item:hover,
-  .category-row:hover {
-      border-color: #cbd5e1;
+  input:hover,
+  select:hover {
+      border-color: var(--color-accent);
   }

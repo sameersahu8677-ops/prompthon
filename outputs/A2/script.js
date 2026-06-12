@@ -1,184 +1,36 @@
 /* ==================================================
-CONSTANTS
+   FLASH CARD STUDY BUDDY
+   PART A - CORE ENGINE
 ================================================== */
 
 const STORAGE_KEY = "flash-study-buddy";
 
-const TOAST_DURATION = 3000;
-
-const VIEW_IDS = [
-    "dashboard-view",
-    "deck-view",
-    "study-view",
-    "summary-view",
-    "analytics-view"
-];
-
 /* ==================================================
-CENTRAL STATE
+   APPLICATION STATE
 ================================================== */
 
 const state = {
     decks: [],
     activeDeckId: null,
+
     activeSession: null,
-    analytics: {},
-    settings: {}
-};
 
-/* ==================================================
-DOM CACHE
-================================================== */
-
-const DOM = {
-    views: {
-        dashboard: document.getElementById("dashboard-view"),
-        deck: document.getElementById("deck-view"),
-        study: document.getElementById("study-view"),
-        summary: document.getElementById("summary-view"),
-        analytics: document.getElementById("analytics-view")
-    },
-
-
-    navigation: {
-        dashboardBtn: document.getElementById("nav-dashboard-btn"),
-        analyticsBtn: document.getElementById("nav-analytics-btn")
-    },
-
-    modals: {
-        createDeck: document.getElementById("create-deck-modal"),
-        addCard: document.getElementById("add-card-modal"),
-        bulkAdd: document.getElementById("bulk-add-modal")
-    },
-
-    modalTitles: {
-        createDeck: document.getElementById(
-            "create-deck-modal-heading"
-        ),
-
-        addCard: document.getElementById(
-            "add-card-modal-heading"
-        )
-    },
-
-    forms: {
-        createDeck: document.getElementById("create-deck-form"),
-        addCard: document.getElementById("add-card-form"),
-        bulkAdd: document.getElementById("bulk-add-form")
-    },
-
-    buttons: {
-        createDeck: document.getElementById("create-deck-btn"),
-        saveDeck: document.getElementById("save-deck-btn"),
-        cancelCreateDeck: document.getElementById("cancel-create-deck-btn"),
-
-        addCard: document.getElementById("add-card-btn"),
-        saveCard: document.getElementById("save-card-btn"),
-        cancelAddCard: document.getElementById("cancel-add-card-btn"),
-
-        bulkAdd: document.getElementById("bulk-add-cards-btn"),
-        importCards: document.getElementById("import-cards-btn"),
-        cancelBulkAdd: document.getElementById("cancel-bulk-add-btn"),
-
-        startQuiz: document.getElementById("start-quiz-btn"),
-
-        revealAnswer: document.getElementById("reveal-answer-btn"),
-        gotItRight: document.getElementById("got-it-right-btn"),
-        gotItWrong: document.getElementById("got-it-wrong-btn"),
-
-        studyAgain: document.getElementById("study-again-btn"),
-        returnToDeck: document.getElementById("return-to-deck-btn")
-    },
-
-    inputs: {
-        deckName: document.getElementById("deck-name-input"),
-
-        question: document.getElementById("card-question-input"),
-        answer: document.getElementById("card-answer-input"),
-
-        bulkInput: document.getElementById("bulk-card-input")
-    },
-
-    containers: {
-        deckGrid: document.getElementById("deck-grid-container"),
-        cardList: document.getElementById("card-list-container"),
-
-        sessionProgress: document.getElementById("session-progress-container"),
-
-        flashcard: document.getElementById("flashcard-container"),
-
-        leitnerFeedback: document.getElementById("leitner-feedback-container"),
-
-        analyticsOverview: document.getElementById("analytics-overview-container"),
-
-        boxDistribution: document.getElementById("box-distribution-container")
-    },
-
-    emptyStates: {
-        dashboard: document.getElementById("dashboard-empty-state"),
-        cards: document.getElementById("cards-empty-state")
-    },
-
-    statistics: {
-        totalDecks: document.getElementById("total-decks-value"),
-        totalCards: document.getElementById("total-cards-value"),
-        totalMasteredCards: document.getElementById("total-mastered-cards-value"),
-
-        deckTotalCards: document.getElementById("deck-total-cards-value"),
-        deckMasteredCards: document.getElementById("deck-mastered-cards-value"),
-        deckAccuracy: document.getElementById("deck-accuracy-value"),
-
-        cardsRemaining: document.getElementById("cards-remaining-value"),
-        sessionScore: document.getElementById("session-score-value"),
-        currentBox: document.getElementById("current-box-value"),
-        currentStatus: document.getElementById("current-status-value"),
-
-        summaryReviewed: document.getElementById("summary-reviewed-value"),
-        summaryCorrect: document.getElementById("summary-correct-value"),
-        summaryWrong: document.getElementById("summary-wrong-value"),
-        summaryAccuracy: document.getElementById("summary-accuracy-value"),
-        summaryMastered: document.getElementById("summary-mastered-value"),
-
-        analyticsReviews: document.getElementById("analytics-total-reviews-value"),
-        analyticsAccuracy: document.getElementById("analytics-accuracy-value"),
-        analyticsMastered: document.getElementById("analytics-mastered-cards-value")
-    },
-
-    deck: {
-        activeDeckName: document.getElementById("active-deck-name")
-    },
-
-    study: {
-        questionDisplay: document.getElementById("question-display"),
-        answerDisplay: document.getElementById("answer-display"),
-
-        cardMovementMessage: document.getElementById("card-movement-message"),
-        schedulingMessage: document.getElementById("scheduling-message")
-    },
-
-    analytics: {
-        box1: document.getElementById("box-1-count"),
-        box2: document.getElementById("box-2-count"),
-        box3: document.getElementById("box-3-count"),
-        box4: document.getElementById("box-4-count"),
-        box5: document.getElementById("box-5-count")
+    ui: {
+        editingCardId: null,
+        editingDeckId: null
     }
-
-
 };
 
 /* ==================================================
-UTILITY FUNCTIONS
+   UTILITIES
 ================================================== */
 
 function generateId() {
-    return crypto.randomUUID
-        ? crypto.randomUUID()
-        : `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+    return crypto.randomUUID();
 }
 
-function getCurrentTimestamp() {
-    return new Date().toISOString();
+function getTimestamp() {
+    return Date.now();
 }
 
 function getActiveDeck() {
@@ -188,51 +40,46 @@ function getActiveDeck() {
 }
 
 function escapeHtml(value) {
-    const div = document.createElement("div");
 
+    const div =
+        document.createElement("div");
 
     div.textContent = value;
 
     return div.innerHTML;
-
-
 }
 
 /* ==================================================
-STORAGE MANAGER
+   STORAGE MANAGER
 ================================================== */
 
 const StorageManager = {
 
-
     load() {
-        try {
-            const rawData = localStorage.getItem(STORAGE_KEY);
 
-            if (!rawData) {
+        try {
+
+            const savedData =
+                localStorage.getItem(
+                    STORAGE_KEY
+                );
+
+            if (!savedData) {
                 return;
             }
 
-            const parsedData = JSON.parse(rawData);
+            const parsed =
+                JSON.parse(savedData);
 
-            if (!parsedData || typeof parsedData !== "object") {
-                throw new Error("Invalid storage format");
-            }
-
-            state.decks = Array.isArray(parsedData.decks)
-                ? parsedData.decks
-                : [];
+            state.decks =
+                Array.isArray(parsed.decks)
+                    ? parsed.decks
+                    : [];
 
             state.activeDeckId =
-                parsedData.activeDeckId ?? null;
+                parsed.activeDeckId || null;
 
             state.activeSession = null;
-
-            state.analytics =
-                parsedData.analytics ?? {};
-
-            state.settings =
-                parsedData.settings ?? {};
 
         } catch (error) {
 
@@ -241,21 +88,25 @@ const StorageManager = {
                 error
             );
 
-            localStorage.removeItem(STORAGE_KEY);
-
-            showToast(
-                "Stored data was corrupted and has been reset.",
-                "warning"
-            );
+            state.decks = [];
+            state.activeDeckId = null;
+            state.activeSession = null;
         }
     },
 
     save() {
+
         try {
+
+            const data = {
+                decks: state.decks,
+                activeDeckId:
+                    state.activeDeckId
+            };
 
             localStorage.setItem(
                 STORAGE_KEY,
-                JSON.stringify(state)
+                JSON.stringify(data)
             );
 
         } catch (error) {
@@ -264,123 +115,80 @@ const StorageManager = {
                 "Storage save failed:",
                 error
             );
-
-            showToast(
-                "Failed to save data.",
-                "error"
-            );
         }
     },
 
     reset() {
 
-        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(
+            STORAGE_KEY
+        );
 
         state.decks = [];
         state.activeDeckId = null;
         state.activeSession = null;
-        state.analytics = {};
-        state.settings = {};
     }
-
-
 };
 
 /* ==================================================
-VALIDATION MANAGER
+   VALIDATION
 ================================================== */
 
 const ValidationManager = {
 
-
     validateDeckName(name) {
 
         if (
-            typeof name !== "string" ||
-            !name.trim()
+            typeof name !== "string"
         ) {
-            return {
-                valid: false,
-                message: "Deck name is required."
-            };
+            return false;
         }
 
-        return {
-            valid: true,
-            message: ""
-        };
+        return name.trim().length > 0;
     },
 
-    validateCard(question, answer) {
+    validateCard(
+        question,
+        answer
+    ) {
 
         if (
             typeof question !== "string" ||
-            !question.trim()
+            typeof answer !== "string"
         ) {
-            return {
-                valid: false,
-                message: "Question is required."
-            };
+            return false;
         }
 
-        if (
-            typeof answer !== "string" ||
-            !answer.trim()
-        ) {
-            return {
-                valid: false,
-                message: "Answer is required."
-            };
-        }
-
-        return {
-            valid: true,
-            message: ""
-        };
+        return (
+            question.trim().length > 0 &&
+            answer.trim().length > 0
+        );
     },
 
-    validateBulkImportLine(line) {
+    validateBulkLine(line) {
 
         if (
-            typeof line !== "string" ||
-            !line.trim()
+            typeof line !== "string"
         ) {
-            return {
-                valid: false,
-                message: "Empty line."
-            };
+            return false;
         }
 
-        const parts = line.split("|");
+        const parts =
+            line.split("|");
 
         if (parts.length !== 2) {
-            return {
-                valid: false,
-                message: "Invalid format."
-            };
+            return false;
         }
 
-        const question = parts[0].trim();
-        const answer = parts[1].trim();
-
-        if (!question || !answer) {
-            return {
-                valid: false,
-                message: "Question or answer missing."
-            };
-        }
-
-        return {
-            valid: true,
-            message: ""
-        };
+        return (
+            parts[0].trim() &&
+            parts[1].trim()
+        );
     }
-
-
 };
 
 /* ==================================================
-TOAST MANAGER
+   TOAST
 ================================================== */
 
 function showToast(
@@ -388,221 +196,76 @@ function showToast(
     type = "info"
 ) {
 
+    let container =
+        document.querySelector(
+            ".toast-container"
+        );
 
-    let toastContainer =
-        document.querySelector(".toast-container");
+    if (!container) {
 
-    if (!toastContainer) {
-
-        toastContainer =
+        container =
             document.createElement("div");
 
-        toastContainer.className =
+        container.className =
             "toast-container";
 
         document.body.appendChild(
-            toastContainer
+            container
         );
     }
 
     const toast =
         document.createElement("div");
 
-    toast.classList.add("toast");
+    toast.className =
+        `toast ${type}-toast`;
 
-    const allowedTypes = [
-        "success",
-        "error",
-        "warning",
-        "info"
-    ];
+    toast.textContent =
+        message;
 
-    const safeType =
-        allowedTypes.includes(type)
-            ? type
-            : "info";
-
-    toast.classList.add(
-        `${safeType}-toast`
+    container.appendChild(
+        toast
     );
-    toast.textContent = message;
-
-    toastContainer.appendChild(toast);
 
     setTimeout(() => {
 
         toast.remove();
 
-        if (
-            toastContainer &&
-            !toastContainer.children.length
-        ) {
-            toastContainer.remove();
-        }
-
-    }, TOAST_DURATION);
-
-
+    }, 3000);
 }
 
 /* ==================================================
-VIEW MANAGER
-================================================== */
-
-const ViewManager = {
-
-
-    hideAllViews() {
-
-        Object.values(DOM.views)
-            .forEach(view => {
-
-                view.classList.remove(
-                    "active-view"
-                );
-
-                view.classList.add(
-                    "hidden"
-                );
-            });
-
-        DOM.navigation.dashboardBtn
-            ?.classList.remove("active-nav");
-
-        DOM.navigation.analyticsBtn
-            ?.classList.remove("active-nav");
-    },
-
-    showDashboard() {
-
-        this.hideAllViews();
-
-        DOM.views.dashboard
-            .classList.remove("hidden");
-
-        DOM.views.dashboard
-            .classList.add("active-view");
-
-        DOM.navigation.dashboardBtn
-            ?.classList.add("active-nav");
-    },
-
-    showDeck() {
-
-        this.hideAllViews();
-
-        DOM.views.deck
-            .classList.remove("hidden");
-
-        DOM.views.deck
-            .classList.add("active-view");
-    },
-
-    showStudy() {
-
-        this.hideAllViews();
-
-        DOM.views.study
-            .classList.remove("hidden");
-
-        DOM.views.study
-            .classList.add("active-view");
-    },
-
-    showSummary() {
-
-        this.hideAllViews();
-
-        DOM.views.summary
-            .classList.remove("hidden");
-
-        DOM.views.summary
-            .classList.add("active-view");
-    },
-
-    showAnalytics() {
-
-        this.hideAllViews();
-
-        DOM.views.analytics
-            .classList.remove("hidden");
-
-        DOM.views.analytics
-            .classList.add("active-view");
-
-        DOM.navigation.analyticsBtn
-            ?.classList.add("active-nav");
-    }
-
-
-};
-
-/* ==================================================
-MODAL MANAGER
-================================================== */
-
-const ModalManager = {
-
-
-    open(modal) {
-
-        if (
-            modal &&
-            typeof modal.showModal === "function"
-        ) {
-            modal.showModal();
-        }
-    },
-
-    close(modal) {
-
-        if (
-            modal &&
-            modal.open
-        ) {
-            modal.close();
-        }
-    },
-
-    closeAll() {
-
-        Object.values(DOM.modals)
-            .forEach(modal => {
-
-                if (modal?.open) {
-                    modal.close();
-                }
-            });
-    }
-
-
-};
-
-/* ==================================================
-DECK MANAGER
+   DECK MANAGER
 ================================================== */
 
 const DeckManager = {
 
-
     createDeck(name) {
 
-        const validation =
-            ValidationManager.validateDeckName(name);
+        if (
+            !ValidationManager.validateDeckName(
+                name
+            )
+        ) {
 
-        if (!validation.valid) {
-            showToast(validation.message, "error");
+            showToast(
+                "Enter a valid deck name.",
+                "error"
+            );
+
             return null;
         }
 
-        const timestamp = getCurrentTimestamp();
-
         const deck = {
-            id: generateId(),
-            name: name.trim(),
 
-            createdAt: timestamp,
-            updatedAt: timestamp,
+            id:
+                generateId(),
+
+            name:
+                name.trim(),
+
+            createdAt:
+                getTimestamp(),
 
             cards: []
         };
@@ -612,20 +275,29 @@ const DeckManager = {
         StorageManager.save();
 
         showToast(
-            "Deck created successfully.",
+            "Deck created.",
             "success"
         );
 
         return deck;
     },
 
-    renameDeck(deckId, newName) {
+    renameDeck(
+        deckId,
+        newName
+    ) {
 
-        const validation =
-            ValidationManager.validateDeckName(newName);
+        if (
+            !ValidationManager.validateDeckName(
+                newName
+            )
+        ) {
 
-        if (!validation.valid) {
-            showToast(validation.message, "error");
+            showToast(
+                "Invalid deck name.",
+                "error"
+            );
+
             return false;
         }
 
@@ -633,21 +305,16 @@ const DeckManager = {
             this.getDeck(deckId);
 
         if (!deck) {
-            showToast(
-                "Deck not found.",
-                "error"
-            );
             return false;
         }
 
-        deck.name = newName.trim();
-        deck.updatedAt =
-            getCurrentTimestamp();
+        deck.name =
+            newName.trim();
 
         StorageManager.save();
 
         showToast(
-            "Deck renamed successfully.",
+            "Deck renamed.",
             "success"
         );
 
@@ -674,13 +341,17 @@ const DeckManager = {
 
         state.decks =
             state.decks.filter(
-                d => d.id !== deckId
+                deck =>
+                    deck.id !== deckId
             );
 
         if (
-            state.activeDeckId === deckId
+            state.activeDeckId ===
+            deckId
         ) {
-            state.activeDeckId = null;
+
+            state.activeDeckId =
+                null;
         }
 
         StorageManager.save();
@@ -699,14 +370,11 @@ const DeckManager = {
             this.getDeck(deckId);
 
         if (!deck) {
-            showToast(
-                "Deck not found.",
-                "error"
-            );
             return false;
         }
 
-        state.activeDeckId = deckId;
+        state.activeDeckId =
+            deckId;
 
         StorageManager.save();
 
@@ -716,21 +384,22 @@ const DeckManager = {
     getDeck(deckId) {
 
         return state.decks.find(
-            deck => deck.id === deckId
+            deck =>
+                deck.id === deckId
         ) || null;
     }
-
-
 };
 
 /* ==================================================
-FLASHCARD MANAGER
+   FLASHCARD MANAGER
 ================================================== */
 
 const FlashcardManager = {
 
-
-    addCard(question, answer) {
+    addCard(
+        question,
+        answer
+    ) {
 
         const deck =
             getActiveDeck();
@@ -738,57 +407,57 @@ const FlashcardManager = {
         if (!deck) {
 
             showToast(
-                "No active deck selected.",
+                "No active deck.",
                 "warning"
             );
 
             return null;
         }
 
-        const validation =
-            ValidationManager.validateCard(
+        if (
+            !ValidationManager.validateCard(
                 question,
                 answer
-            );
-
-        if (!validation.valid) {
+            )
+        ) {
 
             showToast(
-                validation.message,
+                "Question and answer required.",
                 "error"
             );
 
             return null;
         }
 
-        const timestamp =
-            getCurrentTimestamp();
-
         const card = {
-            id: generateId(),
 
-            question: question.trim(),
-            answer: answer.trim(),
+            id:
+                generateId(),
+
+            question:
+                question.trim(),
+
+            answer:
+                answer.trim(),
 
             box: 1,
 
             correctCount: 0,
             wrongCount: 0,
 
-            lastReviewed: null,
+            createdAt:
+                getTimestamp(),
 
-            createdAt: timestamp,
-            updatedAt: timestamp
+            updatedAt:
+                getTimestamp()
         };
 
         deck.cards.push(card);
 
-        deck.updatedAt = timestamp;
-
         StorageManager.save();
 
         showToast(
-            "Card added successfully.",
+            "Card added.",
             "success"
         );
 
@@ -805,25 +474,18 @@ const FlashcardManager = {
             this.getCard(cardId);
 
         if (!card) {
-
-            showToast(
-                "Card not found.",
-                "error"
-            );
-
             return false;
         }
 
-        const validation =
-            ValidationManager.validateCard(
+        if (
+            !ValidationManager.validateCard(
                 question,
                 answer
-            );
-
-        if (!validation.valid) {
+            )
+        ) {
 
             showToast(
-                validation.message,
+                "Invalid card.",
                 "error"
             );
 
@@ -837,7 +499,7 @@ const FlashcardManager = {
             answer.trim();
 
         card.updatedAt =
-            getCurrentTimestamp();
+            getTimestamp();
 
         StorageManager.save();
 
@@ -858,16 +520,9 @@ const FlashcardManager = {
             return false;
         }
 
-        const card =
-            this.getCard(cardId);
-
-        if (!card) {
-            return false;
-        }
-
         const confirmed =
             confirm(
-                "Delete this flashcard?"
+                "Delete this card?"
             );
 
         if (!confirmed) {
@@ -876,11 +531,9 @@ const FlashcardManager = {
 
         deck.cards =
             deck.cards.filter(
-                card => card.id !== cardId
+                card =>
+                    card.id !== cardId
             );
-
-        deck.updatedAt =
-            getCurrentTimestamp();
 
         StorageManager.save();
 
@@ -899,11 +552,6 @@ const FlashcardManager = {
 
         if (!deck) {
 
-            showToast(
-                "No active deck selected.",
-                "warning"
-            );
-
             return {
                 imported: 0,
                 skipped: 0
@@ -918,50 +566,48 @@ const FlashcardManager = {
 
         lines.forEach(line => {
 
-            const validation =
-                ValidationManager
-                    .validateBulkImportLine(
-                        line
-                    );
-
-            if (!validation.valid) {
+            if (
+                !ValidationManager.validateBulkLine(
+                    line
+                )
+            ) {
 
                 skipped++;
+
                 return;
             }
 
             const [
                 question,
                 answer
-            ] = line
-                .split("|")
-                .map(item => item.trim());
-
-            const timestamp =
-                getCurrentTimestamp();
+            ] =
+                line.split("|");
 
             deck.cards.push({
-                id: generateId(),
 
-                question,
-                answer,
+                id:
+                    generateId(),
+
+                question:
+                    question.trim(),
+
+                answer:
+                    answer.trim(),
 
                 box: 1,
 
                 correctCount: 0,
                 wrongCount: 0,
 
-                lastReviewed: null,
+                createdAt:
+                    getTimestamp(),
 
-                createdAt: timestamp,
-                updatedAt: timestamp
+                updatedAt:
+                    getTimestamp()
             });
 
             imported++;
         });
-
-        deck.updatedAt =
-            getCurrentTimestamp();
 
         StorageManager.save();
 
@@ -981,27 +627,21 @@ const FlashcardManager = {
         }
 
         return deck.cards.find(
-            card => card.id === cardId
+            card =>
+                card.id === cardId
         ) || null;
     }
-
-
 };
 
 /* ==================================================
-LEITNER ENGINE
+   LEITNER ENGINE
 ================================================== */
 
 const LeitnerEngine = {
 
-
     promote(card) {
 
-        if (!card) {
-            return;
-        }
-
-        const promotions = {
+        const map = {
             1: 2,
             2: 3,
             3: 4,
@@ -1010,21 +650,14 @@ const LeitnerEngine = {
         };
 
         card.box =
-            promotions[card.box] || 1;
+            map[card.box] || 1;
 
         card.correctCount++;
-
-        card.lastReviewed =
-            getCurrentTimestamp();
     },
 
     demote(card) {
 
-        if (!card) {
-            return;
-        }
-
-        const demotions = {
+        const map = {
             1: 1,
             2: 1,
             3: 1,
@@ -1033,23 +666,23 @@ const LeitnerEngine = {
         };
 
         card.box =
-            demotions[
-            card.box
-            ] || 1;
+            map[card.box] || 1;
 
         card.wrongCount++;
-
-        card.lastReviewed =
-            getCurrentTimestamp();
     },
 
     getStatus(box) {
 
         const statuses = {
+
             1: "Learning",
+
             2: "Improving",
+
             3: "Familiar",
+
             4: "Strong",
+
             5: "Mastered"
         };
 
@@ -1058,151 +691,13 @@ const LeitnerEngine = {
             "Learning"
         );
     }
-
-
 };
 
 /* ==================================================
-QUEUE MANAGER
-================================================== */
-
-const QueueManager = {
-
-
-    weights: {
-        1: 5,
-        2: 4,
-        3: 3,
-        4: 2,
-        5: 1
-    },
-
-    createQueue(deck) {
-
-        if (
-            !deck ||
-            !Array.isArray(deck.cards)
-        ) {
-            return [];
-        }
-
-        const queue = [];
-
-        deck.cards.forEach(card => {
-
-            const weight =
-                this.weights[
-                card.box
-                ] || 1;
-
-            for (
-                let i = 0;
-                i < weight;
-                i++
-            ) {
-                queue.push(card.id);
-            }
-        });
-
-        return this.shuffle(queue);
-    },
-
-    shuffle(array) {
-
-        const copy =
-            [...array];
-
-        for (
-            let i =
-                copy.length - 1;
-            i > 0;
-            i--
-        ) {
-
-            const j =
-                Math.floor(
-                    Math.random() *
-                    (i + 1)
-                );
-
-            [
-                copy[i],
-                copy[j]
-            ] = [
-                    copy[j],
-                    copy[i]
-                ];
-        }
-
-        return copy;
-    },
-
-    getNextCard() {
-
-        if (
-            !state.activeSession
-        ) {
-            return null;
-        }
-
-        const nextId =
-            state.activeSession
-                .queue
-                .shift();
-
-        if (!nextId) {
-            return null;
-        }
-
-        state.activeSession
-            .currentCardId =
-            nextId;
-
-        return nextId;
-    },
-
-    reinsertFailedCard(cardId) {
-
-        if (
-            !state.activeSession
-        ) {
-            return;
-        }
-
-        const queue =
-            state.activeSession.queue;
-
-        const gap =
-            Math.min(
-                3,
-                queue.length
-            );
-
-        queue.splice(
-            gap,
-            0,
-            cardId
-        );
-    },
-
-    isSessionComplete() {
-
-        return (
-            !state.activeSession ||
-            state.activeSession
-                .queue.length === 0
-        );
-    }
-
-
-};
-
-/* ==================================================
-ANALYTICS MANAGER
+   ANALYTICS MANAGER
 ================================================== */
 
 const AnalyticsManager = {
-
 
     getDeckStats(deck) {
 
@@ -1211,28 +706,29 @@ const AnalyticsManager = {
             return {
                 totalCards: 0,
                 masteredCards: 0,
-                totalReviews: 0,
-                correct: 0,
-                wrong: 0,
                 accuracy: 0
             };
         }
 
-        let masteredCards = 0;
+        const totalCards =
+            deck.cards.length;
+
+        const masteredCards =
+            deck.cards.filter(
+                card =>
+                    card.box === 5
+            ).length;
+
         let correct = 0;
         let wrong = 0;
 
         deck.cards.forEach(card => {
 
-            if (card.box === 5) {
-                masteredCards++;
-            }
-
             correct +=
-                card.correctCount || 0;
+                card.correctCount;
 
             wrong +=
-                card.wrongCount || 0;
+                card.wrongCount;
         });
 
         const totalReviews =
@@ -1247,16 +743,10 @@ const AnalyticsManager = {
                 : 0;
 
         return {
-            totalCards:
-                deck.cards.length,
+
+            totalCards,
 
             masteredCards,
-
-            totalReviews,
-
-            correct,
-
-            wrong,
 
             accuracy
         };
@@ -1265,32 +755,35 @@ const AnalyticsManager = {
     getGlobalStats() {
 
         let totalCards = 0;
+
         let masteredCards = 0;
+
+        let totalReviews = 0;
+
         let correct = 0;
-        let wrong = 0;
 
         state.decks.forEach(deck => {
 
-            const stats =
-                this.getDeckStats(
-                    deck
-                );
-
             totalCards +=
-                stats.totalCards;
+                deck.cards.length;
 
-            masteredCards +=
-                stats.masteredCards;
+            deck.cards.forEach(card => {
 
-            correct +=
-                stats.correct;
+                if (
+                    card.box === 5
+                ) {
 
-            wrong +=
-                stats.wrong;
+                    masteredCards++;
+                }
+
+                correct +=
+                    card.correctCount;
+
+                totalReviews +=
+                    card.correctCount +
+                    card.wrongCount;
+            });
         });
-
-        const totalReviews =
-            correct + wrong;
 
         const accuracy =
             totalReviews
@@ -1301,6 +794,7 @@ const AnalyticsManager = {
                 : 0;
 
         return {
+
             totalDecks:
                 state.decks.length,
 
@@ -1310,10 +804,6 @@ const AnalyticsManager = {
 
             totalReviews,
 
-            correct,
-
-            wrong,
-
             accuracy
         };
     },
@@ -1321,6 +811,7 @@ const AnalyticsManager = {
     getBoxDistribution(deck) {
 
         const distribution = {
+
             1: 0,
             2: 0,
             3: 0,
@@ -1328,1134 +819,24 @@ const AnalyticsManager = {
             5: 0
         };
 
-        if (
-            !deck ||
-            !Array.isArray(deck.cards)
-        ) {
+        if (!deck) {
             return distribution;
         }
 
         deck.cards.forEach(card => {
 
-            const safeBox =
-                Number(card.box);
-
             if (
-                Number.isInteger(safeBox) &&
-                safeBox >= 1 &&
-                safeBox <= 5
+                distribution[
+                card.box
+                ] !== undefined
             ) {
-                distribution[safeBox]++;
+
+                distribution[
+                    card.box
+                ]++;
             }
         });
 
         return distribution;
     }
-
-
 };
-
-/* ==================================================
-RENDER MANAGER
-================================================== */
-
-const RenderManager = {
-
-
-    renderDashboard() {
-
-        const stats =
-            AnalyticsManager.getGlobalStats();
-
-        if (DOM.statistics.totalDecks) {
-            DOM.statistics.totalDecks.textContent =
-                stats.totalDecks;
-        }
-
-        if (DOM.statistics.totalCards) {
-            DOM.statistics.totalCards.textContent =
-                stats.totalCards;
-        }
-
-        if (DOM.statistics.totalMasteredCards) {
-            DOM.statistics.totalMasteredCards.textContent =
-                stats.masteredCards;
-        }
-
-        if (!DOM.containers.deckGrid) {
-            return;
-        }
-
-        DOM.containers.deckGrid.innerHTML = "";
-        const emptyState = document.createElement("div");
-
-        emptyState.id = "dashboard-empty-state";
-        emptyState.className = "empty-state";
-
-        emptyState.innerHTML =
-            "<p>No decks yet. Create your first deck to begin studying.</p>";
-
-        if (!state.decks.length) {
-
-            DOM.containers.deckGrid.appendChild(emptyState);
-
-            return;
-        }
-
-        DOM.emptyStates?.dashboard?.classList.add("hidden");
-
-        state.decks.forEach(deck => {
-
-            const deckStats =
-                AnalyticsManager.getDeckStats(deck);
-
-            const card =
-                document.createElement("article");
-
-            card.className = "deck-card";
-
-            card.innerHTML = `
-    < h3 > ${escapeHtml(deck.name)}</h3 >
-
-            <p>${deck.cards.length} Cards</p>
-
-            <p>${deckStats.masteredCards} Mastered</p>
-
-            <div class="deck-actions">
-
-                <button
-                    class="btn-primary open-deck-btn"
-                    data-deck-id="${deck.id}">
-                    Open
-                </button>
-
-                <button
-                    class="btn-secondary rename-deck-btn"
-                    data-deck-id="${deck.id}">
-                    Rename
-                </button>
-
-                <button
-                    class="btn-danger delete-deck-btn"
-                    data-deck-id="${deck.id}">
-                    Delete
-                </button>
-
-            </div>
-`;
-
-            DOM.containers.deckGrid.appendChild(card);
-        });
-    },
-
-    renderDeck() {
-
-        const deck =
-            getActiveDeck();
-
-        if (!deck) {
-            return;
-        }
-
-        if (DOM.deck?.activeDeckName) {
-            DOM.deck.activeDeckName.textContent =
-                deck.name;
-        }
-
-        const stats =
-            AnalyticsManager.getDeckStats(deck);
-
-        if (DOM.statistics.deckTotalCards) {
-            DOM.statistics.deckTotalCards.textContent =
-                stats.totalCards;
-        }
-
-        if (DOM.statistics.deckMasteredCards) {
-            DOM.statistics.deckMasteredCards.textContent =
-                stats.masteredCards;
-        }
-
-        if (DOM.statistics.deckAccuracy) {
-            DOM.statistics.deckAccuracy.textContent =
-                `${stats.accuracy.toFixed(1)}% `;
-        }
-
-        while (DOM.containers.cardList.firstChild) {
-            DOM.containers.cardList.removeChild(
-                DOM.containers.cardList.firstChild
-            );
-        }
-
-        if (!deck.cards.length) {
-
-            DOM.containers.cardList.innerHTML = `
-        <div id="cards-empty-state" class="empty-state">
-            <p>No flashcards yet. Add your first flashcard.</p>
-        </div>
-    `;
-
-            return;
-        }
-
-        DOM.emptyStates?.cards?.classList.add("hidden");
-
-        deck.cards.forEach(card => {
-
-            const item =
-                document.createElement("div");
-
-            item.className =
-                "flashcard-item";
-
-            item.innerHTML = `
-    < div >
-
-                <strong>
-                    ${escapeHtml(card.question)}
-                </strong>
-
-                <p>
-                    Box ${card.box}
-                    •
-                    ${LeitnerEngine.getStatus(card.box)}
-                </p>
-
-            </div >
-
-    <div>
-
-        <button
-            class="btn-secondary edit-card-btn"
-            data-card-id="${card.id}">
-            Edit
-        </button>
-
-        <button
-            class="btn-danger delete-card-btn"
-            data-card-id="${card.id}">
-            Delete
-        </button>
-
-    </div>
-`;
-
-            DOM.containers.cardList.appendChild(item);
-        });
-    },
-
-    renderAnalytics() {
-
-        const globalStats =
-            AnalyticsManager.getGlobalStats();
-
-        if (DOM.statistics.analyticsReviews) {
-            DOM.statistics.analyticsReviews.textContent =
-                globalStats.totalReviews;
-        }
-
-        if (DOM.statistics.analyticsAccuracy) {
-            DOM.statistics.analyticsAccuracy.textContent =
-                `${globalStats.accuracy.toFixed(1)}% `;
-        }
-
-        if (DOM.statistics.analyticsMastered) {
-            DOM.statistics.analyticsMastered.textContent =
-                globalStats.masteredCards;
-        }
-
-        const deck =
-            getActiveDeck();
-
-        const distribution =
-            deck
-                ? AnalyticsManager.getBoxDistribution(deck)
-                : { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-
-        if (DOM.analytics.box1) DOM.analytics.box1.textContent = distribution[1];
-        if (DOM.analytics.box2) DOM.analytics.box2.textContent = distribution[2];
-        if (DOM.analytics.box3) DOM.analytics.box3.textContent = distribution[3];
-        if (DOM.analytics.box4) DOM.analytics.box4.textContent = distribution[4];
-        if (DOM.analytics.box5) DOM.analytics.box5.textContent = distribution[5];
-    },
-
-    renderSession() {
-
-        const card =
-            getCurrentSessionCard();
-
-        if (!card || !state.activeSession) {
-            return;
-        }
-
-        DOM.study.questionDisplay.textContent =
-            card.question;
-
-        DOM.study.answerDisplay.textContent =
-            state.activeSession.answerRevealed
-                ? card.answer
-                : "Answer hidden";
-
-        DOM.statistics.cardsRemaining.textContent =
-            state.activeSession.queue.length;
-
-        const reviewed =
-            state.activeSession.reviewed || 0;
-
-        DOM.statistics.sessionScore.textContent =
-            `${state.activeSession.correct}/${reviewed}`;
-
-        DOM.statistics.currentBox.textContent =
-            card.box;
-
-        DOM.statistics.currentStatus.textContent =
-            LeitnerEngine.getStatus(card.box);
-
-        DOM.buttons.gotItRight.disabled =
-            !state.activeSession.answerRevealed;
-
-        DOM.buttons.gotItWrong.disabled =
-            !state.activeSession.answerRevealed;
-
-        DOM.buttons.revealAnswer.disabled =
-            state.activeSession.answerRevealed;
-    },
-
-    renderSummary() {
-
-        const session =
-            state.activeSession;
-
-        if (!session) {
-            return;
-        }
-
-        const accuracy =
-            session.reviewed
-                ? (session.correct / session.reviewed) * 100
-                : 0;
-
-        DOM.statistics.summaryReviewed.textContent =
-            session.reviewed;
-
-        DOM.statistics.summaryCorrect.textContent =
-            session.correct;
-
-        DOM.statistics.summaryWrong.textContent =
-            session.wrong;
-
-        DOM.statistics.summaryAccuracy.textContent =
-            `${accuracy.toFixed(1)}%`;
-
-        DOM.statistics.summaryMastered.textContent =
-            session.mastered;
-    }
-
-
-};
-
-/* ==================================================
-SESSION HELPERS
-================================================== */
-
-function getCurrentSessionCard() {
-
-
-    const session =
-        state.activeSession;
-
-    if (!session) {
-        return null;
-    }
-
-    return FlashcardManager.getCard(
-        session.currentCardId
-    );
-
-
-}
-
-function startStudySession() {
-
-
-    const deck =
-        getActiveDeck();
-
-    if (!deck) {
-
-        showToast(
-            "Select a deck first.",
-            "warning"
-        );
-
-        return;
-    }
-
-    if (!deck.cards.length) {
-
-        showToast(
-            "Add cards before starting a quiz.",
-            "warning"
-        );
-
-        return;
-    }
-
-    state.activeSession = {
-
-        deckId: deck.id,
-
-        queue:
-            QueueManager.createQueue(deck),
-
-        currentCardId: null,
-
-        reviewed: 0,
-        correct: 0,
-        wrong: 0,
-
-        mastered: 0,
-
-        answerRevealed: false,
-
-        completed: false
-    };
-
-    loadNextCard();
-
-    ViewManager.showStudy();
-
-    RenderManager.renderSession();
-
-
-}
-
-function loadNextCard() {
-
-
-    if (!state.activeSession) {
-        return;
-    }
-
-    const nextCardId =
-        QueueManager.getNextCard();
-
-    if (!nextCardId) {
-
-        completeSession();
-
-        return;
-    }
-
-    state.activeSession.currentCardId =
-        nextCardId;
-
-    state.activeSession.answerRevealed =
-        false;
-
-    if (DOM.study.cardMovementMessage) {
-        DOM.study.cardMovementMessage.textContent = "";
-    }
-
-    if (DOM.study.schedulingMessage) {
-        DOM.study.schedulingMessage.textContent = "";
-    }
-
-    RenderManager.renderSession();
-
-
-}
-
-function completeSession() {
-
-
-    if (!state.activeSession) {
-        return;
-    }
-
-    state.activeSession.completed =
-        true;
-
-    StorageManager.save();
-
-    RenderManager.renderSummary();
-
-    ViewManager.showSummary();
-
-
-}
-
-/* ==================================================
-QUIZ FLOW
-================================================== */
-
-function revealAnswer() {
-
-
-    if (!state.activeSession) {
-        return;
-    }
-
-    state.activeSession.answerRevealed =
-        true;
-
-    RenderManager.renderSession();
-
-
-}
-
-function handleCorrectAnswer() {
-
-
-    const card =
-        getCurrentSessionCard();
-
-    if (!card) {
-        return;
-    }
-
-    const previousBox = card.box;
-
-    LeitnerEngine.promote(card);
-
-    state.activeSession.reviewed++;
-    state.activeSession.correct++;
-
-    const previousBox = card.box;
-
-    LeitnerEngine.promote(card);
-
-    if (
-        previousBox !== 5 &&
-        card.box === 5
-    ) {
-        state.activeSession.mastered++;
-    }
-
-    if (DOM.study.cardMovementMessage) {
-
-        DOM.study.cardMovementMessage.textContent =
-            `Promoted to Box ${card.box}`;
-    }
-
-    StorageManager.save();
-
-    loadNextCard();
-
-
-}
-
-function handleWrongAnswer() {
-
-
-    const card =
-        getCurrentSessionCard();
-
-    if (!card) {
-        return;
-    }
-
-    LeitnerEngine.demote(card);
-
-    state.activeSession.reviewed++;
-    state.activeSession.wrong++;
-
-    QueueManager.reinsertFailedCard(
-        card.id
-    );
-
-    if (DOM.study.schedulingMessage) {
-
-        DOM.study.schedulingMessage.textContent =
-            "Card scheduled for earlier review.";
-    }
-
-    StorageManager.save();
-
-    loadNextCard();
-
-
-}
-
-/* ==================================================
-UI STATE
-================================================== */
-
-let editingDeckId = null;
-let editingCardId = null;
-
-/* ==================================================
-HELPERS
-================================================== */
-
-function resetDeckModal() {
-
-
-    editingDeckId = null;
-
-    if (DOM.inputs.deckName) {
-        DOM.inputs.deckName.value = "";
-    }
-
-    if (DOM.modalTitles?.createDeck) {
-        DOM.modalTitles.createDeck.textContent =
-            "Create Deck";
-    }
-
-
-}
-
-function resetCardModal() {
-
-
-    editingCardId = null;
-
-    if (DOM.inputs.question) {
-        DOM.inputs.question.value = "";
-    }
-
-    if (DOM.inputs.answer) {
-        DOM.inputs.answer.value = "";
-    }
-
-    if (DOM.modalTitles?.addCard) {
-        DOM.modalTitles.addCard.textContent =
-            "Add Card";
-    }
-
-
-}
-
-/* ==================================================
-NAVIGATION WIRING
-================================================== */
-
-function attachNavigationListeners() {
-
-
-    DOM.navigation.dashboardBtn?.addEventListener(
-        "click",
-        () => {
-
-            RenderManager.renderDashboard();
-
-            ViewManager.showDashboard();
-        }
-    );
-
-    DOM.navigation.analyticsBtn?.addEventListener(
-        "click",
-        () => {
-
-            RenderManager.renderAnalytics();
-
-            ViewManager.showAnalytics();
-        }
-    );
-
-    DOM.buttons.returnToDeck?.addEventListener(
-        "click",
-        () => {
-
-            RenderManager.renderDeck();
-
-
-            ViewManager.showDeck();
-        }
-    );
-
-    DOM.buttons.studyAgain?.addEventListener(
-        "click",
-        () => {
-
-            startStudySession();
-        }
-    );
-
-
-}
-
-/* ==================================================
-DECK MODAL FLOW
-================================================== */
-
-function attachDeckModalListeners() {
-
-
-    DOM.buttons.createDeck?.addEventListener(
-        "click",
-        () => {
-
-            resetDeckModal();
-
-            ModalManager.open(
-                DOM.modals.createDeck
-            );
-        }
-    );
-
-    DOM.buttons.cancelCreateDeck?.addEventListener(
-        "click",
-        () => {
-
-            ModalManager.close(
-                DOM.modals.createDeck
-            );
-        }
-    );
-
-    DOM.buttons.saveDeck?.addEventListener(
-        "click",
-        () => {
-
-            try {
-
-                const name =
-                    DOM.inputs.deckName?.value || "";
-
-                if (editingDeckId) {
-
-                    DeckManager.renameDeck(
-                        editingDeckId,
-                        name
-                    );
-
-                } else {
-
-                    DeckManager.createDeck(
-                        name
-                    );
-                }
-
-                StorageManager.save();
-
-                ModalManager.close(
-                    DOM.modals.createDeck
-                );
-
-                resetDeckModal();
-
-                RenderManager.renderDashboard();
-
-            } catch (error) {
-
-                console.error(error);
-
-                showToast(
-                    "Failed to save deck.",
-                    "error"
-                );
-            }
-        }
-    );
-
-
-}
-
-/* ==================================================
-CARD MODAL FLOW
-================================================== */
-
-function attachCardModalListeners() {
-
-
-    DOM.buttons.addCard?.addEventListener(
-        "click",
-        () => {
-
-            resetCardModal();
-
-            ModalManager.open(
-                DOM.modals.addCard
-            );
-        }
-    );
-
-    DOM.buttons.cancelAddCard?.addEventListener(
-        "click",
-        () => {
-
-            ModalManager.close(
-                DOM.modals.addCard
-            );
-        }
-    );
-
-    DOM.buttons.saveCard?.addEventListener(
-        "click",
-        () => {
-
-            try {
-
-                const question =
-                    DOM.inputs.question?.value || "";
-
-                const answer =
-                    DOM.inputs.answer?.value || "";
-
-                if (editingCardId) {
-
-                    FlashcardManager.editCard(
-                        editingCardId,
-                        question,
-                        answer
-                    );
-
-                } else {
-
-                    FlashcardManager.addCard(
-                        question,
-                        answer
-                    );
-                }
-
-                ModalManager.close(
-                    DOM.modals.addCard
-                );
-
-                resetCardModal();
-
-                RenderManager.renderDeck();
-
-            } catch (error) {
-
-                console.error(error);
-
-                showToast(
-                    "Failed to save card.",
-                    "error"
-                );
-            }
-        }
-    );
-
-
-}
-
-/* ==================================================
-BULK IMPORT FLOW
-================================================== */
-
-function attachBulkImportListeners() {
-
-
-    DOM.buttons.bulkAdd?.addEventListener(
-        "click",
-        () => {
-
-            ModalManager.open(
-                DOM.modals.bulkAdd
-            );
-        }
-    );
-
-    DOM.buttons.cancelBulkAdd?.addEventListener(
-        "click",
-        () => {
-
-            ModalManager.close(
-                DOM.modals.bulkAdd
-            );
-        }
-    );
-
-    DOM.buttons.importCards?.addEventListener(
-        "click",
-        () => {
-
-            try {
-
-                const text =
-                    DOM.inputs.bulkInput?.value || "";
-
-                const result =
-                    FlashcardManager.bulkImport(
-                        text
-                    );
-
-                showToast(
-                    `Imported ${result.imported} cards. Skipped ${result.skipped} lines.`,
-                    "success"
-                );
-
-                DOM.inputs.bulkInput.value = "";
-
-                ModalManager.close(
-                    DOM.modals.bulkAdd
-                );
-
-                RenderManager.renderDeck();
-
-            } catch (error) {
-
-                console.error(error);
-
-                showToast(
-                    "Bulk import failed.",
-                    "error"
-                );
-            }
-        }
-    );
-
-
-}
-
-/* ==================================================
-QUIZ BUTTONS
-================================================== */
-
-function attachQuizListeners() {
-
-
-    DOM.buttons.startQuiz?.addEventListener(
-        "click",
-        startStudySession
-    );
-
-    DOM.buttons.revealAnswer?.addEventListener(
-        "click",
-        revealAnswer
-    );
-
-    DOM.buttons.gotItRight?.addEventListener(
-        "click",
-        handleCorrectAnswer
-    );
-
-    DOM.buttons.gotItWrong?.addEventListener(
-        "click",
-        handleWrongAnswer
-    );
-
-
-}
-
-/* ==================================================
-DELEGATED DECK ACTIONS
-================================================== */
-
-function attachDeckDelegation() {
-
-
-    DOM.containers.deckGrid?.addEventListener(
-        "click",
-        event => {
-
-            const target =
-                event.target;
-
-            const deckId =
-                target.dataset.deckId;
-
-            if (!deckId) {
-                return;
-            }
-
-            try {
-
-                if (
-                    target.classList.contains(
-                        "open-deck-btn"
-                    )
-                ) {
-
-                    DeckManager.openDeck(
-                        deckId
-                    );
-
-                    RenderManager.renderDeck();
-
-                    ViewManager.showDeck();
-                }
-
-                if (
-                    target.classList.contains(
-                        "rename-deck-btn"
-                    )
-                ) {
-
-                    const deck =
-                        DeckManager.getDeck(
-                            deckId
-                        );
-
-                    if (!deck) {
-                        return;
-                    }
-
-                    editingDeckId =
-                        deckId;
-
-                    DOM.inputs.deckName.value =
-                        deck.name;
-
-                    DOM.modalTitles.createDeck.textContent =
-                        "Rename Deck";
-
-                    ModalManager.open(
-                        DOM.modals.createDeck
-                    );
-                }
-
-                if (
-                    target.classList.contains(
-                        "delete-deck-btn"
-                    )
-                ) {
-
-                    DeckManager.deleteDeck(
-                        deckId
-                    );
-
-                    RenderManager.renderDashboard();
-                }
-
-            } catch (error) {
-
-                console.error(error);
-
-                showToast(
-                    "Deck action failed.",
-                    "error"
-                );
-            }
-        }
-    );
-
-
-}
-
-/* ==================================================
-DELEGATED CARD ACTIONS
-================================================== */
-
-function attachCardDelegation() {
-
-
-    DOM.containers.cardList?.addEventListener(
-        "click",
-        event => {
-
-            const target =
-                event.target;
-
-            const cardId =
-                target.dataset.cardId;
-
-            if (!cardId) {
-                return;
-            }
-
-            try {
-
-                if (
-                    target.classList.contains(
-                        "edit-card-btn"
-                    )
-                ) {
-
-                    const card =
-                        FlashcardManager.getCard(
-                            cardId
-                        );
-
-                    if (!card) {
-                        return;
-                    }
-
-                    editingCardId =
-                        cardId;
-
-                    DOM.inputs.question.value =
-                        card.question;
-
-                    DOM.inputs.answer.value =
-                        card.answer;
-
-                    DOM.modalTitles.addCard.textContent =
-                        "Edit Card";
-
-                    ModalManager.open(
-                        DOM.modals.addCard
-                    );
-                }
-
-                if (
-                    target.classList.contains(
-                        "delete-card-btn"
-                    )
-                ) {
-
-                    FlashcardManager.deleteCard(
-                        cardId
-                    );
-
-                    RenderManager.renderDeck();
-                }
-
-            } catch (error) {
-
-                console.error(error);
-
-                showToast(
-                    "Card action failed.",
-                    "error"
-                );
-            }
-        }
-    );
-
-
-}
-
-/* ==================================================
-INITIALIZATION
-================================================== */
-
-function initializeApplication() {
-
-
-    try {
-
-        StorageManager.load();
-
-        RenderManager.renderDashboard();
-
-        ViewManager.showDashboard();
-
-        attachNavigationListeners();
-
-        attachDeckModalListeners();
-
-        attachCardModalListeners();
-
-        attachBulkImportListeners();
-
-        attachQuizListeners();
-
-        attachDeckDelegation();
-
-        attachCardDelegation();
-
-    } catch (error) {
-
-        console.error(error);
-
-        showToast(
-            "Application failed to initialize.",
-            "error"
-        );
-    }
-
-
-}
-
-/* ==================================================
-BOOTSTRAP
-================================================== */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    initializeApplication
-);
-

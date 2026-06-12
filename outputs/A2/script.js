@@ -226,8 +226,7 @@ const StorageManager = {
             state.activeDeckId =
                 parsedData.activeDeckId ?? null;
 
-            state.activeSession =
-                parsedData.activeSession ?? null;
+            state.activeSession = null;
 
             state.analytics =
                 parsedData.analytics ?? {};
@@ -1388,10 +1387,17 @@ const RenderManager = {
         }
 
         DOM.containers.deckGrid.innerHTML = "";
+        const emptyState = document.createElement("div");
+
+        emptyState.id = "dashboard-empty-state";
+        emptyState.className = "empty-state";
+
+        emptyState.innerHTML =
+            "<p>No decks yet. Create your first deck to begin studying.</p>";
 
         if (!state.decks.length) {
 
-            DOM.emptyStates?.dashboard?.classList.remove("hidden");
+            DOM.containers.deckGrid.appendChild(emptyState);
 
             return;
         }
@@ -1474,11 +1480,19 @@ const RenderManager = {
                 `${stats.accuracy.toFixed(1)}% `;
         }
 
-        DOM.containers.cardList.innerHTML = "";
+        while (DOM.containers.cardList.firstChild) {
+            DOM.containers.cardList.removeChild(
+                DOM.containers.cardList.firstChild
+            );
+        }
 
         if (!deck.cards.length) {
 
-            DOM.emptyStates?.cards?.classList.remove("hidden");
+            DOM.containers.cardList.innerHTML = `
+        <div id="cards-empty-state" class="empty-state">
+            <p>No flashcards yet. Add your first flashcard.</p>
+        </div>
+    `;
 
             return;
         }
@@ -1799,6 +1813,8 @@ function handleCorrectAnswer() {
         return;
     }
 
+    const previousBox = card.box;
+
     LeitnerEngine.promote(card);
 
     state.activeSession.reviewed++;
@@ -1873,39 +1889,39 @@ HELPERS
 
 function resetDeckModal() {
 
-  
-editingDeckId = null;
 
-if (DOM.inputs.deckName) {
-    DOM.inputs.deckName.value = "";
-}
+    editingDeckId = null;
 
-if (DOM.modalTitles?.createDeck) {
-    DOM.modalTitles.createDeck.textContent =
-        "Create Deck";
-}
-  
+    if (DOM.inputs.deckName) {
+        DOM.inputs.deckName.value = "";
+    }
+
+    if (DOM.modalTitles?.createDeck) {
+        DOM.modalTitles.createDeck.textContent =
+            "Create Deck";
+    }
+
 
 }
 
 function resetCardModal() {
 
-  
-editingCardId = null;
 
-if (DOM.inputs.question) {
-    DOM.inputs.question.value = "";
-}
+    editingCardId = null;
 
-if (DOM.inputs.answer) {
-    DOM.inputs.answer.value = "";
-}
+    if (DOM.inputs.question) {
+        DOM.inputs.question.value = "";
+    }
 
-if (DOM.modalTitles?.addCard) {
-    DOM.modalTitles.addCard.textContent =
-        "Add Card";
-}
-  
+    if (DOM.inputs.answer) {
+        DOM.inputs.answer.value = "";
+    }
+
+    if (DOM.modalTitles?.addCard) {
+        DOM.modalTitles.addCard.textContent =
+            "Add Card";
+    }
+
 
 }
 
@@ -1915,45 +1931,46 @@ NAVIGATION WIRING
 
 function attachNavigationListeners() {
 
-  
-DOM.navigation.dashboardBtn?.addEventListener(
-    "click",
-    () => {
 
-        RenderManager.renderDashboard();
+    DOM.navigation.dashboardBtn?.addEventListener(
+        "click",
+        () => {
 
-        ViewManager.showDashboard();
-    }
-);
+            RenderManager.renderDashboard();
 
-DOM.navigation.analyticsBtn?.addEventListener(
-    "click",
-    () => {
+            ViewManager.showDashboard();
+        }
+    );
 
-        RenderManager.renderAnalytics();
+    DOM.navigation.analyticsBtn?.addEventListener(
+        "click",
+        () => {
 
-        ViewManager.showAnalytics();
-    }
-);
+            RenderManager.renderAnalytics();
 
-DOM.buttons.returnToDeck?.addEventListener(
-    "click",
-    () => {
+            ViewManager.showAnalytics();
+        }
+    );
 
-        RenderManager.renderDeck();
+    DOM.buttons.returnToDeck?.addEventListener(
+        "click",
+        () => {
 
-        ViewManager.showDeck();
-    }
-);
+            RenderManager.renderDeck();
 
-DOM.buttons.studyAgain?.addEventListener(
-    "click",
-    () => {
 
-        startStudySession();
-    }
-);
-  
+            ViewManager.showDeck();
+        }
+    );
+
+    DOM.buttons.studyAgain?.addEventListener(
+        "click",
+        () => {
+
+            startStudySession();
+        }
+    );
+
 
 }
 
@@ -1963,74 +1980,74 @@ DECK MODAL FLOW
 
 function attachDeckModalListeners() {
 
-  
-DOM.buttons.createDeck?.addEventListener(
-    "click",
-    () => {
 
-        resetDeckModal();
+    DOM.buttons.createDeck?.addEventListener(
+        "click",
+        () => {
 
-        ModalManager.open(
-            DOM.modals.createDeck
-        );
-    }
-);
+            resetDeckModal();
 
-DOM.buttons.cancelCreateDeck?.addEventListener(
-    "click",
-    () => {
+            ModalManager.open(
+                DOM.modals.createDeck
+            );
+        }
+    );
 
-        ModalManager.close(
-            DOM.modals.createDeck
-        );
-    }
-);
-
-DOM.buttons.saveDeck?.addEventListener(
-    "click",
-    () => {
-
-        try {
-
-            const name =
-                DOM.inputs.deckName?.value || "";
-
-            if (editingDeckId) {
-
-                DeckManager.renameDeck(
-                    editingDeckId,
-                    name
-                );
-
-            } else {
-
-                DeckManager.createDeck(
-                    name
-                );
-            }
-
-            StorageManager.save();
+    DOM.buttons.cancelCreateDeck?.addEventListener(
+        "click",
+        () => {
 
             ModalManager.close(
                 DOM.modals.createDeck
             );
-
-            resetDeckModal();
-
-            RenderManager.renderDashboard();
-
-        } catch (error) {
-
-            console.error(error);
-
-            showToast(
-                "Failed to save deck.",
-                "error"
-            );
         }
-    }
-);
-  
+    );
+
+    DOM.buttons.saveDeck?.addEventListener(
+        "click",
+        () => {
+
+            try {
+
+                const name =
+                    DOM.inputs.deckName?.value || "";
+
+                if (editingDeckId) {
+
+                    DeckManager.renameDeck(
+                        editingDeckId,
+                        name
+                    );
+
+                } else {
+
+                    DeckManager.createDeck(
+                        name
+                    );
+                }
+
+                StorageManager.save();
+
+                ModalManager.close(
+                    DOM.modals.createDeck
+                );
+
+                resetDeckModal();
+
+                RenderManager.renderDashboard();
+
+            } catch (error) {
+
+                console.error(error);
+
+                showToast(
+                    "Failed to save deck.",
+                    "error"
+                );
+            }
+        }
+    );
+
 
 }
 
@@ -2040,77 +2057,77 @@ CARD MODAL FLOW
 
 function attachCardModalListeners() {
 
-  
-DOM.buttons.addCard?.addEventListener(
-    "click",
-    () => {
 
-        resetCardModal();
+    DOM.buttons.addCard?.addEventListener(
+        "click",
+        () => {
 
-        ModalManager.open(
-            DOM.modals.addCard
-        );
-    }
-);
+            resetCardModal();
 
-DOM.buttons.cancelAddCard?.addEventListener(
-    "click",
-    () => {
+            ModalManager.open(
+                DOM.modals.addCard
+            );
+        }
+    );
 
-        ModalManager.close(
-            DOM.modals.addCard
-        );
-    }
-);
-
-DOM.buttons.saveCard?.addEventListener(
-    "click",
-    () => {
-
-        try {
-
-            const question =
-                DOM.inputs.question?.value || "";
-
-            const answer =
-                DOM.inputs.answer?.value || "";
-
-            if (editingCardId) {
-
-                FlashcardManager.editCard(
-                    editingCardId,
-                    question,
-                    answer
-                );
-
-            } else {
-
-                FlashcardManager.addCard(
-                    question,
-                    answer
-                );
-            }
+    DOM.buttons.cancelAddCard?.addEventListener(
+        "click",
+        () => {
 
             ModalManager.close(
                 DOM.modals.addCard
             );
-
-            resetCardModal();
-
-            RenderManager.renderDeck();
-
-        } catch (error) {
-
-            console.error(error);
-
-            showToast(
-                "Failed to save card.",
-                "error"
-            );
         }
-    }
-);
-  
+    );
+
+    DOM.buttons.saveCard?.addEventListener(
+        "click",
+        () => {
+
+            try {
+
+                const question =
+                    DOM.inputs.question?.value || "";
+
+                const answer =
+                    DOM.inputs.answer?.value || "";
+
+                if (editingCardId) {
+
+                    FlashcardManager.editCard(
+                        editingCardId,
+                        question,
+                        answer
+                    );
+
+                } else {
+
+                    FlashcardManager.addCard(
+                        question,
+                        answer
+                    );
+                }
+
+                ModalManager.close(
+                    DOM.modals.addCard
+                );
+
+                resetCardModal();
+
+                RenderManager.renderDeck();
+
+            } catch (error) {
+
+                console.error(error);
+
+                showToast(
+                    "Failed to save card.",
+                    "error"
+                );
+            }
+        }
+    );
+
 
 }
 
@@ -2120,66 +2137,66 @@ BULK IMPORT FLOW
 
 function attachBulkImportListeners() {
 
-  
-DOM.buttons.bulkAdd?.addEventListener(
-    "click",
-    () => {
 
-        ModalManager.open(
-            DOM.modals.bulkAdd
-        );
-    }
-);
+    DOM.buttons.bulkAdd?.addEventListener(
+        "click",
+        () => {
 
-DOM.buttons.cancelBulkAdd?.addEventListener(
-    "click",
-    () => {
-
-        ModalManager.close(
-            DOM.modals.bulkAdd
-        );
-    }
-);
-
-DOM.buttons.importCards?.addEventListener(
-    "click",
-    () => {
-
-        try {
-
-            const text =
-                DOM.inputs.bulkInput?.value || "";
-
-            const result =
-                FlashcardManager.bulkImport(
-                    text
-                );
-
-            showToast(
-                `Imported ${result.imported} cards. Skipped ${result.skipped} lines.`,
-                "success"
+            ModalManager.open(
+                DOM.modals.bulkAdd
             );
+        }
+    );
 
-            DOM.inputs.bulkInput.value = "";
+    DOM.buttons.cancelBulkAdd?.addEventListener(
+        "click",
+        () => {
 
             ModalManager.close(
                 DOM.modals.bulkAdd
             );
-
-            RenderManager.renderDeck();
-
-        } catch (error) {
-
-            console.error(error);
-
-            showToast(
-                "Bulk import failed.",
-                "error"
-            );
         }
-    }
-);
-  
+    );
+
+    DOM.buttons.importCards?.addEventListener(
+        "click",
+        () => {
+
+            try {
+
+                const text =
+                    DOM.inputs.bulkInput?.value || "";
+
+                const result =
+                    FlashcardManager.bulkImport(
+                        text
+                    );
+
+                showToast(
+                    `Imported ${result.imported} cards. Skipped ${result.skipped} lines.`,
+                    "success"
+                );
+
+                DOM.inputs.bulkInput.value = "";
+
+                ModalManager.close(
+                    DOM.modals.bulkAdd
+                );
+
+                RenderManager.renderDeck();
+
+            } catch (error) {
+
+                console.error(error);
+
+                showToast(
+                    "Bulk import failed.",
+                    "error"
+                );
+            }
+        }
+    );
+
 
 }
 
@@ -2189,27 +2206,27 @@ QUIZ BUTTONS
 
 function attachQuizListeners() {
 
-  
-DOM.buttons.startQuiz?.addEventListener(
-    "click",
-    startStudySession
-);
 
-DOM.buttons.revealAnswer?.addEventListener(
-    "click",
-    revealAnswer
-);
+    DOM.buttons.startQuiz?.addEventListener(
+        "click",
+        startStudySession
+    );
 
-DOM.buttons.gotItRight?.addEventListener(
-    "click",
-    handleCorrectAnswer
-);
+    DOM.buttons.revealAnswer?.addEventListener(
+        "click",
+        revealAnswer
+    );
 
-DOM.buttons.gotItWrong?.addEventListener(
-    "click",
-    handleWrongAnswer
-);
-  
+    DOM.buttons.gotItRight?.addEventListener(
+        "click",
+        handleCorrectAnswer
+    );
+
+    DOM.buttons.gotItWrong?.addEventListener(
+        "click",
+        handleWrongAnswer
+    );
+
 
 }
 
@@ -2219,92 +2236,92 @@ DELEGATED DECK ACTIONS
 
 function attachDeckDelegation() {
 
-  
-DOM.containers.deckGrid?.addEventListener(
-    "click",
-    event => {
 
-        const target =
-            event.target;
+    DOM.containers.deckGrid?.addEventListener(
+        "click",
+        event => {
 
-        const deckId =
-            target.dataset.deckId;
+            const target =
+                event.target;
 
-        if (!deckId) {
-            return;
-        }
+            const deckId =
+                target.dataset.deckId;
 
-        try {
-
-            if (
-                target.classList.contains(
-                    "open-deck-btn"
-                )
-            ) {
-
-                DeckManager.openDeck(
-                    deckId
-                );
-
-                RenderManager.renderDeck();
-
-                ViewManager.showDeck();
+            if (!deckId) {
+                return;
             }
 
-            if (
-                target.classList.contains(
-                    "rename-deck-btn"
-                )
-            ) {
+            try {
 
-                const deck =
-                    DeckManager.getDeck(
+                if (
+                    target.classList.contains(
+                        "open-deck-btn"
+                    )
+                ) {
+
+                    DeckManager.openDeck(
                         deckId
                     );
 
-                if (!deck) {
-                    return;
+                    RenderManager.renderDeck();
+
+                    ViewManager.showDeck();
                 }
 
-                editingDeckId =
-                    deckId;
+                if (
+                    target.classList.contains(
+                        "rename-deck-btn"
+                    )
+                ) {
 
-                DOM.inputs.deckName.value =
-                    deck.name;
+                    const deck =
+                        DeckManager.getDeck(
+                            deckId
+                        );
 
-                DOM.modalTitles.createDeck.textContent =
-                    "Rename Deck";
+                    if (!deck) {
+                        return;
+                    }
 
-                ModalManager.open(
-                    DOM.modals.createDeck
+                    editingDeckId =
+                        deckId;
+
+                    DOM.inputs.deckName.value =
+                        deck.name;
+
+                    DOM.modalTitles.createDeck.textContent =
+                        "Rename Deck";
+
+                    ModalManager.open(
+                        DOM.modals.createDeck
+                    );
+                }
+
+                if (
+                    target.classList.contains(
+                        "delete-deck-btn"
+                    )
+                ) {
+
+                    DeckManager.deleteDeck(
+                        deckId
+                    );
+
+                    RenderManager.renderDashboard();
+                }
+
+            } catch (error) {
+
+                console.error(error);
+
+                showToast(
+                    "Deck action failed.",
+                    "error"
                 );
             }
-
-            if (
-                target.classList.contains(
-                    "delete-deck-btn"
-                )
-            ) {
-
-                DeckManager.deleteDeck(
-                    deckId
-                );
-
-                RenderManager.renderDashboard();
-            }
-
-        } catch (error) {
-
-            console.error(error);
-
-            showToast(
-                "Deck action failed.",
-                "error"
-            );
         }
-    }
-);
-  
+    );
+
 
 }
 
@@ -2314,80 +2331,80 @@ DELEGATED CARD ACTIONS
 
 function attachCardDelegation() {
 
-  
-DOM.containers.cardList?.addEventListener(
-    "click",
-    event => {
 
-        const target =
-            event.target;
+    DOM.containers.cardList?.addEventListener(
+        "click",
+        event => {
 
-        const cardId =
-            target.dataset.cardId;
+            const target =
+                event.target;
 
-        if (!cardId) {
-            return;
-        }
+            const cardId =
+                target.dataset.cardId;
 
-        try {
+            if (!cardId) {
+                return;
+            }
 
-            if (
-                target.classList.contains(
-                    "edit-card-btn"
-                )
-            ) {
+            try {
 
-                const card =
-                    FlashcardManager.getCard(
+                if (
+                    target.classList.contains(
+                        "edit-card-btn"
+                    )
+                ) {
+
+                    const card =
+                        FlashcardManager.getCard(
+                            cardId
+                        );
+
+                    if (!card) {
+                        return;
+                    }
+
+                    editingCardId =
+                        cardId;
+
+                    DOM.inputs.question.value =
+                        card.question;
+
+                    DOM.inputs.answer.value =
+                        card.answer;
+
+                    DOM.modalTitles.addCard.textContent =
+                        "Edit Card";
+
+                    ModalManager.open(
+                        DOM.modals.addCard
+                    );
+                }
+
+                if (
+                    target.classList.contains(
+                        "delete-card-btn"
+                    )
+                ) {
+
+                    FlashcardManager.deleteCard(
                         cardId
                     );
 
-                if (!card) {
-                    return;
+                    RenderManager.renderDeck();
                 }
 
-                editingCardId =
-                    cardId;
+            } catch (error) {
 
-                DOM.inputs.question.value =
-                    card.question;
+                console.error(error);
 
-                DOM.inputs.answer.value =
-                    card.answer;
-
-                DOM.modalTitles.addCard.textContent =
-                    "Edit Card";
-
-                ModalManager.open(
-                    DOM.modals.addCard
+                showToast(
+                    "Card action failed.",
+                    "error"
                 );
             }
-
-            if (
-                target.classList.contains(
-                    "delete-card-btn"
-                )
-            ) {
-
-                FlashcardManager.deleteCard(
-                    cardId
-                );
-
-                RenderManager.renderDeck();
-            }
-
-        } catch (error) {
-
-            console.error(error);
-
-            showToast(
-                "Card action failed.",
-                "error"
-            );
         }
-    }
-);
-  
+    );
+
 
 }
 
@@ -2397,39 +2414,39 @@ INITIALIZATION
 
 function initializeApplication() {
 
-  
-try {
 
-    StorageManager.load();
+    try {
 
-    RenderManager.renderDashboard();
+        StorageManager.load();
 
-    ViewManager.showDashboard();
+        RenderManager.renderDashboard();
 
-    attachNavigationListeners();
+        ViewManager.showDashboard();
 
-    attachDeckModalListeners();
+        attachNavigationListeners();
 
-    attachCardModalListeners();
+        attachDeckModalListeners();
 
-    attachBulkImportListeners();
+        attachCardModalListeners();
 
-    attachQuizListeners();
+        attachBulkImportListeners();
 
-    attachDeckDelegation();
+        attachQuizListeners();
 
-    attachCardDelegation();
+        attachDeckDelegation();
 
-} catch (error) {
+        attachCardDelegation();
 
-    console.error(error);
+    } catch (error) {
 
-    showToast(
-        "Application failed to initialize.",
-        "error"
-    );
-}
-  
+        console.error(error);
+
+        showToast(
+            "Application failed to initialize.",
+            "error"
+        );
+    }
+
 
 }
 
@@ -2438,6 +2455,7 @@ BOOTSTRAP
 ================================================== */
 
 document.addEventListener(
-"DOMContentLoaded",
-initializeApplication
+    "DOMContentLoaded",
+    initializeApplication
 );
+

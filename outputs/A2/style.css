@@ -291,13 +291,7 @@ HEADER
 BUTTON SYSTEM
 ================================================== */
 
-button:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
 
-    transform: none !important;
-    box-shadow: none !important;
-}
 
 button {
     border: none;
@@ -479,9 +473,6 @@ textarea::placeholder {
     color: var(--color-text-secondary);
 }
 
-.input-error {
-    border-color: var(--color-danger) !important;
-}
 
 .error-message {
     color: var(--color-danger);
@@ -1225,16 +1216,7 @@ BOX DISTRIBUTION COLORS
 VIEW TRANSITIONS
 ================================================== */
 
-.app-view {
-    opacity: 1;
 
-    transform: translateY(0);
-
-    transition:
-        opacity var(--transition-normal),
-        transform var(--transition-normal);
-
-}
 
 .app-view {
     display: none;

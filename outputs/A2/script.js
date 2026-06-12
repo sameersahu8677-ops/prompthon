@@ -1356,3 +1356,506 @@ const AnalyticsManager = {
 
 };
 
+/* ==================================================
+RENDER MANAGER
+================================================== */
+
+const RenderManager = {
+
+
+    renderDashboard() {
+
+        const stats =
+            AnalyticsManager.getGlobalStats();
+
+        if (DOM.statistics.totalDecks) {
+            DOM.statistics.totalDecks.textContent =
+                stats.totalDecks;
+        }
+
+        if (DOM.statistics.totalCards) {
+            DOM.statistics.totalCards.textContent =
+                stats.totalCards;
+        }
+
+        if (DOM.statistics.totalMasteredCards) {
+            DOM.statistics.totalMasteredCards.textContent =
+                stats.masteredCards;
+        }
+
+        if (!DOM.containers.deckGrid) {
+            return;
+        }
+
+        DOM.containers.deckGrid.innerHTML = "";
+
+        if (!state.decks.length) {
+
+            DOM.emptyStates?.dashboard?.classList.remove("hidden");
+
+            return;
+        }
+
+        DOM.emptyStates?.dashboard?.classList.add("hidden");
+
+        state.decks.forEach(deck => {
+
+            const deckStats =
+                AnalyticsManager.getDeckStats(deck);
+
+            const card =
+                document.createElement("article");
+
+            card.className = "deck-card";
+
+            card.innerHTML = `
+    < h3 > ${escapeHtml(deck.name)}</h3 >
+
+            <p>${deck.cards.length} Cards</p>
+
+            <p>${deckStats.masteredCards} Mastered</p>
+
+            <div class="deck-actions">
+
+                <button
+                    class="btn-primary open-deck-btn"
+                    data-deck-id="${deck.id}">
+                    Open
+                </button>
+
+                <button
+                    class="btn-secondary rename-deck-btn"
+                    data-deck-id="${deck.id}">
+                    Rename
+                </button>
+
+                <button
+                    class="btn-danger delete-deck-btn"
+                    data-deck-id="${deck.id}">
+                    Delete
+                </button>
+
+            </div>
+`;
+
+            DOM.containers.deckGrid.appendChild(card);
+        });
+    },
+
+    renderDeck() {
+
+        const deck =
+            getActiveDeck();
+
+        if (!deck) {
+            return;
+        }
+
+        if (DOM.deck?.activeDeckName) {
+            DOM.deck.activeDeckName.textContent =
+                deck.name;
+        }
+
+        const stats =
+            AnalyticsManager.getDeckStats(deck);
+
+        if (DOM.statistics.deckTotalCards) {
+            DOM.statistics.deckTotalCards.textContent =
+                stats.totalCards;
+        }
+
+        if (DOM.statistics.deckMasteredCards) {
+            DOM.statistics.deckMasteredCards.textContent =
+                stats.masteredCards;
+        }
+
+        if (DOM.statistics.deckAccuracy) {
+            DOM.statistics.deckAccuracy.textContent =
+                `${stats.accuracy.toFixed(1)}% `;
+        }
+
+        DOM.containers.cardList.innerHTML = "";
+
+        if (!deck.cards.length) {
+
+            DOM.emptyStates?.cards?.classList.remove("hidden");
+
+            return;
+        }
+
+        DOM.emptyStates?.cards?.classList.add("hidden");
+
+        deck.cards.forEach(card => {
+
+            const item =
+                document.createElement("div");
+
+            item.className =
+                "flashcard-item";
+
+            item.innerHTML = `
+    < div >
+
+                <strong>
+                    ${escapeHtml(card.question)}
+                </strong>
+
+                <p>
+                    Box ${card.box}
+                    •
+                    ${LeitnerEngine.getStatus(card.box)}
+                </p>
+
+            </div >
+
+    <div>
+
+        <button
+            class="btn-secondary edit-card-btn"
+            data-card-id="${card.id}">
+            Edit
+        </button>
+
+        <button
+            class="btn-danger delete-card-btn"
+            data-card-id="${card.id}">
+            Delete
+        </button>
+
+    </div>
+`;
+
+            DOM.containers.cardList.appendChild(item);
+        });
+    },
+
+    renderAnalytics() {
+
+        const globalStats =
+            AnalyticsManager.getGlobalStats();
+
+        if (DOM.statistics.analyticsReviews) {
+            DOM.statistics.analyticsReviews.textContent =
+                globalStats.totalReviews;
+        }
+
+        if (DOM.statistics.analyticsAccuracy) {
+            DOM.statistics.analyticsAccuracy.textContent =
+                `${globalStats.accuracy.toFixed(1)}% `;
+        }
+
+        if (DOM.statistics.analyticsMastered) {
+            DOM.statistics.analyticsMastered.textContent =
+                globalStats.masteredCards;
+        }
+
+        const deck =
+            getActiveDeck();
+
+        const distribution =
+            deck
+                ? AnalyticsManager.getBoxDistribution(deck)
+                : { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+        if (DOM.analytics.box1) DOM.analytics.box1.textContent = distribution[1];
+        if (DOM.analytics.box2) DOM.analytics.box2.textContent = distribution[2];
+        if (DOM.analytics.box3) DOM.analytics.box3.textContent = distribution[3];
+        if (DOM.analytics.box4) DOM.analytics.box4.textContent = distribution[4];
+        if (DOM.analytics.box5) DOM.analytics.box5.textContent = distribution[5];
+    },
+
+    renderSession() {
+
+        const card =
+            getCurrentSessionCard();
+
+        if (!card || !state.activeSession) {
+            return;
+        }
+
+        DOM.study.questionDisplay.textContent =
+            card.question;
+
+        DOM.study.answerDisplay.textContent =
+            state.activeSession.answerRevealed
+                ? card.answer
+                : "Answer hidden";
+
+        DOM.statistics.cardsRemaining.textContent =
+            state.activeSession.queue.length;
+
+        const reviewed =
+            state.activeSession.reviewed || 0;
+
+        DOM.statistics.sessionScore.textContent =
+            `${state.activeSession.correct}/${reviewed}`;
+
+        DOM.statistics.currentBox.textContent =
+            card.box;
+
+        DOM.statistics.currentStatus.textContent =
+            LeitnerEngine.getStatus(card.box);
+
+        DOM.buttons.gotItRight.disabled =
+            !state.activeSession.answerRevealed;
+
+        DOM.buttons.gotItWrong.disabled =
+            !state.activeSession.answerRevealed;
+
+        DOM.buttons.revealAnswer.disabled =
+            state.activeSession.answerRevealed;
+    },
+
+    renderSummary() {
+
+        const session =
+            state.activeSession;
+
+        if (!session) {
+            return;
+        }
+
+        const accuracy =
+            session.reviewed
+                ? (session.correct / session.reviewed) * 100
+                : 0;
+
+        DOM.statistics.summaryReviewed.textContent =
+            session.reviewed;
+
+        DOM.statistics.summaryCorrect.textContent =
+            session.correct;
+
+        DOM.statistics.summaryWrong.textContent =
+            session.wrong;
+
+        DOM.statistics.summaryAccuracy.textContent =
+            `${accuracy.toFixed(1)}%`;
+
+        DOM.statistics.summaryMastered.textContent =
+            session.mastered;
+    }
+
+
+};
+
+/* ==================================================
+SESSION HELPERS
+================================================== */
+
+function getCurrentSessionCard() {
+
+
+    const session =
+        state.activeSession;
+
+    if (!session) {
+        return null;
+    }
+
+    return FlashcardManager.getCard(
+        session.currentCardId
+    );
+
+
+}
+
+function startStudySession() {
+
+
+    const deck =
+        getActiveDeck();
+
+    if (!deck) {
+
+        showToast(
+            "Select a deck first.",
+            "warning"
+        );
+
+        return;
+    }
+
+    if (!deck.cards.length) {
+
+        showToast(
+            "Add cards before starting a quiz.",
+            "warning"
+        );
+
+        return;
+    }
+
+    state.activeSession = {
+
+        deckId: deck.id,
+
+        queue:
+            QueueManager.createQueue(deck),
+
+        currentCardId: null,
+
+        reviewed: 0,
+        correct: 0,
+        wrong: 0,
+
+        mastered: 0,
+
+        answerRevealed: false,
+
+        completed: false
+    };
+
+    loadNextCard();
+
+    ViewManager.showStudy();
+
+    RenderManager.renderSession();
+
+
+}
+
+function loadNextCard() {
+
+
+    if (!state.activeSession) {
+        return;
+    }
+
+    const nextCardId =
+        QueueManager.getNextCard();
+
+    if (!nextCardId) {
+
+        completeSession();
+
+        return;
+    }
+
+    state.activeSession.currentCardId =
+        nextCardId;
+
+    state.activeSession.answerRevealed =
+        false;
+
+    if (DOM.study.cardMovementMessage) {
+        DOM.study.cardMovementMessage.textContent = "";
+    }
+
+    if (DOM.study.schedulingMessage) {
+        DOM.study.schedulingMessage.textContent = "";
+    }
+
+    RenderManager.renderSession();
+
+
+}
+
+function completeSession() {
+
+
+    if (!state.activeSession) {
+        return;
+    }
+
+    state.activeSession.completed =
+        true;
+
+    StorageManager.save();
+
+    RenderManager.renderSummary();
+
+    ViewManager.showSummary();
+
+
+}
+
+/* ==================================================
+QUIZ FLOW
+================================================== */
+
+function revealAnswer() {
+
+
+    if (!state.activeSession) {
+        return;
+    }
+
+    state.activeSession.answerRevealed =
+        true;
+
+    RenderManager.renderSession();
+
+
+}
+
+function handleCorrectAnswer() {
+
+
+    const card =
+        getCurrentSessionCard();
+
+    if (!card) {
+        return;
+    }
+
+    LeitnerEngine.promote(card);
+
+    state.activeSession.reviewed++;
+    state.activeSession.correct++;
+
+    const previousBox = card.box;
+
+    LeitnerEngine.promote(card);
+
+    if (
+        previousBox !== 5 &&
+        card.box === 5
+    ) {
+        state.activeSession.mastered++;
+    }
+
+    if (DOM.study.cardMovementMessage) {
+
+        DOM.study.cardMovementMessage.textContent =
+            `Promoted to Box ${card.box}`;
+    }
+
+    StorageManager.save();
+
+    loadNextCard();
+
+
+}
+
+function handleWrongAnswer() {
+
+
+    const card =
+        getCurrentSessionCard();
+
+    if (!card) {
+        return;
+    }
+
+    LeitnerEngine.demote(card);
+
+    state.activeSession.reviewed++;
+    state.activeSession.wrong++;
+
+    QueueManager.reinsertFailedCard(
+        card.id
+    );
+
+    if (DOM.study.schedulingMessage) {
+
+        DOM.study.schedulingMessage.textContent =
+            "Card scheduled for earlier review.";
+    }
+
+    StorageManager.save();
+
+    loadNextCard();
+
+
+}

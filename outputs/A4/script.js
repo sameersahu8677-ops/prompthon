@@ -543,11 +543,12 @@ function calculateDaysToExhaustion(
     remainingBudget,
     velocity
 ) {
-    if (
-        velocity <= 0 ||
-        remainingBudget <= 0
-    ) {
-        return 0;
+    if (remainingBudget <= 0) {
+        return "EXHAUSTED";
+    }
+
+    if (velocity <= 0) {
+        return Infinity;
     }
 
     return Math.floor(
@@ -765,7 +766,7 @@ function renderBudgetSummary(analytics) {
 
     if (analytics.remainingBudget < 0) {
         DOM.overspendingMessage.textContent =
-            `Overspent by ${formatCurrency(
+            `⚠ Overspent by ${formatCurrency(
                 Math.abs(analytics.remainingBudget)
             )}`;
     } else {
@@ -797,6 +798,27 @@ function renderRiskStatus(analytics) {
         "watch",
         "risk"
     );
+
+    if (analytics.remainingBudget <= 0) {
+
+        DOM.riskStatus.classList.remove(
+            "safe",
+            "watch",
+            "risk"
+        );
+
+        DOM.riskStatus.classList.add(
+            "risk"
+        );
+
+        DOM.riskStatus.textContent =
+            RISK_LEVELS.RISK;
+
+        DOM.riskStatusMessage.textContent =
+            "Budget exhausted. Immediate spending reduction recommended.";
+
+        return;
+    }
 
     const level =
         analytics.riskStatus.level;
@@ -833,13 +855,36 @@ function renderVelocityCard(analytics) {
         return;
     }
 
+    if (analytics.remainingBudget <= 0) {
+
+        DOM.velocityMessage.textContent =
+            `⚠ Budget exhausted. Overspent by ${formatCurrency(
+                Math.abs(analytics.remainingBudget)
+            )}.`;
+
+        DOM.projectedSpend.textContent =
+            formatCurrency(
+                analytics.projectedSpend
+            );
+
+        DOM.daysToExhaustion.textContent =
+            "Already exhausted";
+
+        DOM.suggestedDailyLimit.textContent =
+            "No remaining budget";
+
+        return;
+    }
+
     DOM.projectedSpend.textContent =
         formatCurrency(
             analytics.projectedSpend
         );
 
     DOM.daysToExhaustion.textContent =
-        analytics.daysToExhaustion;
+        analytics.daysToExhaustion === Infinity
+            ? "N/A"
+            : analytics.daysToExhaustion;
 
     DOM.suggestedDailyLimit.textContent =
         formatCurrency(

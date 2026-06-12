@@ -735,3 +735,80 @@ button:active,
 
     font-size: var(--font-size-small);
 }
+
+
+/* ===================================
+   About Section
+=================================== */
+
+.hero-section {
+    background-color: var(--color-background);
+}
+
+.hero-introduction {
+    gap: var(--space-sm);
+}
+
+.hero-role {
+    color: var(--color-text-muted);
+    font-size: 1.125rem;
+    font-weight: var(--font-weight-medium);
+}
+
+.hero-section p {
+    max-width: 65ch;
+}
+
+/* ===================================
+   Skills Section
+=================================== */
+
+.skills-section {
+    background-color: var(--color-surface-alt);
+}
+
+/* ===================================
+   Projects Section
+=================================== */
+
+.projects-section {
+    background-color: var(--color-background);
+}
+
+/* ===================================
+   Contact Section
+=================================== */
+
+.contact-section {
+    background-color: var(--color-surface-alt);
+}
+
+/* ===================================
+   Section Headers
+=================================== */
+
+.section-header {
+    text-align: center;
+}
+
+.section-header h2 {
+    margin-bottom: var(--space-sm);
+}
+
+/* ===================================
+   Footer
+=================================== */
+
+.site-footer {
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    padding-block: var(--space-xl);
+}
+
+.site-footer a {
+    transition: color var(--transition-fast);
+}
+
+.site-footer a:hover {
+    color: var(--color-accent-hover);
+}

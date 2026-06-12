@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Flash Card Study Buddy - Leitner Box System">
+    <title>Flash Card Study Buddy</title>
+
+ 
+<link rel="stylesheet" href="style.css">
+<script src="script.js" defer></script>
+ 
+
+</head>
+<body>
+
+ 
+<header id="app-header" class="app-header">
+    <div class="header-container">
+        <h1 id="app-title">Flash Card Study Buddy</h1>
+
+        <nav id="main-navigation" aria-label="Primary Navigation">
+            <button id="nav-dashboard-btn" type="button">
+                Dashboard
+            </button>
+
+            <button id="nav-analytics-btn" type="button">
+                Analytics
+            </button>
+        </nav>
+    </div>
+</header>
+
+<main id="app-main">
+
+    <!-- DASHBOARD VIEW -->
+
+    <section
+        id="dashboard-view"
+        class="app-view"
+        aria-labelledby="dashboard-heading"
+    >
+        <header class="view-header">
+            <h2 id="dashboard-heading">Dashboard</h2>
+        </header>
+
+        <section
+            id="overall-statistics"
+            aria-labelledby="overall-statistics-heading"
+        >
+            <h3 id="overall-statistics-heading">Overall Statistics</h3>
+
+            <div id="overall-stats-container">
+
+                <article class="stat-card">
+                    <h4>Total Decks</h4>
+                    <p id="total-decks-value">0</p>
+                </article>
+
+                <article class="stat-card">
+                    <h4>Total Cards</h4>
+                    <p id="total-cards-value">0</p>
+                </article>
+
+                <article class="stat-card">
+                    <h4>Mastered Cards</h4>
+                    <p id="total-mastered-cards-value">0</p>
+                </article>
+
+            </div>
+        </section>
+
+        <section id="dashboard-actions">
+            <button
+                id="create-deck-btn"
+                type="button"
+            >
+                Create Deck
+            </button>
+        </section>
+
+        <section
+            id="decks-section"
+            aria-labelledby="decks-section-heading"
+        >
+            <h3 id="decks-section-heading">Your Decks</h3>
+
+            <div
+                id="deck-grid-container"
+                class="deck-grid"
+                aria-live="polite"
+            >
+            </div>
+        </section>
+    </section>
+
+    <!-- DECK MANAGEMENT VIEW -->
+
+    <section
+        id="deck-view"
+        class="app-view"
+        aria-labelledby="deck-view-heading"
+    >
+        <header class="view-header">
+            <h2 id="deck-view-heading">Deck Management</h2>
+
+            <div id="deck-header-container">
+                <h3 id="active-deck-name">
+                    Select a Deck
+                </h3>
+            </div>
+        </header>
+
+        <section
+            id="deck-statistics-section"
+            aria-labelledby="deck-statistics-heading"
+        >
+            <h3 id="deck-statistics-heading">
+                Deck Statistics
+            </h3>
+
+            <div id="deck-statistics-container">
+
+                <article class="stat-card">
+                    <h4>Total Cards</h4>
+                    <p id="deck-total-cards-value">0</p>
+                </article>
+
+                <article class="stat-card">
+                    <h4>Mastered Cards</h4>
+                    <p id="deck-mastered-cards-value">0</p>
+                </article>
+
+                <article class="stat-card">
+                    <h4>Accuracy</h4>
+                    <p id="deck-accuracy-value">0%</p>
+                </article>
+
+            </div>
+        </section>
+
+        <section
+            id="card-management-section"
+            aria-labelledby="card-management-heading"
+        >
+            <h3 id="card-management-heading">
+                Card Management
+            </h3>
+
+            <div id="deck-action-buttons">
+
+                <button
+                    id="add-card-btn"
+                    type="button"
+                >
+                    Add Card
+                </button>
+
+                <button
+                    id="bulk-add-cards-btn"
+                    type="button"
+                >
+                    Bulk Add Cards
+                </button>
+
+                <button
+                    id="start-quiz-btn"
+                    type="button"
+                >
+                    Start Quiz
+                </button>
+
+            </div>
+
+            <div
+                id="card-list-container"
+                aria-live="polite"
+            >
+            </div>
+        </section>
+    </section>
+
+    <!-- STUDY SESSION VIEW -->
+
+    <section
+        id="study-view"
+        class="app-view"
+        aria-labelledby="study-view-heading"
+    >
+        <header class="view-header">
+            <h2 id="study-view-heading">
+                Quiz Session
+            </h2>
+        </header>
+
+        <section
+            id="session-progress-section"
+            aria-labelledby="session-progress-heading"
+        >
+            <h3 id="session-progress-heading">
+                Session Progress
+            </h3>
+
+            <div id="session-progress-container">
+
+                <article class="stat-card">
+                    <h4>Cards Remaining</h4>
+                    <p id="cards-remaining-value">0</p>
+                </article>
+
+                <article class="stat-card">
+                    <h4>Session Score</h4>
+                    <p id="session-score-value">0%</p>
+                </article>
+
+                <article class="stat-card">
+                    <h4>Current Box</h4>
+                    <p id="current-box-value">-</p>
+                </article>
+
+                <article class="stat-card">
+                    <h4>Current Status</h4>
+                    <p id="current-status-value">-</p>
+                </article>
+
+            </div>
+        </section>
+
+        <section
+            id="flashcard-section"
+            aria-labelledby="flashcard-heading"
+        >
+            <h3 id="flashcard-heading">
+                Flashcard
+            </h3>
+
+            <article id="flashcard-container">
+
+                <div id="question-display-container">
+                    <h4>Question</h4>
+                    <p id="question-display">
+                        Question will appear here.
+                    </p>
+                </div>
+
+                <div
+                    id="answer-display-container"
+                    aria-live="polite"
+                >
+                    <h4>Answer</h4>
+                    <p id="answer-display">
+                        Answer will appear here.
+                    </p>
+                </div>
+
+            </article>
+
+            <div id="study-action-buttons">
+
+                <button
+                    id="reveal-answer-btn"
+                    type="button"
+                >
+                    Reveal Answer
+                </button>
+
+            </div>
+
+            <div
+                id="evaluation-controls"
+                aria-label="Answer Evaluation"
+            >
+                <button
+                    id="got-it-right-btn"
+                    type="button"
+                >
+                    Got It Right
+                </button>
+
+                <button
+                    id="got-it-wrong-btn"
+                    type="button"
+                >
+                    Got It Wrong
+                </button>
+            </div>
+        </section>
+
+        <section
+            id="leitner-feedback-section"
+            aria-labelledby="leitner-feedback-heading"
+        >
+            <h3 id="leitner-feedback-heading">
+                Leitner Feedback
+            </h3>
+
+            <div id="leitner-feedback-container">
+
+                <article>
+                    <h4>Card Movement</h4>
+                    <p id="card-movement-message">
+                        Waiting for review...
+                    </p>
+                </article>
+
+                <article>
+                    <h4>Scheduling Information</h4>
+                    <p id="scheduling-message">
+                        Scheduling information will appear here.
+                    </p>
+                </article>
+
+            </div>
+        </section>
+    </section>
+
+    <!-- SESSION SUMMARY VIEW -->
+
+    <section
+        id="summary-view"
+        class="app-view"
+        aria-labelledby="summary-view-heading"
+    >
+        <header class="view-header">
+            <h2 id="summary-view-heading">
+                Session Summary
+            </h2>
+        </header>
+
+        <section
+            id="summary-statistics-section"
+            aria-labelledby="summary-statistics-heading"
+        >
+            <h3 id="summary-statistics-heading">
+                Session Results
+            </h3>
+
+            <div id="summary-statistics-container">
+
+                <article class="stat-card">
+                    <h4>Cards Reviewed</h4>
+                    <p id="summary-reviewed-value">0</p>
+                </article>
+
+                <article class="stat-card">
+                    <h4>Correct Answers</h4>
+                    <p id="summary-correct-value">0</p>
+                </article>
+
+                <article class="stat-card">
+                    <h4>Wrong Answers</h4>
+                    <p id="summary-wrong-value">0</p>
+                </article>
+
+                <article class="stat-card">
+                    <h4>Accuracy</h4>
+                    <p id="summary-accuracy-value">0%</p>
+                </article>
+
+                <article class="stat-card">
+                    <h4>Cards Mastered</h4>
+                    <p id="summary-mastered-value">0</p>
+                </article>
+
+            </div>
+        </section>
+
+        <div id="summary-action-buttons">
+
+            <button
+                id="study-again-btn"
+                type="button"
+            >
+                Study Again
+            </button>
+
+            <button
+                id="return-to-deck-btn"
+                type="button"
+            >
+                Return To Deck
+            </button>
+
+        </div>
+    </section>
+
+    <!-- ANALYTICS VIEW -->
+
+    <section
+        id="analytics-view"
+        class="app-view"
+        aria-labelledby="analytics-heading"
+    >
+        <header class="view-header">
+            <h2 id="analytics-heading">
+                Analytics
+            </h2>
+        </header>
+
+        <section
+            id="analytics-overview-section"
+            aria-labelledby="analytics-overview-heading"
+        >
+            <h3 id="analytics-overview-heading">
+                Overview
+            </h3>
+
+            <div id="analytics-overview-container">
+
+                <article class="stat-card">
+                    <h4>Total Reviews</h4>
+                    <p id="analytics-total-reviews-value">0</p>
+                </article>
+
+                <article class="stat-card">
+                    <h4>Accuracy</h4>
+                    <p id="analytics-accuracy-value">0%</p>
+                </article>
+
+                <article class="stat-card">
+                    <h4>Mastered Cards</h4>
+                    <p id="analytics-mastered-cards-value">0</p>
+                </article>
+
+            </div>
+        </section>
+
+        <section
+            id="box-distribution-section"
+            aria-labelledby="box-distribution-heading"
+        >
+            <h3 id="box-distribution-heading">
+                Box Distribution
+            </h3>
+
+            <div id="box-distribution-container">
+
+                <article class="box-card">
+                    <h4>Box 1</h4>
+                    <p id="box-1-count">0</p>
+                </article>
+
+                <article class="box-card">
+                    <h4>Box 2</h4>
+                    <p id="box-2-count">0</p>
+                </article>
+
+                <article class="box-card">
+                    <h4>Box 3</h4>
+                    <p id="box-3-count">0</p>
+                </article>
+
+                <article class="box-card">
+                    <h4>Box 4</h4>
+                    <p id="box-4-count">0</p>
+                </article>
+
+                <article class="box-card">
+                    <h4>Box 5</h4>
+                    <p id="box-5-count">0</p>
+                </article>
+
+            </div>
+        </section>
+    </section>
+
+</main>
+
+<!-- ADD CARD MODAL -->
+
+<dialog
+    id="add-card-modal"
+    aria-labelledby="add-card-modal-heading"
+>
+    <form id="add-card-form" method="dialog">
+
+        <h2 id="add-card-modal-heading">
+            Add Flashcard
+        </h2>
+
+        <div class="form-group">
+            <label for="card-question-input">
+                Question
+            </label>
+
+            <textarea
+                id="card-question-input"
+                name="question"
+                rows="4"
+                required
+            ></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="card-answer-input">
+                Answer
+            </label>
+
+            <textarea
+                id="card-answer-input"
+                name="answer"
+                rows="4"
+                required
+            ></textarea>
+        </div>
+
+        <div class="modal-actions">
+            <button
+                id="save-card-btn"
+                type="submit"
+            >
+                Save Card
+            </button>
+
+            <button
+                id="cancel-add-card-btn"
+                type="button"
+            >
+                Cancel
+            </button>
+        </div>
+
+    </form>
+</dialog>
+
+<!-- BULK ADD MODAL -->
+
+<dialog
+    id="bulk-add-modal"
+    aria-labelledby="bulk-add-modal-heading"
+>
+    <form id="bulk-add-form" method="dialog">
+
+        <h2 id="bulk-add-modal-heading">
+            Bulk Add Cards
+        </h2>
+
+        <p id="bulk-add-instructions">
+            Enter one flashcard per line using:
+            Question | Answer
+        </p>
+
+        <div class="form-group">
+            <label for="bulk-card-input">
+                Flashcards
+            </label>
+
+            <textarea
+                id="bulk-card-input"
+                name="bulkCards"
+                rows="12"
+            ></textarea>
+        </div>
+
+        <div class="modal-actions">
+            <button
+                id="import-cards-btn"
+                type="submit"
+            >
+                Import Cards
+            </button>
+
+            <button
+                id="cancel-bulk-add-btn"
+                type="button"
+            >
+                Cancel
+            </button>
+        </div>
+
+    </form>
+</dialog>
+
+</body>
+</html>

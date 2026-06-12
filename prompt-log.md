@@ -30,3 +30,34 @@
 
 **Total Prompts: 23**
 
+
+
+## A2 - Flash Card Study Buddy (Leitner Box System)
+
+| # | Chat | Tool | Purpose |
+|---|------|------|---------|
+| 1 | Main | ChatGPT | Analyze requirements, Leitner system rules, storage needs, edge cases, and evaluation criteria |
+| 2 | Main | ChatGPT | Design architecture, state management strategy, deck schema, flashcard schema, and session structure |
+| 3 | Main | ChatGPT | Define component hierarchy, rendering flow, analytics strategy, and persistence workflow |
+| 4 | Main | ChatGPT | Create complete code generation roadmap and implementation plan |
+| 5 | Main | ChatGPT | Generate index.html structure and application layout |
+| 6 | Main | ChatGPT | Review HTML structure, IDs, modal wiring requirements, and rendering targets |
+| 7 | Main | ChatGPT | Generate style.css architecture, design system, responsiveness, and UI foundation |
+| 8 | Main | ChatGPT | Generate feature-specific CSS for Dashboard, Deck Management, Study Session, Summary, and Analytics |
+| 9 | Main | ChatGPT | Audit CSS, identify missing utility classes, responsiveness issues, and integration gaps |
+| 10 | Main | ChatGPT | Design JavaScript architecture, module boundaries, and application state flow |
+| 11 | Main | ChatGPT | Generate script.js Part A (Utilities, StorageManager, ValidationManager, DeckManager, FlashcardManager, LeitnerEngine, AnalyticsManager) |
+| 12 | Main | ChatGPT | Review Part A implementation and fix schema inconsistencies |
+| 13 | Main | ChatGPT | Generate script.js Part B (DOM Cache, ViewManager, ModalManager, QueueManager, Session Engine, Quiz Flow, RenderManager) |
+| 14 | Main | ChatGPT | Audit Part B, identify rendering issues, queue behavior issues, and HTML integration mismatches |
+| 15 | Main | ChatGPT | Generate script.js Part C (Event Wiring, Navigation Wiring, Modal Flows, Bootstrap Logic) |
+| 16 | Main | ChatGPT | Debug modal cancellation issues and bulk import functionality |
+| 17 | Main | ChatGPT | Verify Leitner promotion/demotion logic and weighted scheduling behavior |
+| 18 | Main | ChatGPT | Fix HTML/CSS/JS integration problems discovered during testing |
+| 19 | Main | ChatGPT | Add Dark Mode feature with persistence and theme toggle support |
+| 20 | Main | ChatGPT | Perform complete project audit and judge-style review |
+| 21 | Main | ChatGPT | Test Create Deck, Rename Deck, Delete Deck, Add Card, Edit Card, Delete Card, Bulk Import, Quiz Flow, Analytics, and Persistence |
+| 22 | Main | ChatGPT | Resolve final bugs, UI inconsistencies, and modal interaction issues |
+| 23 | Main | ChatGPT | Final architecture review, submission readiness check, and documentation preparation |
+
+**Total Prompts: 23**

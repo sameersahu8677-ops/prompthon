@@ -257,3 +257,249 @@ function validateExpense({
     return createValidationResult(true);
 }
 
+javascript
+/* ========================================
+   STORAGE HELPERS
+======================================== */
+
+function createDefaultData() {
+    const currentMonth = getCurrentMonthKey();
+
+    return {
+        currentMonth,
+        months: {
+            [currentMonth]: {
+                budget: 0,
+                expenses: []
+            }
+        }
+    };
+}
+
+function ensureCurrentMonthExists(data) {
+    const currentMonth = getCurrentMonthKey();
+
+    if (!data.months) {
+        data.months = {};
+    }
+
+    if (!data.months[currentMonth]) {
+        data.months[currentMonth] = {
+            budget: 0,
+            expenses: []
+        };
+    }
+
+    data.currentMonth = currentMonth;
+
+    return data;
+}
+
+function getCurrentMonthData() {
+    const data = ensureCurrentMonthExists(loadData());
+
+    saveData(data);
+
+    return data.months[data.currentMonth];
+}
+
+/* ========================================
+   STORAGE LAYER
+======================================== */
+
+function loadData() {
+    try {
+        const rawData = localStorage.getItem(
+            STORAGE_KEYS.APP_DATA
+        );
+
+        if (!rawData) {
+            return createDefaultData();
+        }
+
+        const parsedData = JSON.parse(rawData);
+
+        if (
+            typeof parsedData !== "object" ||
+            parsedData === null
+        ) {
+            return createDefaultData();
+        }
+
+        return ensureCurrentMonthExists(parsedData);
+    } catch (error) {
+        console.error("Failed to load data:", error);
+
+        return createDefaultData();
+    }
+}
+
+function saveData(data) {
+    try {
+        localStorage.setItem(
+            STORAGE_KEYS.APP_DATA,
+            JSON.stringify(data)
+        );
+
+        return true;
+    } catch (error) {
+        console.error("Failed to save data:", error);
+
+        return false;
+    }
+}
+
+function resetData() {
+    try {
+        localStorage.removeItem(
+            STORAGE_KEYS.APP_DATA
+        );
+    } catch (error) {
+        console.error("Failed to reset data:", error);
+    }
+
+    return createDefaultData();
+}
+
+/* ========================================
+   BUDGET CRUD
+======================================== */
+
+function setBudget(amount) {
+    const validation = validateBudget(amount);
+
+    if (!validation.valid) {
+        return validation;
+    }
+
+    const data = loadData();
+
+    data.months[data.currentMonth].budget =
+        safeParseNumber(amount);
+
+    saveData(data);
+
+    return {
+        valid: true,
+        message: "Budget updated successfully."
+    };
+}
+
+function getBudget() {
+    return getCurrentMonthData().budget;
+}
+
+/* ========================================
+   EXPENSE CRUD
+======================================== */
+
+function addExpense({
+    amount,
+    category,
+    date
+}) {
+    const validation = validateExpense({
+        amount,
+        category,
+        date
+    });
+
+    if (!validation.valid) {
+        return validation;
+    }
+
+    const data = loadData();
+
+    const expense = {
+        id: generateId(),
+        amount: safeParseNumber(amount),
+        category,
+        date,
+        timestamp: Date.now()
+    };
+
+    data.months[data.currentMonth]
+        .expenses
+        .push(expense);
+
+    saveData(data);
+
+    return {
+        valid: true,
+        message: "Expense added successfully.",
+        expense
+    };
+}
+
+function deleteExpense(expenseId) {
+    const data = loadData();
+
+    const monthData =
+        data.months[data.currentMonth];
+
+    const originalLength =
+        monthData.expenses.length;
+
+    monthData.expenses =
+        monthData.expenses.filter(
+            expense => expense.id !== expenseId
+        );
+
+    const deleted =
+        monthData.expenses.length !==
+        originalLength;
+
+    if (deleted) {
+        saveData(data);
+    }
+
+    return {
+        success: deleted,
+        message: deleted
+            ? "Expense deleted successfully."
+            : "Expense not found."
+    };
+}
+
+function getExpenses() {
+    const monthData = getCurrentMonthData();
+
+    return [...monthData.expenses].sort(
+        (a, b) => b.timestamp - a.timestamp
+    );
+}
+
+function filterExpenses(category = "All") {
+    const expenses = getExpenses();
+
+    if (category === "All") {
+        return expenses;
+    }
+
+    return expenses.filter(
+        expense => expense.category === category
+    );
+}
+
+/* ========================================
+   DELETE MODAL HELPERS
+======================================== */
+
+let pendingDeleteExpenseId = null;
+
+function openDeleteModal(expenseId) {
+    pendingDeleteExpenseId = expenseId;
+
+    if (DOM.deleteModal) {
+        DOM.deleteModal.hidden = false;
+    }
+}
+
+function closeDeleteModal() {
+    pendingDeleteExpenseId = null;
+
+    if (DOM.deleteModal) {
+        DOM.deleteModal.hidden = true;
+    }
+}
+

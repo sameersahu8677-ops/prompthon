@@ -859,6 +859,8 @@ const AnalyticsManager = {
 
 const DOM = {
 
+    
+
     views: {
         dashboard: document.getElementById("dashboard-view"),
         deck: document.getElementById("deck-view"),
@@ -2093,7 +2095,7 @@ function wireCreateDeckModal() {
 
     document
         .getElementById(
-            "cancel-deck-btn"
+            "cancel-create-deck-btn"
         )
         ?.addEventListener(
             "click",
@@ -2184,7 +2186,7 @@ function wireCardModal() {
 
     document
         .getElementById(
-            "cancel-card-btn"
+            "cancel-add-card-btn"
         )
         ?.addEventListener(
             "click",
@@ -2286,7 +2288,7 @@ function wireBulkImport() {
 
                 const textarea =
                     document.getElementById(
-                        "bulk-cards-input"
+                        "bulk-card-input"
                     );
 
                 const result =

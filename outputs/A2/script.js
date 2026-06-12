@@ -1859,3 +1859,585 @@ function handleWrongAnswer() {
 
 
 }
+
+/* ==================================================
+UI STATE
+================================================== */
+
+let editingDeckId = null;
+let editingCardId = null;
+
+/* ==================================================
+HELPERS
+================================================== */
+
+function resetDeckModal() {
+
+  
+editingDeckId = null;
+
+if (DOM.inputs.deckName) {
+    DOM.inputs.deckName.value = "";
+}
+
+if (DOM.modalTitles?.createDeck) {
+    DOM.modalTitles.createDeck.textContent =
+        "Create Deck";
+}
+  
+
+}
+
+function resetCardModal() {
+
+  
+editingCardId = null;
+
+if (DOM.inputs.question) {
+    DOM.inputs.question.value = "";
+}
+
+if (DOM.inputs.answer) {
+    DOM.inputs.answer.value = "";
+}
+
+if (DOM.modalTitles?.addCard) {
+    DOM.modalTitles.addCard.textContent =
+        "Add Card";
+}
+  
+
+}
+
+/* ==================================================
+NAVIGATION WIRING
+================================================== */
+
+function attachNavigationListeners() {
+
+  
+DOM.navigation.dashboardBtn?.addEventListener(
+    "click",
+    () => {
+
+        RenderManager.renderDashboard();
+
+        ViewManager.showDashboard();
+    }
+);
+
+DOM.navigation.analyticsBtn?.addEventListener(
+    "click",
+    () => {
+
+        RenderManager.renderAnalytics();
+
+        ViewManager.showAnalytics();
+    }
+);
+
+DOM.buttons.returnToDeck?.addEventListener(
+    "click",
+    () => {
+
+        RenderManager.renderDeck();
+
+        ViewManager.showDeck();
+    }
+);
+
+DOM.buttons.studyAgain?.addEventListener(
+    "click",
+    () => {
+
+        startStudySession();
+    }
+);
+  
+
+}
+
+/* ==================================================
+DECK MODAL FLOW
+================================================== */
+
+function attachDeckModalListeners() {
+
+  
+DOM.buttons.createDeck?.addEventListener(
+    "click",
+    () => {
+
+        resetDeckModal();
+
+        ModalManager.open(
+            DOM.modals.createDeck
+        );
+    }
+);
+
+DOM.buttons.cancelCreateDeck?.addEventListener(
+    "click",
+    () => {
+
+        ModalManager.close(
+            DOM.modals.createDeck
+        );
+    }
+);
+
+DOM.buttons.saveDeck?.addEventListener(
+    "click",
+    () => {
+
+        try {
+
+            const name =
+                DOM.inputs.deckName?.value || "";
+
+            if (editingDeckId) {
+
+                DeckManager.renameDeck(
+                    editingDeckId,
+                    name
+                );
+
+            } else {
+
+                DeckManager.createDeck(
+                    name
+                );
+            }
+
+            StorageManager.save();
+
+            ModalManager.close(
+                DOM.modals.createDeck
+            );
+
+            resetDeckModal();
+
+            RenderManager.renderDashboard();
+
+        } catch (error) {
+
+            console.error(error);
+
+            showToast(
+                "Failed to save deck.",
+                "error"
+            );
+        }
+    }
+);
+  
+
+}
+
+/* ==================================================
+CARD MODAL FLOW
+================================================== */
+
+function attachCardModalListeners() {
+
+  
+DOM.buttons.addCard?.addEventListener(
+    "click",
+    () => {
+
+        resetCardModal();
+
+        ModalManager.open(
+            DOM.modals.addCard
+        );
+    }
+);
+
+DOM.buttons.cancelAddCard?.addEventListener(
+    "click",
+    () => {
+
+        ModalManager.close(
+            DOM.modals.addCard
+        );
+    }
+);
+
+DOM.buttons.saveCard?.addEventListener(
+    "click",
+    () => {
+
+        try {
+
+            const question =
+                DOM.inputs.question?.value || "";
+
+            const answer =
+                DOM.inputs.answer?.value || "";
+
+            if (editingCardId) {
+
+                FlashcardManager.editCard(
+                    editingCardId,
+                    question,
+                    answer
+                );
+
+            } else {
+
+                FlashcardManager.addCard(
+                    question,
+                    answer
+                );
+            }
+
+            ModalManager.close(
+                DOM.modals.addCard
+            );
+
+            resetCardModal();
+
+            RenderManager.renderDeck();
+
+        } catch (error) {
+
+            console.error(error);
+
+            showToast(
+                "Failed to save card.",
+                "error"
+            );
+        }
+    }
+);
+  
+
+}
+
+/* ==================================================
+BULK IMPORT FLOW
+================================================== */
+
+function attachBulkImportListeners() {
+
+  
+DOM.buttons.bulkAdd?.addEventListener(
+    "click",
+    () => {
+
+        ModalManager.open(
+            DOM.modals.bulkAdd
+        );
+    }
+);
+
+DOM.buttons.cancelBulkAdd?.addEventListener(
+    "click",
+    () => {
+
+        ModalManager.close(
+            DOM.modals.bulkAdd
+        );
+    }
+);
+
+DOM.buttons.importCards?.addEventListener(
+    "click",
+    () => {
+
+        try {
+
+            const text =
+                DOM.inputs.bulkInput?.value || "";
+
+            const result =
+                FlashcardManager.bulkImport(
+                    text
+                );
+
+            showToast(
+                `Imported ${result.imported} cards. Skipped ${result.skipped} lines.`,
+                "success"
+            );
+
+            DOM.inputs.bulkInput.value = "";
+
+            ModalManager.close(
+                DOM.modals.bulkAdd
+            );
+
+            RenderManager.renderDeck();
+
+        } catch (error) {
+
+            console.error(error);
+
+            showToast(
+                "Bulk import failed.",
+                "error"
+            );
+        }
+    }
+);
+  
+
+}
+
+/* ==================================================
+QUIZ BUTTONS
+================================================== */
+
+function attachQuizListeners() {
+
+  
+DOM.buttons.startQuiz?.addEventListener(
+    "click",
+    startStudySession
+);
+
+DOM.buttons.revealAnswer?.addEventListener(
+    "click",
+    revealAnswer
+);
+
+DOM.buttons.gotItRight?.addEventListener(
+    "click",
+    handleCorrectAnswer
+);
+
+DOM.buttons.gotItWrong?.addEventListener(
+    "click",
+    handleWrongAnswer
+);
+  
+
+}
+
+/* ==================================================
+DELEGATED DECK ACTIONS
+================================================== */
+
+function attachDeckDelegation() {
+
+  
+DOM.containers.deckGrid?.addEventListener(
+    "click",
+    event => {
+
+        const target =
+            event.target;
+
+        const deckId =
+            target.dataset.deckId;
+
+        if (!deckId) {
+            return;
+        }
+
+        try {
+
+            if (
+                target.classList.contains(
+                    "open-deck-btn"
+                )
+            ) {
+
+                DeckManager.openDeck(
+                    deckId
+                );
+
+                RenderManager.renderDeck();
+
+                ViewManager.showDeck();
+            }
+
+            if (
+                target.classList.contains(
+                    "rename-deck-btn"
+                )
+            ) {
+
+                const deck =
+                    DeckManager.getDeck(
+                        deckId
+                    );
+
+                if (!deck) {
+                    return;
+                }
+
+                editingDeckId =
+                    deckId;
+
+                DOM.inputs.deckName.value =
+                    deck.name;
+
+                DOM.modalTitles.createDeck.textContent =
+                    "Rename Deck";
+
+                ModalManager.open(
+                    DOM.modals.createDeck
+                );
+            }
+
+            if (
+                target.classList.contains(
+                    "delete-deck-btn"
+                )
+            ) {
+
+                DeckManager.deleteDeck(
+                    deckId
+                );
+
+                RenderManager.renderDashboard();
+            }
+
+        } catch (error) {
+
+            console.error(error);
+
+            showToast(
+                "Deck action failed.",
+                "error"
+            );
+        }
+    }
+);
+  
+
+}
+
+/* ==================================================
+DELEGATED CARD ACTIONS
+================================================== */
+
+function attachCardDelegation() {
+
+  
+DOM.containers.cardList?.addEventListener(
+    "click",
+    event => {
+
+        const target =
+            event.target;
+
+        const cardId =
+            target.dataset.cardId;
+
+        if (!cardId) {
+            return;
+        }
+
+        try {
+
+            if (
+                target.classList.contains(
+                    "edit-card-btn"
+                )
+            ) {
+
+                const card =
+                    FlashcardManager.getCard(
+                        cardId
+                    );
+
+                if (!card) {
+                    return;
+                }
+
+                editingCardId =
+                    cardId;
+
+                DOM.inputs.question.value =
+                    card.question;
+
+                DOM.inputs.answer.value =
+                    card.answer;
+
+                DOM.modalTitles.addCard.textContent =
+                    "Edit Card";
+
+                ModalManager.open(
+                    DOM.modals.addCard
+                );
+            }
+
+            if (
+                target.classList.contains(
+                    "delete-card-btn"
+                )
+            ) {
+
+                FlashcardManager.deleteCard(
+                    cardId
+                );
+
+                RenderManager.renderDeck();
+            }
+
+        } catch (error) {
+
+            console.error(error);
+
+            showToast(
+                "Card action failed.",
+                "error"
+            );
+        }
+    }
+);
+  
+
+}
+
+/* ==================================================
+INITIALIZATION
+================================================== */
+
+function initializeApplication() {
+
+  
+try {
+
+    StorageManager.load();
+
+    RenderManager.renderDashboard();
+
+    ViewManager.showDashboard();
+
+    attachNavigationListeners();
+
+    attachDeckModalListeners();
+
+    attachCardModalListeners();
+
+    attachBulkImportListeners();
+
+    attachQuizListeners();
+
+    attachDeckDelegation();
+
+    attachCardDelegation();
+
+} catch (error) {
+
+    console.error(error);
+
+    showToast(
+        "Application failed to initialize.",
+        "error"
+    );
+}
+  
+
+}
+
+/* ==================================================
+BOOTSTRAP
+================================================== */
+
+document.addEventListener(
+"DOMContentLoaded",
+initializeApplication
+);

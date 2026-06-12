@@ -1682,3 +1682,695 @@ const RenderManager = {
             s.mastered;
     }
 };
+
+/* ==================================================
+   PART C
+   EVENT WIRING
+   MODAL FLOWS
+   NAVIGATION
+   BOOTSTRAP
+================================================== */
+
+/* ==================================================
+   MODAL STATE
+================================================== */
+
+let deckEditMode = false;
+let cardEditMode = false;
+
+/* ==================================================
+   HELPERS
+================================================== */
+
+function resetDeckModal() {
+
+    state.ui.editingDeckId = null;
+    deckEditMode = false;
+
+    const form =
+        document.getElementById("create-deck-form");
+
+    const input =
+        document.getElementById("deck-name-input");
+
+    const title =
+        document.getElementById("create-deck-modal-title");
+
+    if (form) form.reset();
+
+    if (input) input.value = "";
+
+    if (title) {
+        title.textContent = "Create Deck";
+    }
+}
+
+function resetCardModal() {
+
+    state.ui.editingCardId = null;
+    cardEditMode = false;
+
+    const form =
+        document.getElementById("add-card-form");
+
+    const title =
+        document.getElementById("add-card-modal-title");
+
+    if (form) form.reset();
+
+    if (title) {
+        title.textContent = "Add Card";
+    }
+}
+
+/* ==================================================
+   DECK MODAL FLOW
+================================================== */
+
+function openCreateDeckModal() {
+
+    resetDeckModal();
+
+    ModalManager.open(
+        DOM.modals.createDeck
+    );
+}
+
+function openRenameDeckModal(deckId) {
+
+    const deck =
+        DeckManager.getDeck(deckId);
+
+    if (!deck) {
+        return;
+    }
+
+    deckEditMode = true;
+
+    state.ui.editingDeckId =
+        deckId;
+
+    const input =
+        document.getElementById("deck-name-input");
+
+    const title =
+        document.getElementById("create-deck-modal-title");
+
+    if (input) {
+        input.value = deck.name;
+    }
+
+    if (title) {
+        title.textContent = "Rename Deck";
+    }
+
+    ModalManager.open(
+        DOM.modals.createDeck
+    );
+}
+
+/* ==================================================
+   CARD MODAL FLOW
+================================================== */
+
+function openAddCardModal() {
+
+    resetCardModal();
+
+    ModalManager.open(
+        DOM.modals.addCard
+    );
+}
+
+function openEditCardModal(cardId) {
+
+    const card =
+        FlashcardManager.getCard(
+            cardId
+        );
+
+    if (!card) {
+        return;
+    }
+
+    cardEditMode = true;
+
+    state.ui.editingCardId =
+        cardId;
+
+    const title =
+        document.getElementById("add-card-modal-title");
+
+    const question =
+        document.getElementById("card-question-input");
+
+    const answer =
+        document.getElementById("card-answer-input");
+
+    if (title) {
+        title.textContent = "Edit Card";
+    }
+
+    if (question) {
+        question.value =
+            card.question;
+    }
+
+    if (answer) {
+        answer.value =
+            card.answer;
+    }
+
+    ModalManager.open(
+        DOM.modals.addCard
+    );
+}
+
+/* ==================================================
+   BULK IMPORT FLOW
+================================================== */
+
+function openBulkImportModal() {
+
+    ModalManager.open(
+        DOM.modals.bulkAdd
+    );
+}
+
+/* ==================================================
+   DECK GRID EVENTS
+================================================== */
+
+function handleDeckGridClick(event) {
+
+    const button =
+        event.target.closest(
+            "button"
+        );
+
+    if (!button) {
+        return;
+    }
+
+    const deckId =
+        button.dataset.deckId;
+
+    if (!deckId) {
+        return;
+    }
+
+    const action =
+        button.dataset.action;
+
+    try {
+
+        switch (action) {
+
+            case "open-deck":
+
+                DeckManager.openDeck(
+                    deckId
+                );
+
+                RenderManager.renderDeck();
+
+                ViewManager.showDeck();
+
+                break;
+
+            case "rename-deck":
+
+                openRenameDeckModal(
+                    deckId
+                );
+
+                break;
+
+            case "delete-deck":
+
+                DeckManager.deleteDeck(
+                    deckId
+                );
+
+                RenderManager.renderDashboard();
+
+                break;
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        showToast(
+            "Operation failed.",
+            "error"
+        );
+    }
+}
+
+/* ==================================================
+   CARD LIST EVENTS
+================================================== */
+
+function handleCardListClick(event) {
+
+    const button =
+        event.target.closest(
+            "button"
+        );
+
+    if (!button) {
+        return;
+    }
+
+    const cardId =
+        button.dataset.cardId;
+
+    if (!cardId) {
+        return;
+    }
+
+    const action =
+        button.dataset.action;
+
+    try {
+
+        switch (action) {
+
+            case "edit-card":
+
+                openEditCardModal(
+                    cardId
+                );
+
+                break;
+
+            case "delete-card":
+
+                FlashcardManager.deleteCard(
+                    cardId
+                );
+
+                RenderManager.renderDeck();
+
+                break;
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        showToast(
+            "Operation failed.",
+            "error"
+        );
+    }
+}
+
+/* ==================================================
+   NAVIGATION
+================================================== */
+
+function wireNavigation() {
+
+    DOM.navigation.dashboard
+        ?.addEventListener(
+            "click",
+            () => {
+
+                RenderManager.renderDashboard();
+
+                ViewManager.showDashboard();
+            }
+        );
+
+    DOM.navigation.analytics
+        ?.addEventListener(
+            "click",
+            () => {
+
+                RenderManager.renderAnalytics();
+
+                ViewManager.showAnalytics();
+            }
+        );
+
+    document
+        .getElementById(
+            "return-to-deck-btn"
+        )
+        ?.addEventListener(
+            "click",
+            () => {
+
+                RenderManager.renderDeck();
+
+                ViewManager.showDeck();
+            }
+        );
+
+    document
+        .getElementById(
+            "study-again-btn"
+        )
+        ?.addEventListener(
+            "click",
+            () => {
+
+                startStudySession();
+            }
+        );
+}
+
+/* ==================================================
+   QUIZ BUTTONS
+================================================== */
+
+function wireQuizButtons() {
+
+    DOM.study.revealBtn
+        ?.addEventListener(
+            "click",
+            revealAnswer
+        );
+
+    DOM.study.rightBtn
+        ?.addEventListener(
+            "click",
+            handleCorrectAnswer
+        );
+
+    DOM.study.wrongBtn
+        ?.addEventListener(
+            "click",
+            handleWrongAnswer
+        );
+
+    document
+        .getElementById(
+            "start-quiz-btn"
+        )
+        ?.addEventListener(
+            "click",
+            startStudySession
+        );
+}
+
+/* ==================================================
+   CREATE DECK
+================================================== */
+
+function wireCreateDeckModal() {
+
+    document
+        .getElementById(
+            "create-deck-btn"
+        )
+        ?.addEventListener(
+            "click",
+            openCreateDeckModal
+        );
+
+    document
+        .getElementById(
+            "cancel-deck-btn"
+        )
+        ?.addEventListener(
+            "click",
+            () => {
+
+                ModalManager.close(
+                    DOM.modals.createDeck
+                );
+            }
+        );
+
+    document
+        .getElementById(
+            "create-deck-form"
+        )
+        ?.addEventListener(
+            "submit",
+            event => {
+
+                event.preventDefault();
+
+                const input =
+                    document.getElementById(
+                        "deck-name-input"
+                    );
+
+                const name =
+                    input?.value.trim();
+
+                if (!name) {
+
+                    showToast(
+                        "Deck name required.",
+                        "error"
+                    );
+
+                    return;
+                }
+
+                if (
+                    deckEditMode
+                ) {
+
+                    DeckManager.renameDeck(
+                        state.ui.editingDeckId,
+                        name
+                    );
+
+                } else {
+
+                    DeckManager.createDeck(
+                        name
+                    );
+                }
+
+                ModalManager.close(
+                    DOM.modals.createDeck
+                );
+
+                resetDeckModal();
+
+                RenderManager.renderDashboard();
+
+                if (
+                    getActiveDeck()
+                ) {
+
+                    RenderManager.renderDeck();
+                }
+            }
+        );
+}
+
+/* ==================================================
+   CARD MODAL
+================================================== */
+
+function wireCardModal() {
+
+    document
+        .getElementById(
+            "add-card-btn"
+        )
+        ?.addEventListener(
+            "click",
+            openAddCardModal
+        );
+
+    document
+        .getElementById(
+            "cancel-card-btn"
+        )
+        ?.addEventListener(
+            "click",
+            () => {
+
+                ModalManager.close(
+                    DOM.modals.addCard
+                );
+            }
+        );
+
+    document
+        .getElementById(
+            "add-card-form"
+        )
+        ?.addEventListener(
+            "submit",
+            event => {
+
+                event.preventDefault();
+
+                const question =
+                    document.getElementById(
+                        "card-question-input"
+                    )?.value;
+
+                const answer =
+                    document.getElementById(
+                        "card-answer-input"
+                    )?.value;
+
+                if (
+                    cardEditMode
+                ) {
+
+                    FlashcardManager.editCard(
+                        state.ui.editingCardId,
+                        question,
+                        answer
+                    );
+
+                } else {
+
+                    FlashcardManager.addCard(
+                        question,
+                        answer
+                    );
+                }
+
+                ModalManager.close(
+                    DOM.modals.addCard
+                );
+
+                resetCardModal();
+
+                RenderManager.renderDeck();
+            }
+        );
+}
+
+/* ==================================================
+   BULK IMPORT
+================================================== */
+
+function wireBulkImport() {
+
+    document
+        .getElementById(
+            "bulk-add-cards-btn"
+        )
+        ?.addEventListener(
+            "click",
+            openBulkImportModal
+        );
+
+    document
+        .getElementById(
+            "cancel-bulk-add-btn"
+        )
+        ?.addEventListener(
+            "click",
+            () => {
+
+                ModalManager.close(
+                    DOM.modals.bulkAdd
+                );
+            }
+        );
+
+    document
+        .getElementById(
+            "bulk-add-form"
+        )
+        ?.addEventListener(
+            "submit",
+            event => {
+
+                event.preventDefault();
+
+                const textarea =
+                    document.getElementById(
+                        "bulk-cards-input"
+                    );
+
+                const result =
+                    FlashcardManager.bulkImport(
+                        textarea.value
+                    );
+
+                showToast(
+                    `Imported ${result.imported}, Skipped ${result.skipped}`,
+                    "success"
+                );
+
+                textarea.value = "";
+
+                ModalManager.close(
+                    DOM.modals.bulkAdd
+                );
+
+                RenderManager.renderDeck();
+            }
+        );
+}
+
+/* ==================================================
+   DELEGATION
+================================================== */
+
+function wireDelegation() {
+
+    DOM.dashboard.deckGrid
+        ?.addEventListener(
+            "click",
+            handleDeckGridClick
+        );
+
+    DOM.deck.cardList
+        ?.addEventListener(
+            "click",
+            handleCardListClick
+        );
+}
+
+/* ==================================================
+   INITIALIZATION
+================================================== */
+
+function initializeApplication() {
+
+    try {
+
+        StorageManager.load();
+
+        wireNavigation();
+
+        wireQuizButtons();
+
+        wireCreateDeckModal();
+
+        wireCardModal();
+
+        wireBulkImport();
+
+        wireDelegation();
+
+        RenderManager.renderDashboard();
+
+        ViewManager.showDashboard();
+
+    } catch (error) {
+
+        console.error(error);
+
+        showToast(
+            "Application failed to initialize.",
+            "error"
+        );
+    }
+}
+
+/* ==================================================
+   BOOTSTRAP
+================================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    initializeApplication
+);

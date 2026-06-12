@@ -503,3 +503,239 @@ function closeDeleteModal() {
     }
 }
 
+javascript
+/* ========================================
+   ANALYTICS HELPERS
+======================================== */
+
+function calculateTotalSpent(expenses) {
+    return expenses.reduce(
+        (total, expense) => total + safeParseNumber(expense.amount),
+        0
+    );
+}
+
+function calculateRemainingBudget(budget, totalSpent) {
+    return budget - totalSpent;
+}
+
+function calculateUsagePercentage(budget, totalSpent) {
+    if (budget <= 0) {
+        return 0;
+    }
+
+    return (totalSpent / budget) * 100;
+}
+
+function calculateSpendingVelocity(totalSpent, daysElapsed) {
+    if (daysElapsed <= 0) {
+        return 0;
+    }
+
+    return totalSpent / daysElapsed;
+}
+
+function calculateProjectedSpend(velocity, daysInMonth) {
+    return velocity * daysInMonth;
+}
+
+function calculateDaysToExhaustion(
+    remainingBudget,
+    velocity
+) {
+    if (
+        velocity <= 0 ||
+        remainingBudget <= 0
+    ) {
+        return 0;
+    }
+
+    return Math.floor(
+        remainingBudget / velocity
+    );
+}
+function calculateSuggestedDailyLimit(
+    remainingBudget,
+    remainingDays
+) {
+    if (remainingDays <= 0) {
+        return 0;
+    }
+
+    return remainingBudget / remainingDays;
+}
+
+/* ========================================
+   RISK ANALYSIS
+======================================== */
+
+function calculateRiskStatus(projectedSpend, budget) {
+    if (budget <= 0) {
+        return {
+            level: RISK_LEVELS.RISK,
+            message: "No budget has been set."
+        };
+    }
+
+    const ninetyPercentThreshold = budget * 0.9;
+
+    if (projectedSpend < ninetyPercentThreshold) {
+        return {
+            level: RISK_LEVELS.SAFE,
+            message: "Your spending is comfortably within budget."
+        };
+    }
+
+    if (projectedSpend <= budget) {
+        return {
+            level: RISK_LEVELS.WATCH,
+            message: "Monitor your spending to avoid exceeding your budget."
+        };
+    }
+
+    return {
+        level: RISK_LEVELS.RISK,
+        message: "At this rate, your budget is likely to be exceeded."
+    };
+}
+
+/* ========================================
+   CATEGORY ANALYTICS
+======================================== */
+
+function calculateCategoryBreakdown(expenses) {
+    const totalSpent = calculateTotalSpent(expenses);
+
+    const breakdown = {
+        Food: {
+            amount: 0,
+            percentage: 0
+        },
+        Entertainment: {
+            amount: 0,
+            percentage: 0
+        },
+        "Books/Stationery": {
+            amount: 0,
+            percentage: 0
+        }
+    };
+
+    expenses.forEach(expense => {
+        if (breakdown[expense.category]) {
+            breakdown[expense.category].amount +=
+                safeParseNumber(expense.amount);
+        }
+    });
+
+    Object.keys(breakdown).forEach(category => {
+        breakdown[category].percentage =
+            totalSpent > 0
+                ? (breakdown[category].amount / totalSpent) * 100
+                : 0;
+    });
+
+    return breakdown;
+}
+
+/* ========================================
+   MASTER ANALYTICS
+======================================== */
+
+function generateAnalytics() {
+    const budget = getBudget();
+    const expenses = getExpenses();
+
+    const totalSpent =
+        calculateTotalSpent(expenses);
+
+    const remainingBudget =
+        calculateRemainingBudget(
+            budget,
+            totalSpent
+        );
+
+    const usagePercentage =
+        calculateUsagePercentage(
+            budget,
+            totalSpent
+        );
+
+    const daysElapsed =
+        getDaysElapsed();
+
+    const daysInMonth =
+        getDaysInCurrentMonth();
+
+    const remainingDays =
+        getRemainingDaysInMonth();
+
+    const categoryBreakdown =
+        calculateCategoryBreakdown(
+            expenses
+        );
+
+    const collectingPattern =
+        daysElapsed < 3;
+
+    let velocity = 0;
+    let projectedSpend = 0;
+    let daysToExhaustion = Infinity;
+    let suggestedDailyLimit = 0;
+    let riskStatus = {
+        level: RISK_LEVELS.SAFE,
+        message: ""
+    };
+
+    if (!collectingPattern) {
+        velocity =
+            calculateSpendingVelocity(
+                totalSpent,
+                daysElapsed
+            );
+
+        projectedSpend =
+            calculateProjectedSpend(
+                velocity,
+                daysInMonth
+            );
+
+        daysToExhaustion =
+            calculateDaysToExhaustion(
+                remainingBudget,
+                velocity
+            );
+
+        suggestedDailyLimit =
+            calculateSuggestedDailyLimit(
+                remainingBudget,
+                remainingDays
+            );
+
+        riskStatus =
+            calculateRiskStatus(
+                projectedSpend,
+                budget
+            );
+    }
+
+    return {
+        budget,
+        totalSpent,
+        remainingBudget,
+        usagePercentage,
+
+        velocity,
+        projectedSpend,
+
+        daysToExhaustion,
+        suggestedDailyLimit,
+
+        riskStatus,
+
+        categoryBreakdown,
+
+        collectingPattern
+    };
+}
+

@@ -382,3 +382,287 @@
   select:hover {
       border-color: var(--color-accent);
   }
+
+  css
+  /* ========================================
+   BUDGET SUMMARY
+======================================== */
+
+  .summary-grid {
+      display: grid;
+      gap: var(--space-md);
+  }
+
+  .summary-item {
+      position: relative;
+
+      padding: var(--space-lg);
+
+      background-color: var(--color-surface-soft);
+
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+
+      box-shadow: var(--shadow-sm);
+
+      overflow: hidden;
+  }
+
+  .summary-item::before {
+      content: "";
+
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 4px;
+
+      background-color: var(--color-accent);
+  }
+
+  #total-budget,
+  #total-spent,
+  #remaining-budget {
+      margin-top: var(--space-sm);
+
+      font-size: 1.8rem;
+      font-weight: 800;
+      line-height: 1.1;
+
+      color: var(--color-text-primary);
+
+      word-break: break-word;
+  }
+
+  #total-budget {
+      color: var(--color-primary);
+  }
+
+  #total-spent {
+      color: var(--color-warning);
+  }
+
+  #remaining-budget {
+      color: var(--color-success);
+  }
+
+  /* ========================================
+   BUDGET PROGRESS
+======================================== */
+
+  .progress-bar,
+  #budget-progress {
+      width: 100%;
+      height: 1rem;
+
+      margin-top: var(--space-sm);
+
+      background-color: var(--color-border);
+
+      border-radius: 999px;
+
+      overflow: hidden;
+  }
+
+  #budget-progress-fill {
+      width: 0%;
+      height: 100%;
+
+      background: linear-gradient(90deg,
+              var(--color-primary),
+              var(--color-accent));
+
+      border-radius: inherit;
+  }
+
+  #budget-percentage {
+      margin-top: var(--space-sm);
+
+      text-align: right;
+
+      font-weight: 700;
+      color: var(--color-primary);
+  }
+
+  /* ========================================
+   FINANCIAL HEALTH
+======================================== */
+
+  #risk-status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      min-width: 120px;
+
+      padding: 0.7rem 1rem;
+
+      border-radius: 999px;
+
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+  }
+
+  #risk-status-message {
+      margin-top: var(--space-sm);
+
+      font-weight: 500;
+      color: var(--color-text-secondary);
+  }
+
+  /* ========================================
+   VELOCITY ANALYSIS
+======================================== */
+
+  #velocity-card {
+      border-left: 5px solid var(--color-accent);
+  }
+
+  #velocity-message {
+      margin-bottom: var(--space-lg);
+
+      padding: var(--space-md);
+
+      background-color: rgba(217, 119, 6, 0.08);
+
+      border: 1px solid rgba(217, 119, 6, 0.15);
+      border-radius: var(--radius-md);
+
+      color: var(--color-warning);
+
+      font-weight: 600;
+  }
+
+  .analytics-grid {
+      display: grid;
+      gap: var(--space-md);
+  }
+
+  .analytics-item {
+      padding: var(--space-lg);
+
+      background-color: var(--color-surface-soft);
+
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+
+      box-shadow: var(--shadow-sm);
+  }
+
+  .analytics-item h4 {
+      color: var(--color-text-secondary);
+  }
+
+  .analytics-item p {
+      margin-top: var(--space-sm);
+
+      font-size: 1.4rem;
+      font-weight: 800;
+
+      color: var(--color-text-primary);
+
+      word-break: break-word;
+  }
+
+  /* ========================================
+   CATEGORY ANALYTICS
+======================================== */
+
+  .category-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+  }
+
+  .category-row {
+      padding: var(--space-md);
+
+      background-color: var(--color-surface-soft);
+
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+
+      box-shadow: var(--shadow-sm);
+  }
+
+  .category-row h4 {
+      margin-bottom: var(--space-sm);
+  }
+
+  .category-data {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      gap: var(--space-md);
+
+      flex-wrap: wrap;
+  }
+
+  .category-data span {
+      font-weight: 700;
+      color: var(--color-text-primary);
+  }
+
+  /* ========================================
+   OVERSPENDING ALERT
+======================================== */
+
+  #overspending-message {
+      margin-top: var(--space-md);
+
+      padding: var(--space-sm) var(--space-md);
+
+      background-color: rgba(220, 38, 38, 0.08);
+
+      border: 1px solid rgba(220, 38, 38, 0.15);
+      border-radius: var(--radius-md);
+
+      color: var(--color-danger);
+
+      font-weight: 700;
+  }
+
+  /* ========================================
+   EMPTY STATE
+======================================== */
+
+  #history-empty-state {
+      padding: var(--space-xl);
+
+      text-align: center;
+
+      background-color: var(--color-surface-soft);
+
+      border: 2px dashed var(--color-border);
+      border-radius: var(--radius-md);
+
+      color: var(--color-text-secondary);
+      font-weight: 500;
+  }
+
+  /* ========================================
+   STATUS UTILITIES
+======================================== */
+
+  .safe {
+      background-color: rgba(5, 150, 105, 0.12);
+      border: 1px solid rgba(5, 150, 105, 0.2);
+      color: var(--color-success);
+  }
+
+  .watch {
+      background-color: rgba(217, 119, 6, 0.12);
+      border: 1px solid rgba(217, 119, 6, 0.2);
+      color: var(--color-warning);
+  }
+
+  .risk {
+      background-color: rgba(220, 38, 38, 0.12);
+      border: 1px solid rgba(220, 38, 38, 0.2);
+      color: var(--color-danger);
+  }

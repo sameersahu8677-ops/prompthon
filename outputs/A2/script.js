@@ -840,3 +840,845 @@ const AnalyticsManager = {
         return distribution;
     }
 };
+
+
+/* ==================================================
+   PART B
+   DOM CACHE
+   VIEWS
+   MODALS
+   QUEUE
+   SESSION
+   QUIZ
+   RENDERING
+================================================== */
+
+/* ==================================================
+   DOM CACHE
+================================================== */
+
+const DOM = {
+
+    views: {
+        dashboard: document.getElementById("dashboard-view"),
+        deck: document.getElementById("deck-view"),
+        study: document.getElementById("study-view"),
+        summary: document.getElementById("summary-view"),
+        analytics: document.getElementById("analytics-view")
+    },
+
+    navigation: {
+        dashboard: document.getElementById("nav-dashboard-btn"),
+        analytics: document.getElementById("nav-analytics-btn")
+    },
+
+    dashboard: {
+        totalDecks: document.getElementById("total-decks-value"),
+        totalCards: document.getElementById("total-cards-value"),
+        masteredCards: document.getElementById("total-mastered-cards-value"),
+        deckGrid: document.getElementById("deck-grid-container")
+    },
+
+    deck: {
+        activeDeckName: document.getElementById("active-deck-name"),
+        totalCards: document.getElementById("deck-total-cards-value"),
+        masteredCards: document.getElementById("deck-mastered-cards-value"),
+        accuracy: document.getElementById("deck-accuracy-value"),
+        cardList: document.getElementById("card-list-container")
+    },
+
+    study: {
+        cardsRemaining: document.getElementById("cards-remaining-value"),
+        sessionScore: document.getElementById("session-score-value"),
+        currentBox: document.getElementById("current-box-value"),
+        currentStatus: document.getElementById("current-status-value"),
+
+        question: document.getElementById("question-display"),
+        answer: document.getElementById("answer-display"),
+
+        cardMovement: document.getElementById("card-movement-message"),
+        scheduling: document.getElementById("scheduling-message"),
+
+        revealBtn: document.getElementById("reveal-answer-btn"),
+        rightBtn: document.getElementById("got-it-right-btn"),
+        wrongBtn: document.getElementById("got-it-wrong-btn")
+    },
+
+    summary: {
+        reviewed: document.getElementById("summary-reviewed-value"),
+        correct: document.getElementById("summary-correct-value"),
+        wrong: document.getElementById("summary-wrong-value"),
+        accuracy: document.getElementById("summary-accuracy-value"),
+        mastered: document.getElementById("summary-mastered-value")
+    },
+
+    analytics: {
+        reviews: document.getElementById("analytics-total-reviews-value"),
+        accuracy: document.getElementById("analytics-accuracy-value"),
+        mastered: document.getElementById("analytics-mastered-cards-value"),
+
+        box1: document.getElementById("box-1-count"),
+        box2: document.getElementById("box-2-count"),
+        box3: document.getElementById("box-3-count"),
+        box4: document.getElementById("box-4-count"),
+        box5: document.getElementById("box-5-count")
+    },
+
+    modals: {
+        createDeck: document.getElementById("create-deck-modal"),
+        addCard: document.getElementById("add-card-modal"),
+        bulkAdd: document.getElementById("bulk-add-modal")
+    }
+};
+
+/* ==================================================
+   VIEW MANAGER
+================================================== */
+
+const ViewManager = {
+
+    hideAllViews() {
+
+        Object.values(DOM.views)
+            .forEach(view => {
+
+                if (!view) return;
+
+                view.classList.add("hidden");
+                view.classList.remove("active-view");
+            });
+    },
+
+    showDashboard() {
+
+        this.hideAllViews();
+
+        DOM.views.dashboard?.classList.remove("hidden");
+        DOM.views.dashboard?.classList.add("active-view");
+    },
+
+    showDeck() {
+
+        this.hideAllViews();
+
+        DOM.views.deck?.classList.remove("hidden");
+        DOM.views.deck?.classList.add("active-view");
+    },
+
+    showStudy() {
+
+        this.hideAllViews();
+
+        DOM.views.study?.classList.remove("hidden");
+        DOM.views.study?.classList.add("active-view");
+    },
+
+    showSummary() {
+
+        this.hideAllViews();
+
+        DOM.views.summary?.classList.remove("hidden");
+        DOM.views.summary?.classList.add("active-view");
+    },
+
+    showAnalytics() {
+
+        this.hideAllViews();
+
+        DOM.views.analytics?.classList.remove("hidden");
+        DOM.views.analytics?.classList.add("active-view");
+    }
+};
+
+/* ==================================================
+   MODAL MANAGER
+================================================== */
+
+const ModalManager = {
+
+    open(modal) {
+
+        if (
+            modal &&
+            typeof modal.showModal === "function" &&
+            !modal.open
+        ) {
+
+            modal.showModal();
+        }
+    },
+
+    close(modal) {
+
+        if (
+            modal &&
+            modal.open
+        ) {
+
+            modal.close();
+        }
+    },
+
+    closeAll() {
+
+        Object.values(DOM.modals)
+            .forEach(modal => {
+
+                this.close(modal);
+            });
+    }
+};
+
+/* ==================================================
+   LEITNER ENHANCEMENT
+================================================== */
+
+LeitnerEngine.getMovementMessage = function (
+    oldBox,
+    newBox
+) {
+
+    if (
+        oldBox !== 5 &&
+        newBox === 5
+    ) {
+
+        return "Mastered card reached Box 5";
+    }
+
+    if (
+        newBox > oldBox
+    ) {
+
+        return `Promoted from Box ${oldBox} to Box ${newBox}`;
+    }
+
+    if (
+        newBox < oldBox
+    ) {
+
+        return `Moved back from Box ${oldBox} to Box ${newBox}`;
+    }
+
+    return `Remains in Box ${newBox}`;
+};
+
+/* ==================================================
+   QUEUE MANAGER
+================================================== */
+
+const QueueManager = {
+
+    weights: {
+        1: 5,
+        2: 4,
+        3: 3,
+        4: 2,
+        5: 1
+    },
+
+    createQueue(deck) {
+
+        const queue = [];
+
+        deck.cards.forEach(card => {
+
+            const weight =
+                this.weights[card.box] || 1;
+
+            for (
+                let i = 0;
+                i < weight;
+                i++
+            ) {
+
+                queue.push(card.id);
+            }
+        });
+
+        return this.shuffle(queue);
+    },
+
+    shuffle(array) {
+
+        const copy = [...array];
+
+        for (
+            let i = copy.length - 1;
+            i > 0;
+            i--
+        ) {
+
+            const j =
+                Math.floor(
+                    Math.random() * (i + 1)
+                );
+
+            [copy[i], copy[j]] =
+                [copy[j], copy[i]];
+        }
+
+        return copy;
+    },
+
+    getNextCard() {
+
+        if (
+            !state.activeSession
+        ) {
+
+            return null;
+        }
+
+        return (
+            state.activeSession.queue.shift()
+            || null
+        );
+    },
+
+    reinsertFailedCard(cardId) {
+
+        if (
+            !state.activeSession
+        ) {
+
+            return;
+        }
+
+        const queue =
+            state.activeSession.queue;
+
+        const insertionIndex =
+            Math.min(
+                3,
+                queue.length
+            );
+
+        queue.splice(
+            insertionIndex,
+            0,
+            cardId
+        );
+    }
+};
+
+/* ==================================================
+   SESSION ENGINE
+================================================== */
+
+function getCurrentSessionCard() {
+
+    if (
+        !state.activeSession ||
+        !state.activeSession.currentCardId
+    ) {
+
+        return null;
+    }
+
+    return FlashcardManager.getCard(
+        state.activeSession.currentCardId
+    );
+}
+
+function startStudySession() {
+
+    const deck =
+        getActiveDeck();
+
+    if (!deck) {
+
+        showToast(
+            "No active deck selected.",
+            "warning"
+        );
+
+        return;
+    }
+
+    if (
+        deck.cards.length === 0
+    ) {
+
+        showToast(
+            "This deck has no cards.",
+            "warning"
+        );
+
+        return;
+    }
+
+    state.activeSession = {
+
+        deckId: deck.id,
+
+        queue:
+            QueueManager.createQueue(deck),
+
+        currentCardId: null,
+
+        reviewed: 0,
+        correct: 0,
+        wrong: 0,
+
+        mastered: 0,
+
+        answerRevealed: false,
+
+        completed: false
+    };
+
+    loadNextCard();
+
+    ViewManager.showStudy();
+}
+
+function loadNextCard() {
+
+    const nextCardId =
+        QueueManager.getNextCard();
+
+    if (!nextCardId) {
+
+        completeSession();
+
+        return;
+    }
+
+    state.activeSession.currentCardId =
+        nextCardId;
+
+    state.activeSession.answerRevealed =
+        false;
+
+    if (
+        DOM.study.cardMovement
+    ) {
+
+        DOM.study.cardMovement.textContent =
+            "";
+    }
+
+    if (
+        DOM.study.scheduling
+    ) {
+
+        DOM.study.scheduling.textContent =
+            "";
+    }
+
+    RenderManager.renderSession();
+}
+
+function completeSession() {
+
+    state.activeSession.completed =
+        true;
+
+    RenderManager.renderSummary();
+
+    ViewManager.showSummary();
+}
+
+/* ==================================================
+   QUIZ FLOW
+================================================== */
+
+function revealAnswer() {
+
+    if (
+        !state.activeSession
+    ) {
+
+        return;
+    }
+
+    state.activeSession.answerRevealed =
+        true;
+
+    RenderManager.renderSession();
+}
+
+function handleCorrectAnswer() {
+
+    const card =
+        getCurrentSessionCard();
+
+    if (!card) {
+        return;
+    }
+
+    const previousBox =
+        card.box;
+
+    LeitnerEngine.promote(card);
+
+    state.activeSession.reviewed++;
+    state.activeSession.correct++;
+
+    if (
+        previousBox !== 5 &&
+        card.box === 5
+    ) {
+
+        state.activeSession.mastered++;
+    }
+
+    DOM.study.cardMovement.textContent =
+        LeitnerEngine.getMovementMessage(
+            previousBox,
+            card.box
+        );
+
+    StorageManager.save();
+
+    loadNextCard();
+}
+
+function handleWrongAnswer() {
+
+    const card =
+        getCurrentSessionCard();
+
+    if (!card) {
+        return;
+    }
+
+    const previousBox =
+        card.box;
+
+    LeitnerEngine.demote(card);
+
+    state.activeSession.reviewed++;
+    state.activeSession.wrong++;
+
+    QueueManager.reinsertFailedCard(
+        card.id
+    );
+
+    DOM.study.cardMovement.textContent =
+        LeitnerEngine.getMovementMessage(
+            previousBox,
+            card.box
+        );
+
+    DOM.study.scheduling.textContent =
+        "This card will appear again soon.";
+
+    StorageManager.save();
+
+    loadNextCard();
+}
+
+/* ==================================================
+   RENDER MANAGER
+================================================== */
+
+const RenderManager = {
+
+    renderDashboard() {
+
+        const stats =
+            AnalyticsManager.getGlobalStats();
+
+        if (DOM.dashboard.totalDecks)
+            DOM.dashboard.totalDecks.textContent =
+                stats.totalDecks;
+
+        if (DOM.dashboard.totalCards)
+            DOM.dashboard.totalCards.textContent =
+                stats.totalCards;
+
+        if (DOM.dashboard.masteredCards)
+            DOM.dashboard.masteredCards.textContent =
+                stats.masteredCards;
+
+        if (!DOM.dashboard.deckGrid)
+            return;
+
+        DOM.dashboard.deckGrid.innerHTML =
+            "";
+
+        if (
+            state.decks.length === 0
+        ) {
+
+            DOM.dashboard.deckGrid.innerHTML =
+                `
+                <div class="empty-state">
+                    <p>No decks yet. Create your first deck.</p>
+                </div>
+                `;
+
+            return;
+        }
+
+        state.decks.forEach(deck => {
+
+            const deckStats =
+                AnalyticsManager.getDeckStats(deck);
+
+            const card =
+                document.createElement("div");
+
+            card.className =
+                "deck-card";
+
+            card.innerHTML =
+                `
+                <h3>${escapeHtml(deck.name)}</h3>
+
+                <p>${deck.cards.length} Cards</p>
+
+                <p>${deckStats.masteredCards} Mastered</p>
+
+                <div class="deck-actions">
+
+                    <button
+                        data-action="open-deck"
+                        data-deck-id="${deck.id}">
+                        Open
+                    </button>
+
+                    <button
+                        data-action="rename-deck"
+                        data-deck-id="${deck.id}">
+                        Rename
+                    </button>
+
+                    <button
+                        data-action="delete-deck"
+                        data-deck-id="${deck.id}">
+                        Delete
+                    </button>
+
+                </div>
+                `;
+
+            DOM.dashboard.deckGrid.appendChild(
+                card
+            );
+        });
+    },
+
+    renderDeck() {
+
+        const deck =
+            getActiveDeck();
+
+        if (!deck) {
+            return;
+        }
+
+        const stats =
+            AnalyticsManager.getDeckStats(
+                deck
+            );
+
+        DOM.deck.activeDeckName.textContent =
+            deck.name;
+
+        DOM.deck.totalCards.textContent =
+            stats.totalCards;
+
+        DOM.deck.masteredCards.textContent =
+            stats.masteredCards;
+
+        DOM.deck.accuracy.textContent =
+            `${stats.accuracy.toFixed(1)}%`;
+
+        DOM.deck.cardList.innerHTML =
+            "";
+
+        if (
+            deck.cards.length === 0
+        ) {
+
+            DOM.deck.cardList.innerHTML =
+                `
+                <div class="empty-state">
+                    <p>No flashcards yet.</p>
+                </div>
+                `;
+
+            return;
+        }
+
+        deck.cards.forEach(card => {
+
+            const item =
+                document.createElement("div");
+
+            item.className =
+                "flashcard-item";
+
+            item.innerHTML =
+                `
+                <div>
+                    <strong>
+                        ${escapeHtml(card.question)}
+                    </strong>
+
+                    <p>
+                        Box ${card.box}
+                        •
+                        ${LeitnerEngine.getStatus(card.box)}
+                    </p>
+                </div>
+
+                <div>
+
+                    <button
+                        data-action="edit-card"
+                        data-card-id="${card.id}">
+                        Edit
+                    </button>
+
+                    <button
+                        data-action="delete-card"
+                        data-card-id="${card.id}">
+                        Delete
+                    </button>
+
+                </div>
+                `;
+
+            DOM.deck.cardList.appendChild(
+                item
+            );
+        });
+    },
+
+    renderAnalytics() {
+
+        const stats =
+            AnalyticsManager.getGlobalStats();
+
+        DOM.analytics.reviews.textContent =
+            stats.totalReviews;
+
+        DOM.analytics.accuracy.textContent =
+            `${stats.accuracy.toFixed(1)}%`;
+
+        DOM.analytics.mastered.textContent =
+            stats.masteredCards;
+
+        const deck =
+            getActiveDeck();
+
+        const distribution =
+            AnalyticsManager.getBoxDistribution(
+                deck
+            );
+
+        DOM.analytics.box1.textContent =
+            distribution[1];
+
+        DOM.analytics.box2.textContent =
+            distribution[2];
+
+        DOM.analytics.box3.textContent =
+            distribution[3];
+
+        DOM.analytics.box4.textContent =
+            distribution[4];
+
+        DOM.analytics.box5.textContent =
+            distribution[5];
+    },
+
+    renderSession() {
+
+        const card =
+            getCurrentSessionCard();
+
+        if (!card) {
+            return;
+        }
+
+        DOM.study.question.textContent =
+            card.question;
+
+        if (
+            state.activeSession.answerRevealed
+        ) {
+
+            DOM.study.answer.textContent =
+                card.answer;
+
+            DOM.study.rightBtn.disabled =
+                false;
+
+            DOM.study.wrongBtn.disabled =
+                false;
+
+            DOM.study.revealBtn.disabled =
+                true;
+
+        } else {
+
+            DOM.study.answer.textContent =
+                "Answer hidden";
+
+            DOM.study.rightBtn.disabled =
+                true;
+
+            DOM.study.wrongBtn.disabled =
+                true;
+
+            DOM.study.revealBtn.disabled =
+                false;
+        }
+
+        DOM.study.cardsRemaining.textContent =
+            state.activeSession.queue.length;
+
+        const accuracy =
+            state.activeSession.reviewed
+                ? (
+                    state.activeSession.correct /
+                    state.activeSession.reviewed
+                ) * 100
+                : 0;
+
+        DOM.study.sessionScore.textContent =
+            `${accuracy.toFixed(1)}%`;
+
+        DOM.study.currentBox.textContent =
+            card.box;
+
+        DOM.study.currentStatus.textContent =
+            LeitnerEngine.getStatus(
+                card.box
+            );
+    },
+
+    renderSummary() {
+
+        const s =
+            state.activeSession;
+
+        const accuracy =
+            s.reviewed
+                ? (
+                    s.correct /
+                    s.reviewed
+                ) * 100
+                : 0;
+
+        DOM.summary.reviewed.textContent =
+            s.reviewed;
+
+        DOM.summary.correct.textContent =
+            s.correct;
+
+        DOM.summary.wrong.textContent =
+            s.wrong;
+
+        DOM.summary.accuracy.textContent =
+            `${accuracy.toFixed(1)}%`;
+
+        DOM.summary.mastered.textContent =
+            s.mastered;
+    }
+};

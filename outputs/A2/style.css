@@ -172,6 +172,7 @@ VIEW MANAGEMENT
 LAYOUT UTILITIES
 ================================================== */
 
+
 .container {
     width: 100%;
     max-width: var(--max-content-width);
@@ -197,6 +198,12 @@ LAYOUT UTILITIES
     flex-wrap: wrap;
     gap: var(--space-md);
     align-items: center;
+}
+
+.loading {
+    opacity: 0.7;
+
+    pointer-events: none;
 }
 
 .surface {
@@ -273,9 +280,24 @@ HEADER
     transform: translateY(0);
 }
 
+
+
+.active-nav {
+    background: var(--color-primary) !important;
+    color: white !important;
+}
+
 /* ==================================================
 BUTTON SYSTEM
 ================================================== */
+
+button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+
+    transform: none !important;
+    box-shadow: none !important;
+}
 
 button {
     border: none;
@@ -350,6 +372,16 @@ button:active {
     background: #e2e8f0;
 }
 
+button:disabled {
+    opacity: 0.55;
+
+    cursor: not-allowed;
+
+    transform: none !important;
+
+    box-shadow: none !important;
+}
+
 /* ==================================================
 CARD SYSTEM
 ================================================== */
@@ -371,6 +403,10 @@ CARD SYSTEM
         transform var(--transition-normal),
         box-shadow var(--transition-normal);
 
+}
+
+.stat-card {
+    cursor: default;
 }
 
 .stat-card:hover,
@@ -443,6 +479,30 @@ textarea::placeholder {
     color: var(--color-text-secondary);
 }
 
+.input-error {
+    border-color: var(--color-danger) !important;
+}
+
+.error-message {
+    color: var(--color-danger);
+
+    font-size: 0.875rem;
+
+    margin-top: 0.25rem;
+}
+
+.input-error {
+    border-color: var(--color-danger) !important;
+}
+
+.error-message {
+    color: var(--color-danger);
+
+    font-size: 0.875rem;
+
+    margin-top: 0.25rem;
+}
+
 /* ==================================================
 MODALS
 ================================================== */
@@ -481,6 +541,8 @@ EMPTY STATES
 ================================================== */
 
 .empty-state {
+    width: 100%;
+
     text-align: center;
 
     padding: var(--space-xl);
@@ -560,6 +622,13 @@ dialog:focus-visible,
 #main-navigation button:focus-visible {
     outline: 3px solid rgba(37, 99, 235, 0.35);
     outline-offset: 3px;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+    box-shadow:
+        0 0 0 4px rgba(37, 99, 235, 0.15);
 }
 
 ::selection {
@@ -758,6 +827,10 @@ DECK CARDS
 
 }
 
+.deck-actions button {
+    flex: 1;
+}
+
 /* ==================================================
 DECK MANAGEMENT VIEW
 ================================================== */
@@ -864,6 +937,10 @@ FLASHCARD LIST ITEMS
     gap: var(--space-sm);
 }
 
+.card-actions button {
+    flex: 1;
+}
+
 /* ==================================================
 STUDY SESSION VIEW
 ================================================== */
@@ -949,6 +1026,13 @@ STUDY SESSION VIEW
 
     text-align: center;
 
+}
+
+#question-display,
+#answer-display {
+    overflow-wrap: break-word;
+
+    word-break: break-word;
 }
 
 #study-action-buttons {
@@ -1081,6 +1165,14 @@ ANALYTICS
     gap: var(--space-md);
 }
 
+.box-card {
+    text-align: center;
+}
+
+.box-card p {
+    font-size: 1.8rem;
+}
+
 /* ==================================================
 BOX DISTRIBUTION COLORS
 ================================================== */
@@ -1125,6 +1217,10 @@ BOX DISTRIBUTION COLORS
     color: var(--color-success);
 }
 
+.flashcard-active {
+    animation: fadeIn 0.25s ease;
+}
+
 /* ==================================================
 VIEW TRANSITIONS
 ================================================== */
@@ -1138,6 +1234,21 @@ VIEW TRANSITIONS
         opacity var(--transition-normal),
         transform var(--transition-normal);
 
+}
+
+.app-view {
+    display: none;
+    opacity: 1;
+
+    transform: translateY(0);
+
+    transition:
+        opacity var(--transition-normal),
+        transform var(--transition-normal);
+}
+
+#dashboard-view {
+    display: block;
 }
 
 /* ==================================================
@@ -1208,4 +1319,12 @@ RESPONSIVE DESIGN
     }
 
 
+}
+
+.mastered-card {
+    border-left: 5px solid var(--color-success);
+}
+
+.learning-card {
+    border-left: 5px solid var(--color-warning);
 }

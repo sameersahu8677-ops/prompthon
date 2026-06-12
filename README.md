@@ -13,7 +13,7 @@ participant : Sameer.
 | Problem | Title | Status | Solution Folder |
 |----------|----------|----------|----------|
 | A1 | Smart Bill Splitter & Expense Tracker | ✅ Completed | outputs/A1 |
-| A2 | TBD | ⏳ Pending | outputs/A2 |
+| A2 | FlashCard Study Buddy - Leitner Box Systenm | ✅ Completed | outputs/A2 |
 | A3 | TBD | ⏳ Pending | outputs/A3 |
 | A4 | TBD | ⏳ Pending | outputs/A4 |
 | A5 | TBD | ⏳ Pending | outputs/A5 |

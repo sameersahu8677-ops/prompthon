@@ -51,6 +51,16 @@ const DOM = {
         bulkAdd: document.getElementById("bulk-add-modal")
     },
 
+    modalTitles: {
+        createDeck: document.getElementById(
+            "create-deck-modal-heading"
+        ),
+
+        addCard: document.getElementById(
+            "add-card-modal-heading"
+        )
+    },
+
     forms: {
         createDeck: document.getElementById("create-deck-form"),
         addCard: document.getElementById("add-card-form"),
@@ -104,6 +114,11 @@ const DOM = {
         boxDistribution: document.getElementById("box-distribution-container")
     },
 
+    emptyStates: {
+        dashboard: document.getElementById("dashboard-empty-state"),
+        cards: document.getElementById("cards-empty-state")
+    },
+
     statistics: {
         totalDecks: document.getElementById("total-decks-value"),
         totalCards: document.getElementById("total-cards-value"),
@@ -129,9 +144,11 @@ const DOM = {
         analyticsMastered: document.getElementById("analytics-mastered-cards-value")
     },
 
-    study: {
-        activeDeckName: document.getElementById("active-deck-name"),
+    deck: {
+        activeDeckName: document.getElementById("active-deck-name")
+    },
 
+    study: {
         questionDisplay: document.getElementById("question-display"),
         answerDisplay: document.getElementById("answer-display"),
 
@@ -407,9 +424,8 @@ function showToast(
             : "info";
 
     toast.classList.add(
-        `${safeType} -toast`
+        `${safeType}-toast`
     );
-
     toast.textContent = message;
 
     toastContainer.appendChild(toast);
@@ -986,11 +1002,16 @@ const LeitnerEngine = {
             return;
         }
 
+        const promotions = {
+            1: 2,
+            2: 3,
+            3: 4,
+            4: 5,
+            5: 5
+        };
+
         card.box =
-            Math.min(
-                5,
-                card.box + 1
-            );
+            promotions[card.box] || 1;
 
         card.correctCount++;
 
@@ -1317,14 +1338,15 @@ const AnalyticsManager = {
 
         deck.cards.forEach(card => {
 
+            const safeBox =
+                Number(card.box);
+
             if (
-                distribution[
-                card.box
-                ] !== undefined
+                Number.isInteger(safeBox) &&
+                safeBox >= 1 &&
+                safeBox <= 5
             ) {
-                distribution[
-                    card.box
-                ]++;
+                distribution[safeBox]++;
             }
         });
 

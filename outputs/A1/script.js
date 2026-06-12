@@ -4423,3 +4423,4 @@ function updateSplitNavigationState(valid) {
     DOM.nextStepBtn.disabled =
         !valid;
 }
+

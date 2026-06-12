@@ -562,3 +562,775 @@ const ModalManager = {
 
 
 };
+
+/* ==================================================
+DECK MANAGER
+================================================== */
+
+const DeckManager = {
+
+
+    createDeck(name) {
+
+        const validation =
+            ValidationManager.validateDeckName(name);
+
+        if (!validation.valid) {
+            showToast(validation.message, "error");
+            return null;
+        }
+
+        const timestamp = getCurrentTimestamp();
+
+        const deck = {
+            id: generateId(),
+            name: name.trim(),
+
+            createdAt: timestamp,
+            updatedAt: timestamp,
+
+            cards: []
+        };
+
+        state.decks.push(deck);
+
+        StorageManager.save();
+
+        showToast(
+            "Deck created successfully.",
+            "success"
+        );
+
+        return deck;
+    },
+
+    renameDeck(deckId, newName) {
+
+        const validation =
+            ValidationManager.validateDeckName(newName);
+
+        if (!validation.valid) {
+            showToast(validation.message, "error");
+            return false;
+        }
+
+        const deck =
+            this.getDeck(deckId);
+
+        if (!deck) {
+            showToast(
+                "Deck not found.",
+                "error"
+            );
+            return false;
+        }
+
+        deck.name = newName.trim();
+        deck.updatedAt =
+            getCurrentTimestamp();
+
+        StorageManager.save();
+
+        showToast(
+            "Deck renamed successfully.",
+            "success"
+        );
+
+        return true;
+    },
+
+    deleteDeck(deckId) {
+
+        const deck =
+            this.getDeck(deckId);
+
+        if (!deck) {
+            return false;
+        }
+
+        const confirmed =
+            confirm(
+                `Delete "${deck.name}"?`
+            );
+
+        if (!confirmed) {
+            return false;
+        }
+
+        state.decks =
+            state.decks.filter(
+                d => d.id !== deckId
+            );
+
+        if (
+            state.activeDeckId === deckId
+        ) {
+            state.activeDeckId = null;
+        }
+
+        StorageManager.save();
+
+        showToast(
+            "Deck deleted.",
+            "success"
+        );
+
+        return true;
+    },
+
+    openDeck(deckId) {
+
+        const deck =
+            this.getDeck(deckId);
+
+        if (!deck) {
+            showToast(
+                "Deck not found.",
+                "error"
+            );
+            return false;
+        }
+
+        state.activeDeckId = deckId;
+
+        StorageManager.save();
+
+        return true;
+    },
+
+    getDeck(deckId) {
+
+        return state.decks.find(
+            deck => deck.id === deckId
+        ) || null;
+    }
+
+
+};
+
+/* ==================================================
+FLASHCARD MANAGER
+================================================== */
+
+const FlashcardManager = {
+
+
+    addCard(question, answer) {
+
+        const deck =
+            getActiveDeck();
+
+        if (!deck) {
+
+            showToast(
+                "No active deck selected.",
+                "warning"
+            );
+
+            return null;
+        }
+
+        const validation =
+            ValidationManager.validateCard(
+                question,
+                answer
+            );
+
+        if (!validation.valid) {
+
+            showToast(
+                validation.message,
+                "error"
+            );
+
+            return null;
+        }
+
+        const timestamp =
+            getCurrentTimestamp();
+
+        const card = {
+            id: generateId(),
+
+            question: question.trim(),
+            answer: answer.trim(),
+
+            box: 1,
+
+            correctCount: 0,
+            wrongCount: 0,
+
+            lastReviewed: null,
+
+            createdAt: timestamp,
+            updatedAt: timestamp
+        };
+
+        deck.cards.push(card);
+
+        deck.updatedAt = timestamp;
+
+        StorageManager.save();
+
+        showToast(
+            "Card added successfully.",
+            "success"
+        );
+
+        return card;
+    },
+
+    editCard(
+        cardId,
+        question,
+        answer
+    ) {
+
+        const card =
+            this.getCard(cardId);
+
+        if (!card) {
+
+            showToast(
+                "Card not found.",
+                "error"
+            );
+
+            return false;
+        }
+
+        const validation =
+            ValidationManager.validateCard(
+                question,
+                answer
+            );
+
+        if (!validation.valid) {
+
+            showToast(
+                validation.message,
+                "error"
+            );
+
+            return false;
+        }
+
+        card.question =
+            question.trim();
+
+        card.answer =
+            answer.trim();
+
+        card.updatedAt =
+            getCurrentTimestamp();
+
+        StorageManager.save();
+
+        showToast(
+            "Card updated.",
+            "success"
+        );
+
+        return true;
+    },
+
+    deleteCard(cardId) {
+
+        const deck =
+            getActiveDeck();
+
+        if (!deck) {
+            return false;
+        }
+
+        const card =
+            this.getCard(cardId);
+
+        if (!card) {
+            return false;
+        }
+
+        const confirmed =
+            confirm(
+                "Delete this flashcard?"
+            );
+
+        if (!confirmed) {
+            return false;
+        }
+
+        deck.cards =
+            deck.cards.filter(
+                card => card.id !== cardId
+            );
+
+        deck.updatedAt =
+            getCurrentTimestamp();
+
+        StorageManager.save();
+
+        showToast(
+            "Card deleted.",
+            "success"
+        );
+
+        return true;
+    },
+
+    bulkImport(text) {
+
+        const deck =
+            getActiveDeck();
+
+        if (!deck) {
+
+            showToast(
+                "No active deck selected.",
+                "warning"
+            );
+
+            return {
+                imported: 0,
+                skipped: 0
+            };
+        }
+
+        const lines =
+            text.split("\n");
+
+        let imported = 0;
+        let skipped = 0;
+
+        lines.forEach(line => {
+
+            const validation =
+                ValidationManager
+                    .validateBulkImportLine(
+                        line
+                    );
+
+            if (!validation.valid) {
+
+                skipped++;
+                return;
+            }
+
+            const [
+                question,
+                answer
+            ] = line
+                .split("|")
+                .map(item => item.trim());
+
+            const timestamp =
+                getCurrentTimestamp();
+
+            deck.cards.push({
+                id: generateId(),
+
+                question,
+                answer,
+
+                box: 1,
+
+                correctCount: 0,
+                wrongCount: 0,
+
+                lastReviewed: null,
+
+                createdAt: timestamp,
+                updatedAt: timestamp
+            });
+
+            imported++;
+        });
+
+        deck.updatedAt =
+            getCurrentTimestamp();
+
+        StorageManager.save();
+
+        return {
+            imported,
+            skipped
+        };
+    },
+
+    getCard(cardId) {
+
+        const deck =
+            getActiveDeck();
+
+        if (!deck) {
+            return null;
+        }
+
+        return deck.cards.find(
+            card => card.id === cardId
+        ) || null;
+    }
+
+
+};
+
+/* ==================================================
+LEITNER ENGINE
+================================================== */
+
+const LeitnerEngine = {
+
+
+    promote(card) {
+
+        if (!card) {
+            return;
+        }
+
+        card.box =
+            Math.min(
+                5,
+                card.box + 1
+            );
+
+        card.correctCount++;
+
+        card.lastReviewed =
+            getCurrentTimestamp();
+    },
+
+    demote(card) {
+
+        if (!card) {
+            return;
+        }
+
+        const demotions = {
+            1: 1,
+            2: 1,
+            3: 1,
+            4: 2,
+            5: 3
+        };
+
+        card.box =
+            demotions[
+            card.box
+            ] || 1;
+
+        card.wrongCount++;
+
+        card.lastReviewed =
+            getCurrentTimestamp();
+    },
+
+    getStatus(box) {
+
+        const statuses = {
+            1: "Learning",
+            2: "Improving",
+            3: "Familiar",
+            4: "Strong",
+            5: "Mastered"
+        };
+
+        return (
+            statuses[box] ||
+            "Learning"
+        );
+    }
+
+
+};
+
+/* ==================================================
+QUEUE MANAGER
+================================================== */
+
+const QueueManager = {
+
+
+    weights: {
+        1: 5,
+        2: 4,
+        3: 3,
+        4: 2,
+        5: 1
+    },
+
+    createQueue(deck) {
+
+        if (
+            !deck ||
+            !Array.isArray(deck.cards)
+        ) {
+            return [];
+        }
+
+        const queue = [];
+
+        deck.cards.forEach(card => {
+
+            const weight =
+                this.weights[
+                card.box
+                ] || 1;
+
+            for (
+                let i = 0;
+                i < weight;
+                i++
+            ) {
+                queue.push(card.id);
+            }
+        });
+
+        return this.shuffle(queue);
+    },
+
+    shuffle(array) {
+
+        const copy =
+            [...array];
+
+        for (
+            let i =
+                copy.length - 1;
+            i > 0;
+            i--
+        ) {
+
+            const j =
+                Math.floor(
+                    Math.random() *
+                    (i + 1)
+                );
+
+            [
+                copy[i],
+                copy[j]
+            ] = [
+                    copy[j],
+                    copy[i]
+                ];
+        }
+
+        return copy;
+    },
+
+    getNextCard() {
+
+        if (
+            !state.activeSession
+        ) {
+            return null;
+        }
+
+        const nextId =
+            state.activeSession
+                .queue
+                .shift();
+
+        if (!nextId) {
+            return null;
+        }
+
+        state.activeSession
+            .currentCardId =
+            nextId;
+
+        return nextId;
+    },
+
+    reinsertFailedCard(cardId) {
+
+        if (
+            !state.activeSession
+        ) {
+            return;
+        }
+
+        const queue =
+            state.activeSession.queue;
+
+        const gap =
+            Math.min(
+                3,
+                queue.length
+            );
+
+        queue.splice(
+            gap,
+            0,
+            cardId
+        );
+    },
+
+    isSessionComplete() {
+
+        return (
+            !state.activeSession ||
+            state.activeSession
+                .queue.length === 0
+        );
+    }
+
+
+};
+
+/* ==================================================
+ANALYTICS MANAGER
+================================================== */
+
+const AnalyticsManager = {
+
+
+    getDeckStats(deck) {
+
+        if (!deck) {
+
+            return {
+                totalCards: 0,
+                masteredCards: 0,
+                totalReviews: 0,
+                correct: 0,
+                wrong: 0,
+                accuracy: 0
+            };
+        }
+
+        let masteredCards = 0;
+        let correct = 0;
+        let wrong = 0;
+
+        deck.cards.forEach(card => {
+
+            if (card.box === 5) {
+                masteredCards++;
+            }
+
+            correct +=
+                card.correctCount || 0;
+
+            wrong +=
+                card.wrongCount || 0;
+        });
+
+        const totalReviews =
+            correct + wrong;
+
+        const accuracy =
+            totalReviews
+                ? (
+                    correct /
+                    totalReviews
+                ) * 100
+                : 0;
+
+        return {
+            totalCards:
+                deck.cards.length,
+
+            masteredCards,
+
+            totalReviews,
+
+            correct,
+
+            wrong,
+
+            accuracy
+        };
+    },
+
+    getGlobalStats() {
+
+        let totalCards = 0;
+        let masteredCards = 0;
+        let correct = 0;
+        let wrong = 0;
+
+        state.decks.forEach(deck => {
+
+            const stats =
+                this.getDeckStats(
+                    deck
+                );
+
+            totalCards +=
+                stats.totalCards;
+
+            masteredCards +=
+                stats.masteredCards;
+
+            correct +=
+                stats.correct;
+
+            wrong +=
+                stats.wrong;
+        });
+
+        const totalReviews =
+            correct + wrong;
+
+        const accuracy =
+            totalReviews
+                ? (
+                    correct /
+                    totalReviews
+                ) * 100
+                : 0;
+
+        return {
+            totalDecks:
+                state.decks.length,
+
+            totalCards,
+
+            masteredCards,
+
+            totalReviews,
+
+            correct,
+
+            wrong,
+
+            accuracy
+        };
+    },
+
+    getBoxDistribution(deck) {
+
+        const distribution = {
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0,
+            5: 0
+        };
+
+        if (
+            !deck ||
+            !Array.isArray(deck.cards)
+        ) {
+            return distribution;
+        }
+
+        deck.cards.forEach(card => {
+
+            if (
+                distribution[
+                card.box
+                ] !== undefined
+            ) {
+                distribution[
+                    card.box
+                ]++;
+            }
+        });
+
+        return distribution;
+    }
+
+
+};
+

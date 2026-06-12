@@ -14,8 +14,8 @@ participant : Sameer.
 |----------|----------|----------|----------|
 | A1 | Smart Bill Splitter & Expense Tracker | ✅ Completed | outputs/A1 |
 | A2 | FlashCard Study Buddy - Leitner Box Systenm | ✅ Completed | outputs/A2 |
+| A4 | Smart Budget & Pocket Money Manager | ✅ Completed | outputs/A4 |
 | A3 | TBD | ⏳ Pending | outputs/A3 |
-| A4 | TBD | ⏳ Pending | outputs/A4 |
 | A5 | TBD | ⏳ Pending | outputs/A5 |
 | A6 | TBD | ⏳ Pending | outputs/A6 |
 | A7 | TBD | ⏳ Pending | outputs/A7 |
@@ -237,3 +237,142 @@ One flashcard per line.
 | Session Summary |
 | ↓ |
 | Analytics |
+
+----
+
+
+## A-4 Smart Budget & Pocket Money Manager
+
+A student-friendly budget management application designed to help first-year college students manage their monthly allowance, track expenses, and avoid overspending.
+
+---
+
+## Features
+
+### Monthly Budget Setup
+
+- Set monthly budget
+- Update budget anytime
+- View current budget status
+
+### Expense Tracking
+
+Add expenses with:
+
+- Amount
+- Category
+- Date
+
+Categories:
+
+- Food
+- Entertainment
+- Books/Stationery
+
+### Budget Overview
+
+View:
+
+- Total Budget
+- Total Spent
+- Remaining Budget
+
+### Budget Progress Indicator
+
+Track:
+
+- Spending percentage
+- Budget utilization
+- Remaining allowance
+
+### Spending History
+
+- View all expenses
+- Filter by category
+- Delete incorrect entries
+
+### Category Analytics
+
+Analyze spending by category with:
+
+- Total amount spent
+- Percentage contribution
+
+### Financial Health Status
+
+The system classifies spending as:
+
+- SAFE
+- WATCH
+- RISK
+
+### Spending Velocity Alert
+
+The application calculates daily spending velocity and predicts future spending trends.
+
+Provides:
+
+- Budget exhaustion prediction
+- Days-to-exhaustion estimate
+- Suggested daily spending limit
+- Overspending warnings
+
+### Early Month Protection
+
+During the first few days of the month, the system collects spending data before generating spending predictions.
+
+### Local Storage Persistence
+
+Data is stored locally in the browser and remains available after refresh.
+
+---
+
+## How To Use
+
+1. Enter your monthly budget.
+2. Add expenses with amount, category, and date.
+3. Monitor budget usage and analytics.
+4. Review spending history.
+5. Follow spending velocity recommendations.
+
+---
+
+## Technical Highlights
+
+### Frontend
+
+- HTML5
+- CSS3
+- Vanilla JavaScript
+
+### Architecture
+
+- Foundation Layer
+- Storage & CRUD Layer
+- Analytics Engine
+- UI Rendering Layer
+
+### Storage Design
+
+Month-aware LocalStorage architecture for managing monthly budgets and expenses.
+
+---
+
+## Accessibility
+
+- Semantic HTML
+- Proper form labels
+- Keyboard-friendly controls
+- Focus states
+
+---
+
+## Responsive Design
+
+Optimized for:
+
+- Mobile
+- Tablet
+- Desktop
+
+---

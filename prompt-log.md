@@ -4,32 +4,35 @@
 
 | # | Chat | Tool | Purpose |
 |---|------|------|---------|
-| 1 | Main | ChatGPT | Analyze the problem statement, identify functional requirements, critical edge cases, real-world usability expectations, and Promptathon judging considerations |
-| 2 | Main | ChatGPT | Design the complete system architecture including frontend workflow, modules, state management approach, validation strategy, storage approach, and financial calculation requirements |
-| 3 | Main | ChatGPT | Define detailed product requirements covering UI/UX, responsiveness, accessibility, persistence, financial accuracy, error handling, notifications, and modular implementation |
-| 4 | Side Chat (A1 Discussion) | ChatGPT | Explain Component Hierarchy, State Management Strategy, Validation Matrix, Rounding Algorithm Strategy, and Local Storage Schema to finalize implementation architecture |
-| 5 | Main | ChatGPT | Design module breakdown and implementation strategy suitable for a scalable Vanilla JavaScript SPA architecture |
-| 6 | Main | ChatGPT | Create the first complete code-generation prompt for building the Smart Bill Splitter & Expense Tracker application |
-| 7 | Main | ChatGPT | Refine and expand the implementation prompt by adding production-level requirements, financial accuracy rules, dashboard analytics, persistence, validation, and accessibility requirements |
-| 8 | Main | ChatGPT | Further improve the implementation prompt with mandatory testing cases, review workflow, competitive advantage features, and detailed architecture constraints |
-| 9 | Main | ChatGPT | Generate the production-ready prompt for creating index.html with dashboard, wizard workflow, forms, review section, results section, history section, notifications, and loading overlay |
-| 10 | Main | ChatGPT | Generate the production-ready prompt for creating style.css with SaaS-inspired design, responsive layouts, dashboard styling, wizard styling, cards, forms, and notification system |
-| 11 | Main | ChatGPT | Divide the CSS implementation into structured parts and create dedicated prompts for each CSS section to improve maintainability and generation quality |
-| 12 | Main | ChatGPT | Review generated HTML and CSS structure and identify missing IDs, classes, containers, templates, and integration hooks required for JavaScript architecture |
-| 13 | Main | ChatGPT | Generate recommendations for updating HTML with JavaScript integration hooks while preserving compatibility with the existing CSS design |
-| 14 | Main | ChatGPT | Create the master JavaScript implementation prompt covering StateManager, ExpenseManager, ParticipantManager, TipEngine, SplitEngine, RoundingEngine, ValidationEngine, StorageManager, NotificationManager, and UIManager |
-| 15 | Main | ChatGPT | Generate prompts for Part 1 JavaScript implementation including DOM Cache, StateManager, StorageManager, NotificationManager, Loading Manager, Utility Functions, and App Initialization |
-| 16 | Main | ChatGPT | Generate prompts for Part 2 JavaScript implementation covering ExpenseManager, ParticipantManager, TipEngine, RoundingEngine, SplitEngine, and ValidationEngine |
-| 17 | Main | ChatGPT | Generate prompts for Part 3A JavaScript implementation covering dashboard rendering, participant rendering, history rendering, empty-state management, and analytics updates |
-| 18 | Main | ChatGPT | Generate prompts for Part 3B JavaScript implementation covering split configuration rendering, review rendering, validation status rendering, and split-method UI generation |
-| 19 | Main | ChatGPT | Generate prompts for Part 3C JavaScript implementation covering results rendering, summary cards, participant breakdowns, settlement summaries, and results workflow |
-| 20 | Main | ChatGPT | Generate prompts for Part 4 application wiring including event handling, live validation, tip preview, persistence, auto-save workflow, dashboard refresh, and module integration |
-| 21 | Main | ChatGPT | Review application usability from a judge perspective and identify navigation issues, synchronization issues, validation gaps, and workflow inconsistencies |
-| 22 | Main | ChatGPT | Generate prompts for Part 5A implementation focused on wizard navigation, state synchronization, step management, and split-method synchronization |
-| 23 | Main | ChatGPT | Generate prompts for Part 5B implementation focused on participant editing, participant deletion, history viewing, new expense workflow, auto-rerendering, duplicate save protection, and application integration improvements |
+| 1 | Main | ChatGPT | Analyze problem statement, requirements, real-world use cases, and judging criteria |
+| 2 | Main | ChatGPT | Identify architecture requirements, UI/UX needs, deployment constraints, and edge cases |
+| 3 | Main | ChatGPT | Design complete module architecture and implementation strategy |
+| 4 | Side Chat (A1 Discussion) | ChatGPT | Explain Component Hierarchy, State Management Strategy, Validation Matrix, Rounding Algorithm Strategy, and Local Storage Schema |
+| 5 | Main | ChatGPT | Refine requirements and generate production-ready implementation specification |
+| 6 | Main | ChatGPT | Expand implementation prompt with financial accuracy and rounding requirements |
+| 7 | Main | ChatGPT | Expand implementation prompt with dashboard analytics and persistence requirements |
+| 8 | Main | ChatGPT | Expand implementation prompt with testing requirements and validation rules |
+| 9 | Main | ChatGPT | Generate final master prompt for complete application implementation |
+| 10 | Main | ChatGPT | Generate prompt for index.html creation |
+| 11 | Main | ChatGPT | Review generated HTML structure and integration readiness |
+| 12 | Main | ChatGPT | Generate prompt for style.css architecture |
+| 13 | Main | ChatGPT | Split CSS generation into Part 1, Part 2, and Part 3 prompts |
+| 14 | Main | ChatGPT | Review HTML/CSS integration and identify missing hooks for JavaScript |
+| 15 | Main | ChatGPT | Plan HTML updates required for JavaScript integration |
+| 16 | Main | ChatGPT | Generate master JavaScript architecture prompt |
+| 17 | Main | ChatGPT | Generate Part 1 JavaScript prompt (State, Storage, Notifications, Initialization) |
+| 18 | Main | ChatGPT | Generate Part 2 JavaScript prompt (Business Logic Modules) |
+| 19 | Main | ChatGPT | Review implementation progress and discuss integration expectations |
+| 20 | Main | ChatGPT | Generate Part 3A JavaScript prompt (Dashboard, Participants, History Rendering) |
+| 21 | Main | ChatGPT | Generate Part 3B JavaScript prompt (Split Configuration and Review Rendering) |
+| 22 | Main | ChatGPT | Generate Part 3C JavaScript prompt (Results, Settlement Summary, Summary Cards) |
+| 23 | Main | ChatGPT | Generate Part 4 JavaScript prompt (Application Wiring and Module Integration) |
+| 24 | Main | ChatGPT | Review usability issues and identify workflow/navigation problems |
+| 25 | Main | ChatGPT | Generate Part 5A prompt for Wizard Navigation and State Synchronization |
+| 26 | Main | ChatGPT | Generate Part 5B prompt for Participant Management, History View, and Auto-Rerender |
 
-**Total Prompts: 23**
 
+**Total Prompts: 26**
 
 
 ## A2 - Flash Card Study Buddy (Leitner Box System)
@@ -61,3 +64,44 @@
 | 23 | Main | ChatGPT | Final architecture review, submission readiness check, and documentation preparation |
 
 **Total Prompts: 23**
+
+
+# A4 – Smart Budget & Pocket Money Manager
+
+| # | Chat | Tool | Purpose |
+|---|------|------|---------|
+| 1 | Main | ChatGPT | Analyzed problem statement, identified real-world requirements, user personas, budget management workflow, spending velocity calculations, edge cases, and Promptathon judging considerations. |
+| 2 | Main | ChatGPT | Defined complete system architecture including frontend structure, storage strategy, analytics engine, validation strategy, UI/UX goals, accessibility requirements, scalability considerations, and modular implementation plan. |
+| 3 | Main | ChatGPT | Evaluated requirement coverage and finalized frozen requirements before code generation. |
+| 4 | Main | ChatGPT | Designed master architecture for HTML, CSS, and JavaScript generation with separation of concerns and modular programming principles. |
+| 5 | Main | ChatGPT | Reviewed overall architecture and generated finalized master prompt strategy for implementation. |
+| 6 | Main | ChatGPT | Designed complete HTML structure including dashboard, budget setup, analytics cards, expense management, history table, notifications, and delete confirmation modal. |
+| 7 | Main | ChatGPT | Audited HTML structure for accessibility, semantic correctness, scalability, responsiveness readiness, and JavaScript integration compatibility. |
+| 8 | Main | ChatGPT | Redesigned visual identity to differentiate A4 from A1 by replacing generic blue dashboard styling with a modern student finance dashboard theme. |
+| 9 | Main | ChatGPT | Finalized teal-based design system, color palette, typography direction, dashboard personality, and UI enhancement recommendations. |
+| 10 | Main | ChatGPT | Generated CSS Part 1 architecture covering reset, variables, typography, layout system, forms, buttons, cards, utilities, and accessibility states. |
+| 11 | Main | ChatGPT | Audited CSS Part 1 for consistency, maintainability, theme alignment, and mobile-first implementation. |
+| 12 | Main | ChatGPT | Generated CSS Part 2 covering dashboard analytics, progress indicators, risk system, category analytics, velocity alerts, and financial health visualization. |
+| 13 | Main | ChatGPT | Audited CSS Part 2 and validated dashboard hierarchy, visual emphasis, and analytics presentation. |
+| 14 | Main | ChatGPT | Generated CSS Part 3 covering tables, modal system, notifications, responsive breakpoints, accessibility support, and interaction states. |
+| 15 | Main | ChatGPT | Audited complete CSS architecture and confirmed readiness for JavaScript implementation. |
+| 16 | Main | ChatGPT | Designed JavaScript architecture split into Foundation Layer, Storage & CRUD Layer, Analytics Engine, and UI Rendering Layer. |
+| 17 | Main | ChatGPT | Generated JavaScript Part 1 containing constants, DOM references, storage keys, utility helpers, date helpers, currency helpers, and validation functions. |
+| 18 | Main | ChatGPT | Audited Part 1 and verified modularity, validation coverage, helper design, and maintainability. |
+| 19 | Main | ChatGPT | Generated JavaScript Part 2 implementing LocalStorage persistence, budget CRUD, expense CRUD, filtering, and delete modal helpers. |
+| 20 | Main | ChatGPT | Identified storage architecture limitation and recommended migration from flat storage model to month-aware storage design. |
+| 21 | Main | ChatGPT | Regenerated JavaScript Part 2 using month-aware storage architecture supporting monthly budgeting and future historical records. |
+| 22 | Main | ChatGPT | Audited regenerated storage layer and applied current-month persistence improvements. |
+| 23 | Main | ChatGPT | Generated JavaScript Part 3 implementing analytics engine, spending calculations, velocity analysis, projection system, category analytics, and risk evaluation logic. |
+| 24 | Main | ChatGPT | Audited analytics engine and identified issue in days-to-exhaustion calculation. |
+| 25 | Main | ChatGPT | Corrected exhaustion calculation from total budget based projection to remaining budget based projection to satisfy Promptathon requirements. |
+| 26 | Main | ChatGPT | Generated JavaScript Part 4 implementing rendering functions, notifications, event handlers, dashboard updates, filtering, deletion workflow, and application initialization. |
+| 27 | Main | ChatGPT | Audited Part 4 and identified Infinity display edge case and rendering improvements. |
+| 28 | Main | ChatGPT | Performed full-project audit across HTML, CSS, and JavaScript architecture. |
+| 29 | Main | ChatGPT | Identified file formatting issues caused by accidental inclusion of chat-generated markers such as standalone "css" and "javascript" labels. |
+| 30 | Main | ChatGPT | Reviewed runtime integration issues, file linkage considerations, velocity warning logic, and final testing recommendations. |
+
+---
+
+**Total Prompt Count : 30**
+

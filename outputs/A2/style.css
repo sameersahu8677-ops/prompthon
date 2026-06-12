@@ -1310,3 +1310,47 @@ RESPONSIVE DESIGN
 .learning-card {
     border-left: 5px solid var(--color-warning);
 }
+
+/* ==========================================
+   DARK MODE
+========================================== */
+
+body.dark-mode {
+
+    --color-background: #121212;
+    --color-surface: #1e1e1e;
+    --color-surface-alt: #2a2a2a;
+
+    --color-text: #f5f5f5;
+    --color-text-secondary: #cfcfcf;
+
+    --color-border: #444444;
+
+    background: var(--color-background);
+    color: var(--color-text);
+}
+
+body.dark-mode #app-header {
+    background: var(--color-surface);
+}
+
+body.dark-mode .surface,
+body.dark-mode .deck-card,
+body.dark-mode .stat-card,
+body.dark-mode .box-card,
+body.dark-mode .flashcard-item {
+    background: var(--color-surface);
+    color: var(--color-text);
+}
+
+body.dark-mode input,
+body.dark-mode textarea {
+    background: var(--color-surface-alt);
+    color: var(--color-text);
+    border-color: var(--color-border);
+}
+
+body.dark-mode dialog {
+    background: var(--color-surface);
+    color: var(--color-text);
+}

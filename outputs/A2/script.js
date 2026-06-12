@@ -859,7 +859,7 @@ const AnalyticsManager = {
 
 const DOM = {
 
-    
+
 
     views: {
         dashboard: document.getElementById("dashboard-view"),
@@ -2341,6 +2341,8 @@ function initializeApplication() {
 
         StorageManager.load();
 
+        loadTheme();
+
         wireNavigation();
 
         wireQuizButtons();
@@ -2352,6 +2354,8 @@ function initializeApplication() {
         wireBulkImport();
 
         wireDelegation();
+
+        document.getElementById("theme-toggle-btn")?.addEventListener("click", toggleTheme);
 
         RenderManager.renderDashboard();
 
@@ -2372,6 +2376,37 @@ function initializeApplication() {
    BOOTSTRAP
 ================================================== */
 
+function toggleTheme() {
+
+    document.body.classList.toggle(
+        "dark-mode"
+    );
+
+    const isDark =
+        document.body.classList.contains(
+            "dark-mode"
+        );
+
+    localStorage.setItem(
+        "theme",
+        isDark ? "dark" : "light"
+    );
+}
+
+function loadTheme() {
+
+    const theme =
+        localStorage.getItem(
+            "theme"
+        );
+
+    if (theme === "dark") {
+
+        document.body.classList.add(
+            "dark-mode"
+        );
+    }
+}
 document.addEventListener(
     "DOMContentLoaded",
     initializeApplication

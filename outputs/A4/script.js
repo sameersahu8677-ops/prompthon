@@ -739,3 +739,427 @@ function generateAnalytics() {
     };
 }
 
+/* ========================================
+   RENDERING HELPERS
+======================================== */
+
+function renderCurrentMonth() {
+    DOM.currentMonth.textContent = new Date().toLocaleDateString(
+        "en-IN",
+        {
+            month: "long",
+            year: "numeric"
+        }
+    );
+}
+
+function renderBudgetSummary(analytics) {
+    DOM.totalBudget.textContent =
+        formatCurrency(analytics.budget);
+
+    DOM.totalSpent.textContent =
+        formatCurrency(analytics.totalSpent);
+
+    DOM.remainingBudget.textContent =
+        formatCurrency(analytics.remainingBudget);
+
+    if (analytics.remainingBudget < 0) {
+        DOM.overspendingMessage.textContent =
+            `Overspent by ${formatCurrency(
+                Math.abs(analytics.remainingBudget)
+            )}`;
+    } else {
+        DOM.overspendingMessage.textContent = "";
+    }
+}
+
+function renderProgressBar(analytics) {
+    const percentage = Math.min(
+        Math.max(analytics.usagePercentage, 0),
+        100
+    );
+
+    DOM.budgetProgressFill.style.width =
+        `${percentage}%`;
+
+    DOM.budgetPercentage.textContent =
+        formatPercentage(analytics.usagePercentage);
+
+    DOM.budgetProgress.setAttribute(
+        "aria-valuenow",
+        Math.round(percentage)
+    );
+}
+
+function renderRiskStatus(analytics) {
+    DOM.riskStatus.classList.remove(
+        "safe",
+        "watch",
+        "risk"
+    );
+
+    const level =
+        analytics.riskStatus.level;
+
+    DOM.riskStatus.textContent = level;
+
+    switch (level) {
+        case RISK_LEVELS.SAFE:
+            DOM.riskStatus.classList.add("safe");
+            break;
+
+        case RISK_LEVELS.WATCH:
+            DOM.riskStatus.classList.add("watch");
+            break;
+
+        case RISK_LEVELS.RISK:
+            DOM.riskStatus.classList.add("risk");
+            break;
+    }
+
+    DOM.riskStatusMessage.textContent =
+        analytics.riskStatus.message;
+}
+
+function renderVelocityCard(analytics) {
+    if (analytics.collectingPattern) {
+        DOM.velocityMessage.textContent =
+            "Collecting spending pattern data. Check back after a few days.";
+
+        DOM.projectedSpend.textContent = "-";
+        DOM.daysToExhaustion.textContent = "-";
+        DOM.suggestedDailyLimit.textContent = "-";
+
+        return;
+    }
+
+    DOM.projectedSpend.textContent =
+        formatCurrency(
+            analytics.projectedSpend
+        );
+
+    DOM.daysToExhaustion.textContent =
+        analytics.daysToExhaustion;
+
+    DOM.suggestedDailyLimit.textContent =
+        formatCurrency(
+            analytics.suggestedDailyLimit
+        );
+
+    if (
+        analytics.riskStatus.level ===
+        RISK_LEVELS.RISK
+    ) {
+        DOM.velocityMessage.textContent =
+            `Warning: At this rate, your budget will run out in ${analytics.daysToExhaustion} days! Suggested daily limit: ${formatCurrency(
+                analytics.suggestedDailyLimit
+            )}.`;
+    } else {
+        DOM.velocityMessage.textContent =
+            analytics.riskStatus.message;
+    }
+}
+
+function renderCategoryAnalytics(analytics) {
+    const breakdown =
+        analytics.categoryBreakdown;
+
+    DOM.foodTotal.textContent =
+        formatCurrency(
+            breakdown.Food.amount
+        );
+
+    DOM.foodPercent.textContent =
+        formatPercentage(
+            breakdown.Food.percentage
+        );
+
+    DOM.entertainmentTotal.textContent =
+        formatCurrency(
+            breakdown.Entertainment.amount
+        );
+
+    DOM.entertainmentPercent.textContent =
+        formatPercentage(
+            breakdown.Entertainment.percentage
+        );
+
+    DOM.booksTotal.textContent =
+        formatCurrency(
+            breakdown["Books/Stationery"].amount
+        );
+
+    DOM.booksPercent.textContent =
+        formatPercentage(
+            breakdown["Books/Stationery"]
+                .percentage
+        );
+}
+
+function renderExpenseTable(
+    expenses = getExpenses()
+) {
+    DOM.expenseTableBody.innerHTML = "";
+
+    const hasExpenses =
+        expenses.length > 0;
+
+    DOM.historyEmptyState.style.display =
+        hasExpenses ? "none" : "block";
+
+    DOM.historyContent.style.display =
+        hasExpenses ? "block" : "none";
+
+    if (!hasExpenses) {
+        return;
+    }
+
+    expenses.forEach(expense => {
+        const row =
+            document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${expense.date}</td>
+            <td>${expense.category}</td>
+            <td>${formatCurrency(expense.amount)}</td>
+            <td>
+                <button
+                    type="button"
+                    data-expense-id="${expense.id}"
+                    class="delete-expense-btn"
+                >
+                    Delete
+                </button>
+            </td>
+        `;
+
+        DOM.expenseTableBody.appendChild(
+            row
+        );
+    });
+}
+
+function renderDashboard() {
+    const analytics =
+        generateAnalytics();
+
+    renderCurrentMonth();
+    renderBudgetSummary(analytics);
+    renderProgressBar(analytics);
+    renderRiskStatus(analytics);
+    renderVelocityCard(analytics);
+    renderCategoryAnalytics(analytics);
+
+    const selectedFilter =
+        DOM.historyFilter.value;
+
+    renderExpenseTable(
+        filterExpenses(selectedFilter)
+    );
+}
+
+/* ========================================
+   NOTIFICATIONS
+======================================== */
+
+function showToast(
+    message,
+    type = "success"
+) {
+    const toast =
+        document.createElement("div");
+
+    toast.className =
+        `toast toast-${type}`;
+
+    toast.textContent = message;
+
+    DOM.notificationContainer.appendChild(
+        toast
+    );
+
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+function showSuccessToast(message) {
+    showToast(message, "success");
+}
+
+function showWarningToast(message) {
+    showToast(message, "warning");
+}
+
+function showErrorToast(message) {
+    showToast(message, "error");
+}
+
+/* ========================================
+   EVENT HANDLERS
+======================================== */
+
+function handleBudgetSubmit(event) {
+    event.preventDefault();
+
+    const result = setBudget(
+        DOM.budgetInput.value
+    );
+
+    if (!result.valid) {
+        DOM.budgetError.textContent =
+            result.message;
+
+        showErrorToast(
+            result.message
+        );
+
+        return;
+    }
+
+    DOM.budgetError.textContent = "";
+
+    DOM.dashboard.hidden = false;
+
+    renderDashboard();
+
+    showSuccessToast(
+        "Budget updated successfully."
+    );
+}
+
+function handleExpenseSubmit(event) {
+    event.preventDefault();
+
+    const result = addExpense({
+        amount:
+            DOM.expenseAmount.value,
+        category:
+            DOM.expenseCategory.value,
+        date:
+            DOM.expenseDate.value
+    });
+
+    if (!result.valid) {
+        DOM.expenseError.textContent =
+            result.message;
+
+        showErrorToast(
+            result.message
+        );
+
+        return;
+    }
+
+    DOM.expenseError.textContent = "";
+
+    DOM.expenseForm.reset();
+
+    DOM.expenseDate.value =
+        getCurrentDate();
+
+    renderDashboard();
+
+    showSuccessToast(
+        "Expense added successfully."
+    );
+}
+
+function handleFilterChange() {
+    renderExpenseTable(
+        filterExpenses(
+            DOM.historyFilter.value
+        )
+    );
+}
+
+function handleDeleteConfirm() {
+    if (!pendingDeleteExpenseId) {
+        return;
+    }
+
+    const result =
+        deleteExpense(
+            pendingDeleteExpenseId
+        );
+
+    closeDeleteModal();
+
+    if (result.success) {
+        renderDashboard();
+
+        showSuccessToast(
+            result.message
+        );
+    }
+}
+
+function handleDeleteCancel() {
+    closeDeleteModal();
+}
+
+/* ========================================
+   INITIALIZATION
+======================================== */
+
+function initializeApp() {
+    loadData();
+
+    DOM.expenseDate.value =
+        getCurrentDate();
+
+    const budget =
+        getBudget();
+
+    DOM.dashboard.hidden =
+        budget <= 0;
+
+    if (budget > 0) {
+        renderDashboard();
+    }
+
+    DOM.budgetForm.addEventListener(
+        "submit",
+        handleBudgetSubmit
+    );
+
+    DOM.expenseForm.addEventListener(
+        "submit",
+        handleExpenseSubmit
+    );
+
+    DOM.historyFilter.addEventListener(
+        "change",
+        handleFilterChange
+    );
+
+    DOM.confirmDeleteBtn.addEventListener(
+        "click",
+        handleDeleteConfirm
+    );
+
+    DOM.cancelDeleteBtn.addEventListener(
+        "click",
+        handleDeleteCancel
+    );
+
+    DOM.expenseTableBody.addEventListener(
+        "click",
+        event => {
+            const button =
+                event.target.closest(
+                    ".delete-expense-btn"
+                );
+
+            if (!button) {
+                return;
+            }
+
+            openDeleteModal(
+                button.dataset.expenseId
+            );
+        }
+    );
+}
+
+initializeApp();

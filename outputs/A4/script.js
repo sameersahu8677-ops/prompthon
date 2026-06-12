@@ -1,4 +1,4 @@
-javascript
+
 /* ========================================
    APPLICATION CONSTANTS
 ======================================== */
@@ -257,7 +257,7 @@ function validateExpense({
     return createValidationResult(true);
 }
 
-javascript
+
 /* ========================================
    STORAGE HELPERS
 ======================================== */
@@ -503,7 +503,7 @@ function closeDeleteModal() {
     }
 }
 
-javascript
+
 /* ========================================
    ANALYTICS HELPERS
 ======================================== */

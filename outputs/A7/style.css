@@ -944,3 +944,367 @@ select,
 textarea {
     backdrop-filter: blur(0px);
 }
+
+/* =========================================================
+   PART 4 — ADVANCED COMPONENTS
+   ========================================================= */
+
+/* =========================================================
+   WEEKLY TRENDS SECTION
+   ========================================================= */
+
+#weekly-trends-section {
+    background: var(--color-card);
+
+    border-radius: var(--radius-lg);
+
+    padding: var(--space-2xl);
+
+    border: 1px solid rgba(226, 232, 240, 0.8);
+
+    box-shadow: var(--shadow-sm);
+}
+
+#weekly-summary {
+    background: rgba(248, 250, 252, 0.8);
+
+    border-radius: 18px;
+
+    padding: var(--space-lg);
+
+    margin-bottom: var(--space-xl);
+
+    color: var(--color-text-primary);
+
+    font-weight: 500;
+}
+
+/* =========================================================
+   CHARTS CONTAINER
+   ========================================================= */
+
+#charts-container {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit,
+            minmax(260px, 1fr));
+
+    gap: var(--space-lg);
+}
+
+.chart-container,
+#steps-chart,
+#sleep-chart,
+#calories-chart {
+    min-height: 260px;
+
+    background: #ffffff;
+
+    border-radius: 20px;
+
+    border: 1px solid rgba(226, 232, 240, 0.7);
+
+    box-shadow: var(--shadow-sm);
+
+    padding: var(--space-lg);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+
+    color: var(--color-text-secondary);
+
+    transition:
+        transform var(--transition-normal),
+        box-shadow var(--transition-normal);
+}
+
+.chart-container:hover,
+#steps-chart:hover,
+#sleep-chart:hover,
+#calories-chart:hover {
+    transform: translateY(-3px);
+
+    box-shadow: var(--shadow-md);
+}
+
+/* =========================================================
+   SMART ALERTS
+   ========================================================= */
+
+#smart-alerts-section {
+    background: var(--color-card);
+
+    border-radius: var(--radius-lg);
+
+    padding: var(--space-2xl);
+
+    border: 1px solid rgba(226, 232, 240, 0.8);
+
+    box-shadow: var(--shadow-sm);
+}
+
+#alert-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+/* Generic Alert Card */
+
+.alert-card {
+    padding: var(--space-lg);
+
+    border-radius: 18px;
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+
+    border-left: 5px solid transparent;
+
+    box-shadow: var(--shadow-sm);
+}
+
+/* Success Alert */
+
+.alert-success {
+    background: rgba(22, 163, 74, 0.08);
+
+    border-left-color: var(--color-success);
+}
+
+/* Warning Alert */
+
+.alert-warning {
+    background: rgba(245, 158, 11, 0.1);
+
+    border-left-color: var(--color-warning);
+}
+
+/* Danger Alert */
+
+.alert-danger {
+    background: rgba(220, 38, 38, 0.08);
+
+    border-left-color: var(--color-danger);
+}
+
+/* =========================================================
+   TIMELINE SECTION
+   ========================================================= */
+
+#timeline-section {
+    background: var(--color-card);
+
+    border-radius: var(--radius-lg);
+
+    padding: var(--space-2xl);
+
+    border: 1px solid rgba(226, 232, 240, 0.8);
+
+    box-shadow: var(--shadow-sm);
+}
+
+#timeline-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+/* Timeline Item */
+
+.timeline-item {
+    position: relative;
+
+    padding-left: 2rem;
+
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.timeline-item::before {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    top: 0.45rem;
+
+    width: 12px;
+    height: 12px;
+
+    border-radius: 50%;
+
+    background: var(--color-primary);
+}
+
+.timeline-item::after {
+    content: "";
+
+    position: absolute;
+
+    left: 5px;
+    top: 1rem;
+
+    width: 2px;
+    height: calc(100% + 12px);
+
+    background: rgba(37, 99, 235, 0.15);
+}
+
+.timeline-item:last-child::after {
+    display: none;
+}
+
+.timeline-title {
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.timeline-meta {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+}
+
+/* =========================================================
+   WATER PROGRESS AREA
+   ========================================================= */
+
+.progress-placeholder {
+    width: 100%;
+
+    height: 14px;
+
+    margin-top: var(--space-md);
+
+    border-radius: 999px;
+
+    background:
+        linear-gradient(to right,
+            rgba(37, 99, 235, 0.15),
+            rgba(37, 99, 235, 0.08));
+
+    position: relative;
+
+    overflow: hidden;
+
+    font-size: 0;
+}
+
+/* Future JS can inject actual fill element */
+
+.progress-fill {
+    height: 100%;
+
+    width: 0%;
+
+    background: var(--color-primary);
+
+    border-radius: inherit;
+
+    transition: width 0.4s ease;
+}
+
+/* =========================================================
+   SLEEP WARNING
+   ========================================================= */
+
+#sleep-warning {
+    margin-top: var(--space-sm);
+
+    border-radius: 14px;
+
+    padding: var(--space-md);
+
+    background: rgba(245, 158, 11, 0.1);
+
+    color: #92400e;
+
+    font-size: 0.92rem;
+
+    font-weight: 600;
+
+    display: none;
+}
+
+/* JS can activate with class */
+
+#sleep-warning.active {
+    display: block;
+}
+
+/* =========================================================
+   EMPTY STATES
+   ========================================================= */
+
+.empty-state {
+    background: rgba(248, 250, 252, 0.8);
+
+    border: 1px dashed rgba(148, 163, 184, 0.35);
+
+    border-radius: 18px;
+
+    padding: var(--space-xl);
+
+    text-align: center;
+
+    color: var(--color-text-secondary);
+
+    font-size: 0.95rem;
+
+    line-height: 1.6;
+}
+
+/* =========================================================
+   MEAL & WORKOUT LIST ITEMS
+   ========================================================= */
+
+.meal-item,
+.workout-item {
+    background: rgba(248, 250, 252, 0.85);
+
+    border-radius: 16px;
+
+    padding: var(--space-md);
+
+    border: 1px solid rgba(226, 232, 240, 0.75);
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-md);
+
+    transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.meal-item:hover,
+.workout-item:hover {
+    transform: translateY(-2px);
+
+    box-shadow: var(--shadow-sm);
+}
+
+/* =========================================================
+   PREMIUM SECTION INTERACTIONS
+   ========================================================= */
+
+#weekly-trends-section,
+#smart-alerts-section,
+#timeline-section {
+    transition:
+        transform var(--transition-normal),
+        box-shadow var(--transition-normal);
+}
+
+#weekly-trends-section:hover,
+#smart-alerts-section:hover,
+#timeline-section:hover {
+    box-shadow: var(--shadow-md);
+}

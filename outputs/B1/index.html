@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Studio</title>
+
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="app-header">
+        <h1>Markdown Studio</h1>
+        <p>Write Markdown and preview HTML in real time</p>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="workspace">
+
+        <!-- Editor Panel -->
+        <section class="editor-panel" aria-labelledby="editor-heading">
+
+            <div class="panel-header">
+                <h2 id="editor-heading">Markdown Editor</h2>
+            </div>
+
+            <!-- Markdown Cheat Sheet -->
+            <aside class="markdown-help" aria-label="Markdown Reference">
+                <h3>Quick Reference</h3>
+                <ul>
+                    <li><code># Heading</code></li>
+                    <li><code>## Heading</code></li>
+                    <li><code>### Heading</code></li>
+                    <li><code>**Bold**</code></li>
+                    <li><code>*Italic*</code></li>
+                    <li><code>- List Item</code></li>
+                    <li><code>1. Numbered Item</code></li>
+                    <li><code>`Code`</code></li>
+                </ul>
+            </aside>
+
+            <label for="markdown-editor" class="editor-label">
+                Markdown Input
+            </label>
+
+            <textarea id="markdown-editor" aria-label="Markdown Editor" spellcheck="false"># Welcome to Markdown Studio
+
+## Live Preview
+
+**Bold Text**
+
+*Italic Text*
+
+- First Item
+- Second Item
+
+1. Step One
+2. Step Two
+
+`Inline Code`</textarea>
+
+        </section>
+
+        <!-- Preview Panel -->
+        <section class="preview-panel" aria-labelledby="preview-heading">
+
+            <div class="panel-header">
+                <h2 id="preview-heading">Live Preview</h2>
+            </div>
+
+            <div id="preview-content">
+                Start typing Markdown to see live preview...
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Toolbar -->
+    <footer class="toolbar">
+
+        <div class="stats-group">
+
+            <span id="word-count">
+                Words: 0
+            </span>
+
+            <span id="character-count">
+                Characters: 0
+            </span>
+
+            <span id="save-status">
+                ✓ Ready
+            </span>
+
+        </div>
+
+        <div class="actions-group">
+
+            <button id="copy-btn" type="button" aria-label="Copy HTML">
+                Copy HTML
+            </button>
+
+            <button id="reset-btn" type="button" aria-label="New Document">
+                New Document
+            </button>
+
+            <button id="export-btn" type="button" aria-label="Export HTML">
+                Export HTML
+            </button>
+
+        </div>
+
+    </footer>
+
+    <!-- Toast Container -->
+    <div id="toast-container" aria-live="polite" aria-atomic="true">
+    </div>
+
+</body>
+
+</html>

@@ -1034,3 +1034,510 @@ function hasReachedXP(
         targetXP
     );
 }
+
+/* ==========================================
+   PART 4 - STREAK & HP ENGINE
+   ========================================== */
+
+/* ==========================================
+   DATE HELPERS
+   ========================================== */
+
+function getPreviousDate(dateString) {
+
+    const date = new Date(dateString);
+    date.setDate(date.getDate() - 1);
+
+    const year = date.getFullYear();
+    const month = String(
+        date.getMonth() + 1
+    ).padStart(2, "0");
+    const day = String(
+        date.getDate()
+    ).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+}
+
+function getDateRange(
+    startDate,
+    endDate
+) {
+
+    const dates = [];
+
+    const current =
+        new Date(startDate);
+
+    const end =
+        new Date(endDate);
+
+    while (current <= end) {
+
+        const year =
+            current.getFullYear();
+
+        const month =
+            String(
+                current.getMonth() + 1
+            ).padStart(2, "0");
+
+        const day =
+            String(
+                current.getDate()
+            ).padStart(2, "0");
+
+        dates.push(
+            `${year}-${month}-${day}`
+        );
+
+        current.setDate(
+            current.getDate() + 1
+        );
+    }
+
+    return dates;
+}
+
+/* ==========================================
+   ELIGIBLE HABITS
+   ========================================== */
+
+function getEligibleHabitsForDate(
+    date
+) {
+
+    return appState.habits.filter(
+        habit => {
+
+            if (
+                !habit.isActive ||
+                habit.isArchived
+            ) {
+                return false;
+            }
+
+            return (
+                habit.trackingStartDate <=
+                date
+            );
+        }
+    );
+}
+
+/* ==========================================
+   SUCCESSFUL DAY LOGIC
+   ========================================== */
+
+function isSuccessfulDay(
+    date
+) {
+
+    const eligibleHabits =
+        getEligibleHabitsForDate(
+            date
+        );
+
+    if (
+        eligibleHabits.length === 0
+    ) {
+        return false;
+    }
+
+    return eligibleHabits.every(
+        habit =>
+            isHabitCompletedOnDate(
+                habit,
+                date
+            )
+    );
+}
+
+/* ==========================================
+   STREAK CALCULATION
+   ========================================== */
+
+function calculateCurrentStreak() {
+
+    const today =
+        getTodayDate();
+
+    let streak = 0;
+
+    let currentDate = today;
+
+    while (
+        isSuccessfulDay(
+            currentDate
+        )
+    ) {
+
+        streak++;
+
+        currentDate =
+            getPreviousDate(
+                currentDate
+            );
+    }
+
+    return streak;
+}
+
+function updateCurrentStreak() {
+
+    const streak =
+        calculateCurrentStreak();
+
+    appState.player.currentStreak =
+        streak;
+
+    return streak;
+}
+
+function updateLongestStreak() {
+
+    const current =
+        appState.player
+            .currentStreak;
+
+    if (
+        current >
+        appState.player
+            .longestStreak
+    ) {
+
+        appState.player
+            .longestStreak =
+            current;
+    }
+
+    return appState.player
+        .longestStreak;
+}
+
+/* ==========================================
+   HP HELPERS
+   ========================================== */
+
+function loseHP(
+    amount = 1
+) {
+
+    const oldHP =
+        appState.player.hp;
+
+    appState.player.hp =
+        Math.max(
+            HP_CONFIG.MIN_HP,
+            oldHP - amount
+        );
+
+    return {
+        oldHP,
+        newHP:
+            appState.player.hp
+    };
+}
+
+function restoreHP(
+    amount = 1
+) {
+
+    const oldHP =
+        appState.player.hp;
+
+    appState.player.hp =
+        Math.min(
+            HP_CONFIG.MAX_HP,
+            oldHP + amount
+        );
+
+    return {
+        oldHP,
+        newHP:
+            appState.player.hp
+    };
+}
+
+/* ==========================================
+   HP RECOVERY SYSTEM
+   ========================================== */
+
+function processHPRecovery() {
+
+    const streak =
+        appState.player
+            .currentStreak;
+
+    const milestone =
+        Math.floor(
+            streak / 7
+        );
+
+    const lastRewarded =
+        appState.player
+            .lastHPRewardStreakMilestone;
+
+    if (
+        milestone <= 0 ||
+        milestone <=
+        lastRewarded
+    ) {
+        return null;
+    }
+
+    const hpResult =
+        restoreHP(1);
+
+    appState.player
+        .lastHPRewardStreakMilestone =
+        milestone;
+
+    return {
+        restored: true,
+        milestone,
+        hpResult
+    };
+}
+
+/* ==========================================
+   MISS TRACKING
+   ========================================== */
+
+function evaluateHabitMisses(
+    habit,
+    evaluationDate
+) {
+
+    const previousDay =
+        getPreviousDate(
+            evaluationDate
+        );
+
+    const currentMiss =
+        !isHabitCompletedOnDate(
+            habit,
+            evaluationDate
+        );
+
+    const previousMiss =
+        !isHabitCompletedOnDate(
+            habit,
+            previousDay
+        );
+
+    if (
+        currentMiss &&
+        previousMiss
+    ) {
+
+        habit.missTracking
+            .consecutiveMisses = 2;
+
+        if (
+            !habit.missTracking
+                .penaltyApplied
+        ) {
+
+            habit.missTracking
+                .penaltyApplied =
+                true;
+
+            return {
+                penaltyTriggered: true
+            };
+        }
+
+        return {
+            penaltyTriggered: false
+        };
+    }
+
+    if (
+        isHabitCompletedOnDate(
+            habit,
+            evaluationDate
+        )
+    ) {
+
+        habit.missTracking
+            .consecutiveMisses = 0;
+
+        habit.missTracking
+            .penaltyApplied =
+            false;
+    }
+
+    return {
+        penaltyTriggered: false
+    };
+}
+
+/* ==========================================
+   HP PENALTY SYSTEM
+   ========================================== */
+
+function processHPPenalties(
+    evaluationDate
+) {
+
+    const habits =
+        getEligibleHabitsForDate(
+            evaluationDate
+        );
+
+    let penaltyCount = 0;
+
+    for (
+        const habit of habits
+    ) {
+
+        const result =
+            evaluateHabitMisses(
+                habit,
+                evaluationDate
+            );
+
+        if (
+            result.penaltyTriggered
+        ) {
+
+            loseHP(1);
+
+            appState.player
+                .currentStreak = 0;
+
+            penaltyCount++;
+        }
+    }
+
+    return {
+        penaltiesApplied:
+            penaltyCount
+    };
+}
+
+/* ==========================================
+   DAILY EVALUATION
+   ========================================== */
+
+function evaluateDay(
+    date
+) {
+
+    const successful =
+        isSuccessfulDay(
+            date
+        );
+
+    if (
+        successful
+    ) {
+
+        updateCurrentStreak();
+
+        updateLongestStreak();
+
+        processHPRecovery();
+
+    } else {
+
+        processHPPenalties(
+            date
+        );
+    }
+
+    return {
+        date,
+        successful,
+        streak:
+            appState.player
+                .currentStreak,
+        hp:
+            appState.player.hp
+    };
+}
+
+/* ==========================================
+   DAILY MAINTENANCE
+   ========================================== */
+
+function runDailyChecks() {
+
+    const today =
+        getTodayDate();
+
+    const lastCheck =
+        appState.appMeta
+            .lastDailyCheckDate;
+
+    if (
+        lastCheck === today
+    ) {
+
+        return false;
+    }
+
+    if (
+        !lastCheck
+    ) {
+
+        appState.appMeta
+            .lastDailyCheckDate =
+            today;
+
+        StorageService.saveState(
+            appState
+        );
+
+        return true;
+    }
+
+    const datesToEvaluate =
+        getDateRange(
+            lastCheck,
+            today
+        );
+
+    datesToEvaluate.shift();
+
+    for (
+        const date of datesToEvaluate
+    ) {
+
+        evaluateDay(
+            date
+        );
+    }
+
+    appState.appMeta
+        .lastDailyCheckDate =
+        today;
+
+    StorageService.saveState(
+        appState
+    );
+
+    return true;
+}
+
+/* ==========================================
+   STREAK QUERY HELPERS
+   ========================================== */
+
+function getCurrentStreak() {
+
+    return appState.player
+        .currentStreak;
+}
+
+function getLongestStreak() {
+
+    return appState.player
+        .longestStreak;
+}
+
+function getCurrentHP() {
+
+    return appState.player.hp;
+}

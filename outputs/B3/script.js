@@ -792,6 +792,15 @@ function validateTransaction() {
         const seatId of appState.selectedSeats
     ) {
 
+        console.log(
+            "Checking:",
+            seatId
+        );
+
+        console.log(
+            getSeatById(seatId)
+        );
+
         const seat =
             getSeatById(seatId);
 
@@ -845,6 +854,8 @@ function commitTransaction() {
     for (
         const seatId of seatsToCommit
     ) {
+
+
 
         const seat =
             getSeatById(seatId);
@@ -1648,7 +1659,6 @@ function createBookingRecord(snapshot) {
             Date.now()
     };
 }
-
 /**
  * Adds booking to history.
  * @param {Object} booking
@@ -2151,6 +2161,30 @@ function handleConfirmBooking() {
         seats: getSelectedSeatObjects(),
 
         summary: getPricingSummary()
+    };
+
+    console.log(
+        "Selected Seats:",
+        appState.selectedSeats
+    );
+
+    console.log(
+        "Transaction State:",
+        transactionState
+    );
+
+    console.log(
+        "Validation Result:",
+        validateTransaction()
+    );
+
+    const bookingSnapshot = {
+
+        seats:
+            getSelectedSeatObjects(),
+
+        summary:
+            getPricingSummary()
     };
 
     const committed =

@@ -615,3 +615,332 @@ a {
 #quick-insight:hover {
     box-shadow: var(--shadow-lg);
 }
+
+/* =========================================================
+   PART 3 — FORMS, INPUTS & BUTTONS
+   Premium Apple-Inspired Styling
+   ========================================================= */
+
+/* =========================================================
+   GOAL SETTINGS SECTION
+   ========================================================= */
+
+#goal-settings-section {
+    background: var(--color-card);
+
+    border-radius: var(--radius-lg);
+
+    padding: var(--space-2xl);
+
+    box-shadow: var(--shadow-sm);
+
+    border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+#settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+}
+
+/* =========================================================
+   FORM LAYOUT
+   ========================================================= */
+
+#activity-form,
+#meal-form,
+#water-form,
+#sleep-form,
+#workout-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+/* =========================================================
+   LABELS
+   ========================================================= */
+
+label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    letter-spacing: -0.01em;
+}
+
+small {
+    margin-top: 2px;
+    line-height: 1.4;
+}
+
+/* =========================================================
+   APPLE-STYLE INPUTS
+   ========================================================= */
+
+input,
+select,
+textarea {
+    width: 100%;
+
+    min-height: 52px;
+
+    padding:
+        0.85rem 1rem;
+
+    border-radius: 16px;
+
+    border: 1px solid transparent;
+
+    background: #f1f5f9;
+
+    color: var(--color-text-primary);
+
+    font-size: 0.95rem;
+
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background-color var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #94a3b8;
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+    background: #eef2f7;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    background: #ffffff;
+
+    border-color: rgba(37, 99, 235, 0.35);
+
+    box-shadow:
+        0 0 0 4px rgba(37, 99, 235, 0.12);
+
+    transform: translateY(-1px);
+}
+
+/* =========================================================
+   SELECT STYLING
+   ========================================================= */
+
+select {
+    cursor: pointer;
+    appearance: none;
+}
+
+/* =========================================================
+   FORM SPACING INSIDE CARDS
+   ========================================================= */
+
+.card-actions form {
+    margin-top: var(--space-xs);
+}
+
+/* =========================================================
+   BUTTON FOUNDATION
+   ========================================================= */
+
+button {
+    min-height: 48px;
+
+    padding:
+        0.85rem 1.2rem;
+
+    border-radius: 14px;
+
+    font-weight: 600;
+
+    font-size: 0.95rem;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background-color var(--transition-fast),
+        color var(--transition-fast);
+}
+
+/* =========================================================
+   PRIMARY BUTTONS
+   ========================================================= */
+
+#settings-form button,
+#activity-form button,
+#meal-form button,
+#water-form button,
+#sleep-form button,
+#workout-form button {
+    background: var(--color-primary);
+    color: white;
+
+    box-shadow:
+        0 8px 18px rgba(37, 99, 235, 0.18);
+}
+
+#settings-form button:hover,
+#activity-form button:hover,
+#meal-form button:hover,
+#water-form button:hover,
+#sleep-form button:hover,
+#workout-form button:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 12px 24px rgba(37, 99, 235, 0.25);
+}
+
+#settings-form button:active,
+#activity-form button:active,
+#meal-form button:active,
+#water-form button:active,
+#sleep-form button:active,
+#workout-form button:active {
+    transform: translateY(0);
+}
+
+/* =========================================================
+   DATA MANAGEMENT SECTION
+   ========================================================= */
+
+#data-actions-section {
+    margin-top: var(--space-2xl);
+}
+
+.data-actions {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit,
+            minmax(280px, 1fr));
+
+    gap: var(--space-xl);
+}
+
+.action-card {
+    background: var(--color-card);
+
+    border-radius: var(--radius-lg);
+
+    padding: var(--space-xl);
+
+    border: 1px solid rgba(226, 232, 240, 0.9);
+
+    box-shadow: var(--shadow-sm);
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+
+    transition:
+        transform var(--transition-normal),
+        box-shadow var(--transition-normal);
+}
+
+.action-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.action-card h3 {
+    margin-bottom: var(--space-xs);
+}
+
+.action-card p {
+    flex: 1;
+}
+
+/* =========================================================
+   EXPORT BUTTON
+   ========================================================= */
+
+#export-data-btn {
+    background: #ffffff;
+
+    color: var(--color-primary);
+
+    border: 1px solid rgba(37, 99, 235, 0.15);
+
+    box-shadow: var(--shadow-sm);
+}
+
+#export-data-btn:hover {
+    background: rgba(37, 99, 235, 0.05);
+
+    transform: translateY(-2px);
+
+    box-shadow: var(--shadow-md);
+}
+
+/* =========================================================
+   RESET BUTTON
+   ========================================================= */
+
+#reset-data-btn {
+    background: var(--color-danger);
+
+    color: white;
+
+    box-shadow:
+        0 8px 18px rgba(220, 38, 38, 0.18);
+}
+
+#reset-data-btn:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 12px 24px rgba(220, 38, 38, 0.25);
+}
+
+/* =========================================================
+   BUTTON FOCUS
+   ========================================================= */
+
+button:focus-visible {
+    outline: none;
+
+    box-shadow:
+        0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+/* =========================================================
+   FORM READABILITY ENHANCEMENTS
+   ========================================================= */
+
+.card-actions label {
+    margin-top: var(--space-xs);
+}
+
+.card-actions input,
+.card-actions select {
+    margin-bottom: var(--space-sm);
+}
+
+/* =========================================================
+   SUBTLE APPLE-LIKE REFINEMENT
+   ========================================================= */
+
+#goal-settings-section,
+.action-card,
+input,
+select,
+textarea {
+    backdrop-filter: blur(0px);
+}

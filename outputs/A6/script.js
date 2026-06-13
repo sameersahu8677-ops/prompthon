@@ -260,3 +260,44 @@ function validateForm() {
 
     return true;
 }
+
+/* ==========================================
+   CONTACT FORM HANDLER
+========================================== */
+
+function resetContactForm() {
+    if (!contactForm) return;
+
+    contactForm.reset();
+
+    clearNotification();
+
+    resetCaptcha();
+}
+
+function handleFormSubmission(event) {
+    event.preventDefault();
+
+    clearNotification();
+
+    const isFormValid = validateForm();
+
+    if (!isFormValid) {
+        return;
+    }
+
+    showSuccess(
+        "Thank you! Your message has been submitted successfully."
+    );
+
+    resetContactForm();
+}
+
+function initializeContactForm() {
+    if (!contactForm) return;
+
+    contactForm.addEventListener(
+        "submit",
+        handleFormSubmission
+    );
+}

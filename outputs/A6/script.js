@@ -301,3 +301,74 @@ function initializeContactForm() {
         handleFormSubmission
     );
 }
+
+/* ==========================================
+   NAVIGATION ENHANCEMENTS
+========================================== */
+
+const navLinks = document.querySelectorAll(
+    '.nav-link[href^="#"]'
+);
+
+const sections = document.querySelectorAll(
+    "main section[id]"
+);
+
+function clearActiveNavigation() {
+    navLinks.forEach((link) => {
+        link.classList.remove("active");
+    });
+}
+
+function updateActiveNavigation() {
+    const scrollPosition =
+        window.scrollY + 150;
+
+    let currentSectionId = "";
+
+    sections.forEach((section) => {
+        const sectionTop =
+            section.offsetTop;
+
+        const sectionHeight =
+            section.offsetHeight;
+
+        if (
+            scrollPosition >= sectionTop &&
+            scrollPosition <
+            sectionTop + sectionHeight
+        ) {
+            currentSectionId =
+                section.getAttribute("id");
+        }
+    });
+
+    if (!currentSectionId) return;
+
+    clearActiveNavigation();
+
+    const activeLink =
+        document.querySelector(
+            `.nav-link[href="#${currentSectionId}"]`
+        );
+
+    if (activeLink) {
+        activeLink.classList.add("active");
+    }
+}
+
+function initializeNavigation() {
+    if (
+        navLinks.length === 0 ||
+        sections.length === 0
+    ) {
+        return;
+    }
+
+    updateActiveNavigation();
+
+    window.addEventListener(
+        "scroll",
+        updateActiveNavigation
+    );
+}

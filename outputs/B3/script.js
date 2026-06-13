@@ -1485,3 +1485,605 @@ function initializeApp() {
 }
 
 */
+
+/* =========================================================
+   PART 5 — STORAGE, ANALYTICS & BOOKING HISTORY
+   ========================================================= */
+
+/* =========================================================
+   STORAGE SERVICE
+   ========================================================= */
+
+/**
+ * Saves application data.
+ */
+function saveData() {
+
+    try {
+
+        const bookedSeats =
+            appState.seats
+                .filter(
+                    seat =>
+                        seat.state === "booked"
+                )
+                .map(
+                    seat => seat.id
+                );
+
+        localStorage.setItem(
+            CONFIG.storage.bookedSeatsKey,
+            JSON.stringify(bookedSeats)
+        );
+
+        localStorage.setItem(
+            CONFIG.storage.bookingHistoryKey,
+            JSON.stringify(appState.bookings)
+        );
+
+        localStorage.setItem(
+            CONFIG.storage.revenueKey,
+            JSON.stringify(appState.revenue)
+        );
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "Storage save failed:",
+            error
+        );
+
+        return false;
+    }
+}
+
+/**
+ * Safely parses JSON.
+ * @param {string|null} value
+ * @param {*} fallback
+ * @returns {*}
+ */
+function safeParseJSON(
+    value,
+    fallback
+) {
+
+    try {
+
+        return value
+            ? JSON.parse(value)
+            : fallback;
+
+    } catch {
+
+        return fallback;
+    }
+}
+
+/**
+ * Validates booking history.
+ * @param {Array} bookings
+ * @returns {Array}
+ */
+function validateBookings(
+    bookings
+) {
+
+    if (
+        !Array.isArray(bookings)
+    ) {
+        return [];
+    }
+
+    return bookings.filter(
+        booking =>
+
+            booking &&
+            typeof booking ===
+            "object" &&
+
+            typeof booking.bookingId ===
+            "string" &&
+
+            Array.isArray(
+                booking.seats
+            ) &&
+
+            typeof booking.amount ===
+            "number"
+    );
+}
+
+/**
+ * Loads persisted data.
+ */
+function loadData() {
+
+    try {
+
+        const bookedSeats =
+            safeParseJSON(
+                localStorage.getItem(
+                    CONFIG.storage.bookedSeatsKey
+                ),
+                []
+            );
+
+        const bookings =
+            safeParseJSON(
+                localStorage.getItem(
+                    CONFIG.storage.bookingHistoryKey
+                ),
+                []
+            );
+
+        const revenue =
+            safeParseJSON(
+                localStorage.getItem(
+                    CONFIG.storage.revenueKey
+                ),
+                0
+            );
+
+        appState.bookings =
+            validateBookings(
+                bookings
+            );
+
+        appState.revenue =
+            Number(revenue) || 0;
+
+        if (
+            Array.isArray(bookedSeats)
+        ) {
+
+            bookedSeats.forEach(
+                seatId => {
+
+                    const seat =
+                        getSeatById(
+                            seatId
+                        );
+
+                    if (
+                        seat &&
+                        seat.state ===
+                        "available"
+                    ) {
+                        seat.state =
+                            "booked";
+                    }
+
+                }
+            );
+        }
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "Storage load failed:",
+            error
+        );
+
+        resetStorage();
+
+        return false;
+    }
+}
+
+/**
+ * Clears persisted data.
+ */
+function resetStorage() {
+
+    localStorage.removeItem(
+        CONFIG.storage.bookedSeatsKey
+    );
+
+    localStorage.removeItem(
+        CONFIG.storage.bookingHistoryKey
+    );
+
+    localStorage.removeItem(
+        CONFIG.storage.revenueKey
+    );
+}
+
+/* =========================================================
+   BOOKING HISTORY MANAGER
+   ========================================================= */
+
+/**
+ * Creates booking record.
+ * Enhanced structure from audit.
+ *
+ * @returns {Object}
+ */
+function createBookingRecord() {
+
+    const summary =
+        getPricingSummary();
+
+    const selectedSeats =
+        getSelectedSeatObjects();
+
+    return {
+        bookingId:
+            generateBookingId(),
+
+        seats:
+            selectedSeats.map(
+                seat => seat.id
+            ),
+
+        seatCount:
+            summary.count,
+
+        breakdown:
+            summary.breakdown,
+
+        amount:
+            summary.total,
+
+        timestamp:
+            Date.now()
+    };
+}
+
+/**
+ * Adds booking to history.
+ * @param {Object} booking
+ */
+function addBookingRecord(
+    booking
+) {
+
+    appState.bookings.unshift(
+        booking
+    );
+}
+
+/**
+ * Returns booking count.
+ * @returns {number}
+ */
+function getBookingCount() {
+
+    return appState.bookings.length;
+}
+
+/* =========================================================
+   HISTORY RENDERER
+   ========================================================= */
+
+/**
+ * Renders booking history.
+ */
+function renderBookingHistory() {
+
+    if (
+        !DOM.historyList
+    ) {
+        return;
+    }
+
+    if (
+        appState.bookings.length === 0
+    ) {
+
+        DOM.historyList.innerHTML = `
+            <p>
+                No bookings yet.
+            </p>
+        `;
+
+        return;
+    }
+
+    DOM.historyList.innerHTML =
+        appState.bookings
+            .map(
+                booking => `
+                    <article class="history-card">
+
+                        <div class="history-header">
+
+                            <span class="booking-id">
+                                ${booking.bookingId}
+                            </span>
+
+                            <span class="booking-time">
+                                ${formatDateTime(
+                    booking.timestamp
+                )}
+                            </span>
+
+                        </div>
+
+                        <div class="booking-seats">
+                            Seats:
+                            ${booking.seats.join(
+                    ", "
+                )}
+                        </div>
+
+                        <div class="booking-seats">
+                            Count:
+                            ${booking.seatCount}
+                        </div>
+
+                        <div class="booking-amount">
+                            ${formatCurrency(
+                    booking.amount
+                )}
+                        </div>
+
+                    </article>
+                `
+            )
+            .join("");
+}
+
+/* =========================================================
+   ANALYTICS SERVICE
+   ========================================================= */
+
+/**
+ * Calculates analytics.
+ * @returns {Object}
+ */
+function calculateAnalytics() {
+
+    const totalSeats =
+        appState.seats.length;
+
+    const availableSeats =
+        appState.seats.filter(
+            seat =>
+                seat.state ===
+                "available"
+        ).length;
+
+    const bookedSeats =
+        appState.seats.filter(
+            seat =>
+                seat.state ===
+                "booked"
+        ).length;
+
+    const selectedSeats =
+        appState.seats.filter(
+            seat =>
+                seat.state ===
+                "selected"
+        ).length;
+
+    const occupancy =
+        totalSeats === 0
+            ? 0
+            : (
+                bookedSeats /
+                totalSeats
+            ) * 100;
+
+    return {
+        totalSeats,
+        availableSeats,
+        bookedSeats,
+        selectedSeats,
+
+        occupancy:
+            occupancy.toFixed(1),
+
+        revenue:
+            appState.revenue,
+
+        bookingCount:
+            getBookingCount()
+    };
+}
+
+/* =========================================================
+   ANALYTICS RENDERER
+   ========================================================= */
+
+/**
+ * Updates analytics dashboard.
+ */
+function renderAnalytics() {
+
+    const analytics =
+        calculateAnalytics();
+
+    DOM.availableCount.textContent =
+        analytics.availableSeats;
+
+    DOM.bookedCount.textContent =
+        analytics.bookedSeats;
+
+    DOM.selectedCount.textContent =
+        analytics.selectedSeats;
+
+    DOM.revenueTotal.textContent =
+        formatCurrency(
+            analytics.revenue
+        );
+
+    DOM.occupancyRate.textContent =
+        `${analytics.occupancy}%`;
+
+    DOM.bookingCount.textContent =
+        analytics.bookingCount;
+
+    updateOccupancyBar(
+        analytics.occupancy
+    );
+}
+
+/**
+ * Updates occupancy progress bar.
+ * Safe if element absent.
+ *
+ * Expected CSS class:
+ * occupancy-progress-fill
+ */
+function updateOccupancyBar(
+    percentage
+) {
+
+    const progressBar =
+        document.querySelector(
+            ".occupancy-progress-fill"
+        );
+
+    if (!progressBar) {
+        return;
+    }
+
+    progressBar.style.width =
+        `${percentage}%`;
+}
+
+/* =========================================================
+   BOOKING FINALIZATION
+   ========================================================= */
+
+/**
+ * Called after successful
+ * transaction commit.
+ *
+ * Handles:
+ * History
+ * Revenue
+ * Storage
+ * Analytics
+ */
+function finalizeBooking() {
+
+    const booking =
+        createBookingRecord();
+
+    addBookingRecord(
+        booking
+    );
+
+    appState.revenue +=
+        booking.amount;
+
+    saveData();
+
+    renderBookingHistory();
+
+    renderAnalytics();
+
+    return booking;
+}
+
+/* =========================================================
+   MASTER DASHBOARD REFRESH
+   ========================================================= */
+
+/**
+ * Refreshes non-seat UI.
+ */
+function refreshDashboardUI() {
+
+    renderSummary();
+
+    renderAnalytics();
+
+    renderBookingHistory();
+}
+
+/* =========================================================
+   INITIALIZATION HELPERS
+   ========================================================= */
+
+/**
+ * Initializes persisted data.
+ */
+function initializePersistence() {
+
+    loadData();
+
+    renderBookingHistory();
+
+    renderAnalytics();
+}
+
+/* =========================================================
+   INITIALIZATION PATCH
+   ========================================================= */
+
+/*
+Update initializeApp()
+
+function initializeApp() {
+
+    console.log(
+        "🎬 Seat Booking Engine Initializing..."
+    );
+
+    setupSeatEngine();
+
+    loadData();
+
+    initializeSummary();
+
+    renderBookingHistory();
+
+    renderAnalytics();
+
+    console.log(
+        "✅ Application Ready."
+    );
+}
+*/
+
+/* =========================================================
+   PART 5 INTEGRATION NOTES
+   ========================================================= */
+
+/*
+Part 6 should:
+
+1. Call commitTransaction()
+
+2. If commit succeeds:
+
+   const booking =
+       finalizeBooking();
+
+3. Then:
+
+   closeModal();
+
+   refreshBookingUI();
+
+   showToast(
+       "Booking successful!",
+       "success"
+   );
+
+This ensures:
+
+Transaction
+↓
+History
+↓
+Revenue
+↓
+Storage
+↓
+Analytics
+↓
+UI
+↓
+Notification
+
+in correct order.
+*/

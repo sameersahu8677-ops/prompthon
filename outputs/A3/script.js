@@ -2065,6 +2065,16 @@ function cacheDOMElements() {
         document.getElementById(
             "motivation-message"
         );
+
+    DOM.archivedHabitList =
+        document.getElementById(
+            "archived-habit-list"
+        );
+
+    DOM.archivedCount =
+        document.getElementById(
+            "archived-count"
+        );
 }
 
 /* ==========================================
@@ -2320,6 +2330,93 @@ function renderHabits() {
     }
 }
 
+function renderArchivedHabits() {
+
+    if (
+        !DOM.archivedHabitList
+    ) {
+        return;
+    }
+
+    const archived =
+        getArchivedHabits();
+
+    if (
+        archived.length === 0
+    ) {
+
+        DOM.archivedHabitList.innerHTML =
+            `
+            <div class="archived-empty">
+                No archived quests.
+            </div>
+            `;
+
+        if (
+            DOM.archivedCount
+        ) {
+
+            DOM.archivedCount.textContent =
+                "0";
+        }
+
+        return;
+    }
+
+    DOM.archivedHabitList.innerHTML =
+        archived.map(
+            habit => `
+                <div class="archived-card">
+
+                    <div class="archived-card-header">
+
+                        <div>
+
+                            <div class="archived-info">
+    <strong>${habit.name}</strong>
+    <span class="archived-tag">
+        Archived Quest
+    </span>
+</div>
+
+                        </div>
+
+                        <div class="archived-actions">
+
+                            <button
+                                class="restore-btn"
+                                data-action="restore"
+                                data-habit-id="${habit.id}"
+                            >
+                                Restore
+                            </button>
+
+                            <button
+                                class="permanent-delete-btn"
+                                data-action="delete"
+                                data-habit-id="${habit.id}"
+                            >
+                                Delete
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            `
+        )
+            .join("");
+
+    if (
+        DOM.archivedCount
+    ) {
+
+        DOM.archivedCount.textContent =
+            archived.length;
+    }
+}
+
 /* ==========================================
    ACTIVITY FEED
    ========================================== */
@@ -2571,6 +2668,8 @@ function renderApp() {
     renderProgress();
 
     renderHabits();
+
+    renderArchivedHabits();
 
     renderActivityFeed();
 
@@ -3252,6 +3351,29 @@ function handleArchiveHabit(
     renderApp();
 }
 
+function handleRestoreHabit(
+    habitId
+) {
+
+    restoreHabit(
+        habitId
+    );
+
+    addActivity(
+        "habit",
+        "Quest Restored",
+        "Archived quest restored."
+    );
+
+    showToast(
+        "Quest Restored",
+        "Quest returned to active play.",
+        "success"
+    );
+
+    renderApp();
+}
+
 /* ==========================================
    DELETE HANDLER
    ========================================== */
@@ -3393,6 +3515,14 @@ function handleHabitListClick(
 
             break;
 
+        case "restore":
+
+            handleRestoreHabit(
+                habitId
+            );
+
+            break;
+
         case "delete":
 
             handleDeleteHabit(
@@ -3414,6 +3544,17 @@ function registerEventListeners() {
     ) {
 
         DOM.habitList
+            .addEventListener(
+                "click",
+                handleHabitListClick
+            );
+    }
+
+    if (
+        DOM.archivedHabitList
+    ) {
+
+        DOM.archivedHabitList
             .addEventListener(
                 "click",
                 handleHabitListClick

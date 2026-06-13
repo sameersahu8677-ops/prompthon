@@ -641,3 +641,448 @@ function initializeApp() {
         "✅ Seat engine initialized."
     );
 }
+
+/* =========================================================
+   PART 3 — SELECTION LOGIC & TRANSACTION MANAGER
+   ========================================================= */
+
+/* =========================================================
+   TRANSACTION STATE
+   ========================================================= */
+
+const transactionState = {
+    active: false,
+    seats: []
+};
+
+/* =========================================================
+   SEAT SELECTION HELPERS
+   ========================================================= */
+
+/**
+ * Returns true if booking limit reached.
+ * @returns {boolean}
+ */
+function hasReachedBookingLimit() {
+    return (
+        appState.selectedSeats.length >=
+        CONFIG.booking.maxSeatsPerBooking
+    );
+}
+
+/**
+ * Updates transaction snapshot.
+ */
+function syncTransactionState() {
+
+    transactionState.active =
+        appState.selectedSeats.length > 0;
+
+    transactionState.seats =
+        [...appState.selectedSeats];
+}
+
+/* =========================================================
+   SEAT SELECTION
+   ========================================================= */
+
+/**
+ * Selects a seat.
+ * @param {string} seatId
+ * @returns {boolean}
+ */
+function selectSeat(seatId) {
+
+    const seat = getSeatById(seatId);
+
+    if (!seat) {
+        return false;
+    }
+
+    if (seat.state === "booked") {
+
+        if (typeof showToast === "function") {
+            showToast(
+                "Seat already booked.",
+                "error"
+            );
+        }
+
+        return false;
+    }
+
+    if (seat.state === "selected") {
+        return false;
+    }
+
+    if (hasReachedBookingLimit()) {
+
+        if (typeof showToast === "function") {
+            showToast(
+                `Maximum ${CONFIG.booking.maxSeatsPerBooking} seats allowed per booking.`,
+                "warning"
+            );
+        }
+
+        return false;
+    }
+
+    seat.state = "selected";
+
+    appState.selectedSeats.push(seatId);
+
+    syncTransactionState();
+
+    refreshSeatUI();
+
+    return true;
+}
+
+/**
+ * Unselects a seat.
+ * @param {string} seatId
+ * @returns {boolean}
+ */
+function unselectSeat(seatId) {
+
+    const seat = getSeatById(seatId);
+
+    if (!seat) {
+        return false;
+    }
+
+    if (seat.state !== "selected") {
+        return false;
+    }
+
+    seat.state = "available";
+
+    appState.selectedSeats =
+        appState.selectedSeats.filter(
+            id => id !== seatId
+        );
+
+    syncTransactionState();
+
+    refreshSeatUI();
+
+    return true;
+}
+
+/* =========================================================
+   CLEAR SELECTION
+   ========================================================= */
+
+/**
+ * Rolls all selected seats back to available.
+ */
+function clearSelection() {
+
+    if (
+        appState.selectedSeats.length === 0
+    ) {
+        return;
+    }
+
+    appState.selectedSeats.forEach(
+        seatId => {
+
+            const seat =
+                getSeatById(seatId);
+
+            if (
+                seat &&
+                seat.state === "selected"
+            ) {
+                seat.state = "available";
+            }
+
+        }
+    );
+
+    appState.selectedSeats = [];
+
+    syncTransactionState();
+
+    refreshSeatUI();
+
+    if (typeof showToast === "function") {
+        showToast(
+            "Selection cleared.",
+            "info"
+        );
+    }
+}
+
+/* =========================================================
+   TRANSACTION VALIDATION
+   ========================================================= */
+
+/**
+ * Validates all selected seats.
+ * Prevents partial booking.
+ * @returns {boolean}
+ */
+function validateTransaction() {
+
+    if (
+        appState.selectedSeats.length === 0
+    ) {
+        return false;
+    }
+
+    const uniqueSeats =
+        new Set(appState.selectedSeats);
+
+    if (
+        uniqueSeats.size !==
+        appState.selectedSeats.length
+    ) {
+        return false;
+    }
+
+    for (
+        const seatId of appState.selectedSeats
+    ) {
+
+        const seat =
+            getSeatById(seatId);
+
+        if (!seat) {
+            return false;
+        }
+
+        if (
+            seat.state !== "selected"
+        ) {
+            return false;
+        }
+
+        if (
+            !isValidSeatState(
+                seat.state
+            )
+        ) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/* =========================================================
+   TRANSACTION COMMIT
+   ========================================================= */
+
+/**
+ * Commits entire transaction.
+ * ALL seats become booked.
+ * Never partial.
+ *
+ * @returns {boolean}
+ */
+function commitTransaction() {
+
+    if (
+        !validateTransaction()
+    ) {
+
+        rollbackTransaction();
+
+        return false;
+    }
+
+    const seatsToCommit =
+        [...appState.selectedSeats];
+
+    for (
+        const seatId of seatsToCommit
+    ) {
+
+        const seat =
+            getSeatById(seatId);
+
+        if (
+            !seat ||
+            seat.state !== "selected"
+        ) {
+
+            rollbackTransaction();
+
+            return false;
+        }
+    }
+
+    seatsToCommit.forEach(
+        seatId => {
+
+            const seat =
+                getSeatById(seatId);
+
+            seat.state = "booked";
+
+        }
+    );
+
+    appState.selectedSeats = [];
+
+    transactionState.active = false;
+
+    transactionState.seats = [];
+
+    refreshSeatUI();
+
+    return true;
+}
+
+/* =========================================================
+   TRANSACTION ROLLBACK
+   ========================================================= */
+
+/**
+ * Rolls back entire transaction.
+ * ALL selected seats become available.
+ */
+function rollbackTransaction() {
+
+    transactionState.seats.forEach(
+        seatId => {
+
+            const seat =
+                getSeatById(seatId);
+
+            if (
+                seat &&
+                seat.state === "selected"
+            ) {
+                seat.state =
+                    "available";
+            }
+
+        }
+    );
+
+    appState.selectedSeats = [];
+
+    transactionState.active = false;
+
+    transactionState.seats = [];
+
+    refreshSeatUI();
+
+    return true;
+}
+
+/* =========================================================
+   SEAT CLICK HANDLER
+   ========================================================= */
+
+/**
+ * Event delegation handler.
+ * Attached ONCE to seat grid.
+ *
+ * @param {MouseEvent} event
+ */
+function handleSeatClick(event) {
+
+    const seatButton =
+        event.target.closest(
+            ".seat"
+        );
+
+    if (!seatButton) {
+        return;
+    }
+
+    const seatId =
+        seatButton.dataset.seatId;
+
+    if (!seatId) {
+        return;
+    }
+
+    const seat =
+        getSeatById(seatId);
+
+    if (!seat) {
+        return;
+    }
+
+    if (seat.state === "booked") {
+
+        if (
+            typeof showToast ===
+            "function"
+        ) {
+            showToast(
+                "This seat has already been booked.",
+                "error"
+            );
+        }
+
+        return;
+    }
+
+    if (
+        seat.state === "selected"
+    ) {
+
+        unselectSeat(seatId);
+
+        return;
+    }
+
+    selectSeat(seatId);
+}
+
+/* =========================================================
+   TRANSACTION STATUS HELPERS
+   ========================================================= */
+
+/**
+ * Returns transaction status.
+ * @returns {Object}
+ */
+function getTransactionStatus() {
+
+    return {
+        active:
+            transactionState.active,
+
+        selectedCount:
+            appState.selectedSeats.length,
+
+        seats:
+            [...appState.selectedSeats]
+    };
+}
+
+/**
+ * Returns true if transaction exists.
+ * @returns {boolean}
+ */
+function hasActiveTransaction() {
+
+    return (
+        transactionState.active
+    );
+}
+
+/* =========================================================
+   EVENT DELEGATION BINDING
+   ========================================================= */
+
+/**
+ * Must be called once during app startup.
+ */
+function bindSeatEvents() {
+
+    if (!DOM.seatGrid) {
+        return;
+    }
+
+    DOM.seatGrid.addEventListener(
+        "click",
+        handleSeatClick
+    );
+}

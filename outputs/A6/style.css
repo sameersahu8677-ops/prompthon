@@ -559,6 +559,11 @@ textarea:invalid:not(:placeholder-shown) {
     color: var(--color-accent);
 }
 
+.nav-link.active {
+    color: var(--color-accent);
+    font-weight: var(--font-weight-semibold);
+}
+
 /* ===================================
    Buttons
 =================================== */

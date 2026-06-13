@@ -98,3 +98,40 @@ function clearContent() {
         return false;
     }
 }
+
+/* =========================================================
+   4. SANITIZER MODULE
+========================================================= */
+
+/**
+ * Escapes potentially dangerous HTML characters.
+ * Prevents XSS by converting raw HTML into harmless text.
+ *
+ * Example:
+ * <script>alert(1)</script>
+ *
+ * becomes:
+ *
+ * &lt;script&gt;alert(1)&lt;/script&gt;
+ *
+ * @param {string} text
+ * @returns {string}
+ */
+function sanitizeInput(text) {
+    if (typeof text !== "string") {
+        return "";
+    }
+
+    const escapeMap = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    };
+
+    return text.replace(
+        /[&<>"']/g,
+        (character) => escapeMap[character]
+    );
+}

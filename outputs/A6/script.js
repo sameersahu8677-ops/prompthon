@@ -171,12 +171,36 @@ function showSuccess(message) {
 
 function showError(message) {
     showNotification(message, "error");
+
+    showToast(message, "error");
 }
 
 function showInfo(message) {
     showNotification(message, "info");
 }
 
+const toastNotification =
+    document.getElementById(
+        "toast-notification"
+    );
+
+function showToast(
+    message,
+    type = "success"
+) {
+    if (!toastNotification) return;
+
+    toastNotification.textContent = message;
+
+    toastNotification.className =
+        `toast-notification ${type} show`;
+
+    setTimeout(() => {
+        toastNotification.classList.remove(
+            "show"
+        );
+    }, 4000);
+}
 /* ==========================================
    FORM VALIDATION
 ========================================== */
@@ -224,37 +248,57 @@ function validateForm() {
     }
 
     if (!validateName(formData.name)) {
-        showError(
-            "Please enter a valid name."
-        );
+        const errorMessage =
+            "Please enter a valid name.";
+
+        showError(errorMessage);
+        showToast(errorMessage, "error");
+
+        return false;
         return false;
     }
 
     if (!validateEmail(formData.email)) {
-        showError(
-            "Please enter a valid email address."
-        );
+        const errorMessage =
+            "Please enter a valid email address.";
+
+        showError(errorMessage);
+        showToast(errorMessage, "error");
+
+        return false;
         return false;
     }
 
     if (!validateSubject(formData.subject)) {
-        showError(
-            "Please enter a valid subject."
-        );
+        const errorMessage =
+            "Please enter a valid subject.";
+
+        showError(errorMessage);
+        showToast(errorMessage, "error");
+
+        return false;
         return false;
     }
 
     if (!validateMessage(formData.message)) {
-        showError(
-            "Message must contain at least 10 characters."
-        );
+        const errorMessage =
+            "Message must contain at least 10 characters.";
+
+        showError(errorMessage);
+        showToast(errorMessage, "error");
+
+        return false;
         return false;
     }
 
     if (!validateCaptcha()) {
-        showError(
-            "Incorrect CAPTCHA answer."
-        );
+        const errorMessage =
+            "Incorrect CAPTCHA answer.";
+
+        showError(errorMessage);
+        showToast(errorMessage, "error");
+
+        return false;
         return false;
     }
 
@@ -270,8 +314,6 @@ function resetContactForm() {
 
     contactForm.reset();
 
-    clearNotification();
-
     resetCaptcha();
 }
 
@@ -286,9 +328,18 @@ function handleFormSubmission(event) {
         return;
     }
 
-    showSuccess(
-        "Thank you! Your message has been submitted successfully."
+    const successMessage =
+        "Thank you! Your message has been submitted successfully.";
+
+    showSuccess(successMessage);
+
+    showToast(
+        successMessage,
+        "success"
     );
+    setTimeout(() => {
+        clearNotification();
+    }, 5000);
 
     resetContactForm();
 }

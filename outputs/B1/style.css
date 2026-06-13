@@ -232,8 +232,8 @@ textarea {
    8. PANEL SPACING UTILITIES
 ========================================================= */
 
-.editor-panel > *:not(:last-child),
-.preview-panel > *:not(:last-child) {
+.editor-panel>*:not(:last-child),
+.preview-panel>*:not(:last-child) {
     margin-bottom: 1rem;
 }
 
@@ -601,4 +601,117 @@ textarea {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
+}
+
+/* =========================================================
+   24. TOAST CONTAINER
+========================================================= */
+
+#toast-container {
+    position: fixed;
+
+    right: 1.5rem;
+    bottom: 1.5rem;
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    z-index: 1000;
+
+    pointer-events: none;
+
+    max-width: 380px;
+}
+
+
+/* =========================================================
+   25. TOAST NOTIFICATION
+========================================================= */
+
+.toast {
+    background: #161b22;
+
+    color: #e6edf3;
+
+    border: 1px solid #30363d;
+    border-left: 4px solid #58a6ff;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.35);
+
+    padding: 0.9rem 1rem;
+
+    min-width: 260px;
+    max-width: 380px;
+
+    font-size: 0.95rem;
+    line-height: 1.5;
+
+    pointer-events: auto;
+
+    animation:
+        toastFadeIn 0.28s ease forwards;
+}
+
+
+/* =========================================================
+   26. TOAST VARIANTS
+========================================================= */
+
+.toast.success {
+    border-left-color: #3fb950;
+}
+
+.toast.warning {
+    border-left-color: #d29922;
+}
+
+.toast.error {
+    border-left-color: #f85149;
+}
+
+.toast.info {
+    border-left-color: #58a6ff;
+}
+
+
+/* =========================================================
+   27. TOAST DISMISS ANIMATION
+========================================================= */
+
+.toast.hide {
+    animation:
+        toastFadeOut 0.25s ease forwards;
+}
+
+
+/* =========================================================
+   28. TOAST ANIMATIONS
+========================================================= */
+
+@keyframes toastFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes toastFadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(12px);
+    }
 }

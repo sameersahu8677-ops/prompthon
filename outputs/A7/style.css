@@ -618,7 +618,6 @@ a {
 
 /* =========================================================
    PART 3 — FORMS, INPUTS & BUTTONS
-   Premium Apple-Inspired Styling
    ========================================================= */
 
 /* =========================================================
@@ -680,7 +679,7 @@ small {
 }
 
 /* =========================================================
-   APPLE-STYLE INPUTS
+     INPUTS
    ========================================================= */
 
 input,
@@ -934,7 +933,7 @@ button:focus-visible {
 }
 
 /* =========================================================
-   SUBTLE APPLE-LIKE REFINEMENT
+   SUBTLE REFINEMENT
    ========================================================= */
 
 #goal-settings-section,
@@ -1307,4 +1306,332 @@ textarea {
 #smart-alerts-section:hover,
 #timeline-section:hover {
     box-shadow: var(--shadow-md);
+}
+
+/* =========================================================
+   PART 5 — RESPONSIVE DESIGN & FINAL POLISH
+   ========================================================= */
+
+/* =========================================================
+   LARGE TABLETS
+   ========================================================= */
+
+@media (max-width: 1200px) {
+
+    .dashboard-grid {
+        grid-template-columns:
+            repeat(3,
+                minmax(0, 1fr));
+    }
+
+    #charts-container {
+        grid-template-columns:
+            repeat(auto-fit,
+                minmax(240px, 1fr));
+    }
+}
+
+/* =========================================================
+   TABLETS
+   ========================================================= */
+
+@media (max-width: 1024px) {
+
+    :root {
+        --space-2xl: 28px;
+        --space-3xl: 40px;
+    }
+
+    #app-header,
+    #app-main,
+    #app-footer {
+        width: min(100% - 1.5rem, var(--container-width));
+    }
+
+    .dashboard-grid {
+        grid-template-columns:
+            repeat(2,
+                minmax(0, 1fr));
+    }
+
+    .data-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .health-score-card {
+        min-height: 160px;
+    }
+
+    #health-score-value {
+        font-size: clamp(2.8rem, 7vw, 4.5rem);
+    }
+
+    .chart-container,
+    #steps-chart,
+    #sleep-chart,
+    #calories-chart {
+        min-height: 220px;
+    }
+}
+
+/* =========================================================
+   MOBILE DEVICES
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    :root {
+        --space-lg: 14px;
+        --space-xl: 20px;
+        --space-2xl: 24px;
+    }
+
+    #app-header,
+    #app-main,
+    #app-footer {
+        width: min(100% - 1rem, var(--container-width));
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #charts-container {
+        grid-template-columns: 1fr;
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .card-body p {
+        flex-wrap: wrap;
+    }
+
+    .status-badge {
+        align-self: flex-start;
+    }
+
+    #weekly-trends-section,
+    #smart-alerts-section,
+    #timeline-section,
+    #goal-settings-section {
+        padding: var(--space-xl);
+    }
+
+    .action-card {
+        padding: var(--space-lg);
+    }
+
+    .health-score-card {
+        min-height: 150px;
+        padding: var(--space-xl);
+    }
+
+    #health-score-value {
+        font-size: clamp(2.5rem, 10vw, 4rem);
+    }
+
+    button {
+        width: 100%;
+    }
+
+    input,
+    select,
+    textarea {
+        min-height: 50px;
+    }
+
+    .timeline-item {
+        padding-left: 1.75rem;
+    }
+}
+
+/* =========================================================
+   SMALL MOBILE DEVICES
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    body {
+        font-size: 0.95rem;
+    }
+
+    h1 {
+        font-size: 1.9rem;
+    }
+
+    h2 {
+        font-size: 1.3rem;
+    }
+
+    h3 {
+        font-size: 1rem;
+    }
+
+    .health-score-card {
+        min-height: 130px;
+    }
+
+    #health-score-value {
+        font-size: 2.6rem;
+    }
+
+    .card-header,
+    .card-body,
+    .card-actions {
+        padding: var(--space-md);
+    }
+
+    .empty-state {
+        padding: var(--space-lg);
+    }
+
+    .chart-container,
+    #steps-chart,
+    #sleep-chart,
+    #calories-chart {
+        min-height: 180px;
+    }
+
+    .status-badge {
+        min-width: auto;
+        width: fit-content;
+    }
+}
+
+/* =========================================================
+   ACCESSIBILITY IMPROVEMENTS
+   ========================================================= */
+
+button,
+input,
+select,
+textarea,
+.status-badge {
+    -webkit-tap-highlight-color: transparent;
+}
+
+input,
+select,
+textarea,
+button {
+    touch-action: manipulation;
+}
+
+.card-header h3,
+.action-card h3 {
+    line-height: 1.35;
+}
+
+/* =========================================================
+   REDUCED MOTION SUPPORT
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+
+        transition-duration: 0.01ms !important;
+
+        scroll-behavior: auto !important;
+    }
+}
+
+/* =========================================================
+   FINAL PREMIUM POLISH
+   ========================================================= */
+
+.health-score-card,
+.dashboard-card,
+.action-card,
+#goal-settings-section,
+#weekly-trends-section,
+#smart-alerts-section,
+#timeline-section {
+    backdrop-filter: blur(10px);
+}
+
+.dashboard-card,
+.action-card,
+.health-score-card {
+    will-change: transform;
+}
+
+/* Softer Premium Shadows */
+
+.health-score-card {
+    box-shadow:
+        0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.dashboard-card {
+    box-shadow:
+        0 6px 18px rgba(15, 23, 42, 0.06);
+}
+
+.action-card {
+    box-shadow:
+        0 6px 18px rgba(15, 23, 42, 0.06);
+}
+
+/* Better Readability */
+
+.card-body,
+.card-actions,
+#weekly-summary,
+#quick-insight {
+    line-height: 1.6;
+}
+
+/* Subtle Premium Hover */
+
+.dashboard-card:hover,
+.action-card:hover,
+.chart-container:hover,
+#steps-chart:hover,
+#sleep-chart:hover,
+#calories-chart:hover {
+    transform: translateY(-4px);
+}
+
+/* Section Reveal Feeling */
+
+#goal-settings-section,
+#health-score-section,
+#dashboard-section,
+#weekly-trends-section,
+#smart-alerts-section,
+#timeline-section,
+#data-actions-section {
+    scroll-margin-top: 2rem;
+}
+
+/* Improved Form Rhythm */
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+form>*+* {
+    margin-top: 0.35rem;
+}
+
+/* Better Timeline Readability */
+
+.timeline-item+.timeline-item {
+    margin-top: 0.35rem;
+}
+
+/* Final Text Smoothing */
+
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }

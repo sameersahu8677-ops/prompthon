@@ -2087,3 +2087,360 @@ Notification
 
 in correct order.
 */
+
+/* =========================================================
+   PART 6 — NOTIFICATIONS, EVENT WIRING & FINAL INTEGRATION
+   ========================================================= */
+
+/* =========================================================
+   TOAST NOTIFICATION SERVICE
+   ========================================================= */
+
+/**
+ * Announces message to screen readers.
+ * @param {string} message
+ */
+function announce(message) {
+
+    if (!DOM.announcementRegion) {
+        return;
+    }
+
+    DOM.announcementRegion.textContent = "";
+
+    setTimeout(() => {
+        DOM.announcementRegion.textContent = message;
+    }, 50);
+}
+
+/**
+ * Creates toast notification.
+ * @param {string} message
+ * @param {string} type
+ */
+function showToast(
+    message,
+    type = "info"
+) {
+
+    if (!DOM.toastContainer) {
+        return;
+    }
+
+    const validTypes = [
+        "success",
+        "error",
+        "warning",
+        "info"
+    ];
+
+    const toastType =
+        validTypes.includes(type)
+            ? type
+            : "info";
+
+    const toast =
+        document.createElement("div");
+
+    toast.className =
+        `toast toast-${toastType}`;
+
+    toast.textContent =
+        message;
+
+    DOM.toastContainer.appendChild(
+        toast
+    );
+
+    announce(message);
+
+    setTimeout(() => {
+
+        toast.remove();
+
+    }, 5000);
+}
+
+/* =========================================================
+   MODAL EVENT HANDLERS
+   ========================================================= */
+
+/**
+ * Handles confirm button click.
+ */
+function handleOpenBookingModal() {
+
+    if (
+        appState.selectedSeats.length === 0
+    ) {
+
+        showToast(
+            "Select at least one seat before continuing.",
+            "warning"
+        );
+
+        return;
+    }
+
+    openModal();
+}
+
+/**
+ * Handles modal cancel.
+ */
+function handleCancelBooking() {
+
+    closeModal();
+}
+
+/* =========================================================
+   BOOKING CONFIRMATION FLOW
+   ========================================================= */
+
+/**
+ * CRITICAL FLOW
+ *
+ * Validation
+ * ↓
+ * Commit
+ * ↓
+ * History
+ * ↓
+ * Revenue
+ * ↓
+ * Storage
+ * ↓
+ * Analytics
+ * ↓
+ * UI
+ * ↓
+ * Notification
+ */
+function handleConfirmBooking() {
+
+    if (
+        !validateTransaction()
+    ) {
+
+        showToast(
+            "Transaction validation failed.",
+            "error"
+        );
+
+        closeModal();
+
+        return;
+    }
+
+    const committed =
+        commitTransaction();
+
+    if (!committed) {
+
+        showToast(
+            "Booking could not be completed.",
+            "error"
+        );
+
+        closeModal();
+
+        return;
+    }
+
+    const booking =
+        finalizeBooking();
+
+    closeModal();
+
+    refreshBookingUI();
+
+    showToast(
+        `Booking successful! ${booking.bookingId}`,
+        "success"
+    );
+}
+
+/* =========================================================
+   CLEAR SELECTION
+   ========================================================= */
+
+function handleClearSelection() {
+
+    if (
+        appState.selectedSeats.length === 0
+    ) {
+
+        showToast(
+            "No seats selected.",
+            "info"
+        );
+
+        return;
+    }
+
+    clearSelection();
+}
+
+/* =========================================================
+   EVENT BINDINGS
+   ========================================================= */
+
+/**
+ * Seat Grid
+ * Uses event delegation.
+ */
+function bindSeatEvents() {
+
+    if (!DOM.seatGrid) {
+        return;
+    }
+
+    DOM.seatGrid.addEventListener(
+        "click",
+        handleSeatClick
+    );
+}
+
+/**
+ * Summary Panel Events
+ */
+function bindSummaryEvents() {
+
+    DOM.clearBtn?.addEventListener(
+        "click",
+        handleClearSelection
+    );
+
+    DOM.confirmBtn?.addEventListener(
+        "click",
+        handleOpenBookingModal
+    );
+}
+
+/**
+ * Modal Events
+ */
+function bindModalEvents() {
+
+    DOM.cancelBookingBtn?.addEventListener(
+        "click",
+        handleCancelBooking
+    );
+
+    DOM.confirmBookingBtn?.addEventListener(
+        "click",
+        handleConfirmBooking
+    );
+
+    DOM.bookingModal?.addEventListener(
+        "click",
+        event => {
+
+            if (
+                event.target ===
+                DOM.bookingModal
+            ) {
+                closeModal();
+            }
+
+        }
+    );
+}
+
+/* =========================================================
+   ESCAPE KEY SUPPORT
+   ========================================================= */
+
+function bindKeyboardEvents() {
+
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key === "Escape" &&
+                DOM.bookingModal &&
+                !DOM.bookingModal.classList.contains(
+                    "hidden"
+                )
+            ) {
+
+                closeModal();
+            }
+
+        }
+    );
+}
+
+/* =========================================================
+   APPLICATION BOOTSTRAP
+   ========================================================= */
+
+/**
+ * Wires all events.
+ */
+function bindEvents() {
+
+    bindSeatEvents();
+
+    bindSummaryEvents();
+
+    bindModalEvents();
+
+    bindKeyboardEvents();
+}
+
+/* =========================================================
+   APPLICATION INITIALIZATION
+   ========================================================= */
+
+/**
+ * FINAL APPLICATION STARTUP
+ */
+function initializeApp() {
+
+    console.log(
+        "🎬 Seat Booking Engine Initializing..."
+    );
+
+    /* Create seat model */
+
+    setupSeatEngine();
+
+    /* Restore persisted data */
+
+    loadData();
+
+    /* UI */
+
+    initializeSummary();
+
+    renderBookingHistory();
+
+    renderAnalytics();
+
+    /* Events */
+
+    bindEvents();
+
+    console.log(
+        `🎟️ Seats Loaded: ${appState.seats.length}`
+    );
+
+    console.log(
+        `📚 Booking History: ${appState.bookings.length}`
+    );
+
+    console.log(
+        "✅ Application Ready."
+    );
+}
+
+/* =========================================================
+   START APPLICATION
+   ========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    initializeApp
+);

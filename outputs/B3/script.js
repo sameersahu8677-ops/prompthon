@@ -705,9 +705,12 @@ function unselectSeat(seatId) {
         return false;
     }
 
-    seat.state = "selected";
+    seat.state = "available";
 
-    appState.selectedSeats.push(seatId);
+    appState.selectedSeats =
+        appState.selectedSeats.filter(
+            id => id !== seatId
+        );
 
     syncTransactionState();
 
@@ -715,7 +718,6 @@ function unselectSeat(seatId) {
 
     return true;
 }
-
 /* =========================================================
    CLEAR SELECTION
    ========================================================= */
@@ -882,7 +884,11 @@ function commitTransaction() {
         }
     );
 
-    appState.selectedSeats.push(seatId);
+    appState.selectedSeats = [];
+
+    transactionState.active = false;
+
+    transactionState.seats = [];
 
     syncTransactionState();
 
@@ -1254,6 +1260,16 @@ function populateModal() {
 
     /* Seats */
 
+    DOM.modalSeats.innerHTML =
+        selectedSeats.length
+            ? selectedSeats
+                .map(
+                    seat =>
+                        `<div>${seat.id} (${seat.tier})</div>`
+                )
+                .join("")
+            : "<p>No seats selected</p>";
+
     DOM.modalPrice.innerHTML = `
 
     <div>
@@ -1353,7 +1369,7 @@ function closeModal() {
  */
 function refreshBookingUI() {
 
-    refreshBookingUI();
+    refreshSeatUI();
 
     renderSummary();
 }
@@ -2178,14 +2194,6 @@ function handleConfirmBooking() {
         validateTransaction()
     );
 
-    const bookingSnapshot = {
-
-        seats:
-            getSelectedSeatObjects(),
-
-        summary:
-            getPricingSummary()
-    };
 
     const committed =
         commitTransaction();

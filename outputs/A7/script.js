@@ -1754,3 +1754,442 @@ function renderApp(
 
     renderSettings();
 }
+
+/* =========================================================
+   PART 6 — EVENTS & APP INITIALIZATION
+   ========================================================= */
+
+/* =========================================================
+   CURRENT DATE STATE
+   ========================================================= */
+
+let selectedDate = getTodayDate();
+
+/* =========================================================
+   FORM EVENT SETUP
+   ========================================================= */
+
+function setupActivityForm() {
+    const form =
+        document.getElementById(
+            "activity-form"
+        );
+
+    if (!form) return;
+
+    form.addEventListener(
+        "submit",
+        event => {
+            event.preventDefault();
+
+            try {
+                updateActivity(
+                    selectedDate,
+                    {
+                        steps:
+                            document.getElementById(
+                                "steps-input"
+                            ).value,
+
+                        activeMinutes:
+                            document.getElementById(
+                                "active-minutes-input"
+                            ).value,
+
+                        distance:
+                            document.getElementById(
+                                "distance-input"
+                            ).value
+                    }
+                );
+
+                renderApp(
+                    selectedDate
+                );
+
+            } catch (error) {
+                console.error(
+                    error
+                );
+
+                alert(
+                    "Unable to update activity."
+                );
+            }
+        }
+    );
+}
+
+function setupMealForm() {
+    const form =
+        document.getElementById(
+            "meal-form"
+        );
+
+    if (!form) return;
+
+    form.addEventListener(
+        "submit",
+        event => {
+            event.preventDefault();
+
+            try {
+                addMeal(
+                    selectedDate,
+                    {
+                        name:
+                            document.getElementById(
+                                "meal-name-input"
+                            ).value,
+
+                        calories:
+                            document.getElementById(
+                                "meal-calories-input"
+                            ).value
+                    }
+                );
+
+                form.reset();
+
+                renderApp(
+                    selectedDate
+                );
+
+            } catch (error) {
+                alert(
+                    error.message
+                );
+            }
+        }
+    );
+}
+
+function setupWaterForm() {
+    const form =
+        document.getElementById(
+            "water-form"
+        );
+
+    if (!form) return;
+
+    form.addEventListener(
+        "submit",
+        event => {
+            event.preventDefault();
+
+            updateWater(
+                selectedDate,
+                document.getElementById(
+                    "water-glasses-input"
+                ).value
+            );
+
+            renderApp(
+                selectedDate
+            );
+        }
+    );
+}
+
+function setupSleepForm() {
+    const form =
+        document.getElementById(
+            "sleep-form"
+        );
+
+    if (!form) return;
+
+    form.addEventListener(
+        "submit",
+        event => {
+            event.preventDefault();
+
+            updateSleep(
+                selectedDate,
+                document.getElementById(
+                    "sleep-hours-input"
+                ).value
+            );
+
+            renderApp(
+                selectedDate
+            );
+        }
+    );
+}
+
+function setupWorkoutForm() {
+    const form =
+        document.getElementById(
+            "workout-form"
+        );
+
+    if (!form) return;
+
+    form.addEventListener(
+        "submit",
+        event => {
+            event.preventDefault();
+
+            try {
+                addWorkout(
+                    selectedDate,
+                    {
+                        type:
+                            document.getElementById(
+                                "workout-type-input"
+                            ).value,
+
+                        duration:
+                            document.getElementById(
+                                "workout-duration-input"
+                            ).value,
+
+                        caloriesBurned:
+                            document.getElementById(
+                                "workout-calories-input"
+                            ).value
+                    }
+                );
+
+                form.reset();
+
+                renderApp(
+                    selectedDate
+                );
+
+            } catch (error) {
+                alert(
+                    error.message
+                );
+            }
+        }
+    );
+}
+
+function setupSettingsForm() {
+    const form =
+        document.getElementById(
+            "settings-form"
+        );
+
+    if (!form) return;
+
+    form.addEventListener(
+        "submit",
+        event => {
+            event.preventDefault();
+
+            updateSettings({
+                stepGoal:
+                    document.getElementById(
+                        "step-goal-input"
+                    ).value,
+
+                calorieGoal:
+                    document.getElementById(
+                        "calorie-goal-input"
+                    ).value,
+
+                waterGoal:
+                    document.getElementById(
+                        "water-goal-input"
+                    ).value
+            });
+
+            renderApp(
+                selectedDate
+            );
+        }
+    );
+}
+
+/* =========================================================
+   BUTTON EVENTS
+   ========================================================= */
+
+function setupExportButton() {
+    const button =
+        document.getElementById(
+            "export-data-btn"
+        );
+
+    if (!button) return;
+
+    button.addEventListener(
+        "click",
+        () => {
+            exportHealthData();
+        }
+    );
+}
+
+function setupResetButton() {
+    const button =
+        document.getElementById(
+            "reset-data-btn"
+        );
+
+    if (!button) return;
+
+    button.addEventListener(
+        "click",
+        () => {
+            if (
+                !confirmReset()
+            ) {
+                return;
+            }
+
+            resetDataStore();
+
+            selectedDate =
+                getTodayDate();
+
+            if (
+                DOM.dateInput
+            ) {
+                DOM.dateInput.value =
+                    selectedDate;
+            }
+
+            renderApp(
+                selectedDate
+            );
+        }
+    );
+}
+
+/* =========================================================
+   DATE SELECTOR
+   ========================================================= */
+
+function setupDateSelector() {
+    if (
+        !DOM.dateInput
+    ) {
+        return;
+    }
+
+    DOM.dateInput.addEventListener(
+        "change",
+        event => {
+            const value =
+                event.target.value;
+
+            if (
+                !value
+            ) {
+                return;
+            }
+
+            selectedDate =
+                value;
+
+            getOrCreateDayLog(
+                selectedDate
+            );
+
+            renderApp(
+                selectedDate
+            );
+        }
+    );
+}
+
+/* =========================================================
+   EVENT REGISTRY
+   ========================================================= */
+
+function setupEventListeners() {
+    setupActivityForm();
+
+    setupMealForm();
+
+    setupWaterForm();
+
+    setupSleepForm();
+
+    setupWorkoutForm();
+
+    setupSettingsForm();
+
+    setupExportButton();
+
+    setupResetButton();
+
+    setupDateSelector();
+}
+
+/* =========================================================
+   APP INITIALIZATION
+   ========================================================= */
+
+function initializeDateInput() {
+    if (
+        !DOM.dateInput
+    ) {
+        return;
+    }
+
+    DOM.dateInput.value =
+        selectedDate;
+}
+
+function validateApplicationData() {
+    if (
+        !healthTrackerData ||
+        !healthTrackerData.logs
+    ) {
+        healthTrackerData =
+            createDefaultData();
+
+        saveData();
+    }
+}
+
+function initApp() {
+    try {
+        loadData();
+
+        validateApplicationData();
+
+        selectedDate =
+            getTodayDate();
+
+        getOrCreateDayLog(
+            selectedDate
+        );
+
+        initializeDateInput();
+
+        renderApp(
+            selectedDate
+        );
+
+        setupEventListeners();
+
+        console.log(
+            "Fitness & Health Tracker initialized."
+        );
+
+    } catch (error) {
+        console.error(
+            "Application startup failed:",
+            error
+        );
+
+        alert(
+            "Something went wrong while starting the application."
+        );
+    }
+}
+
+/* =========================================================
+   STARTUP
+   ========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    initApp
+);

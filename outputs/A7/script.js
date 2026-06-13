@@ -1832,6 +1832,10 @@ function setupActivityForm() {
                     selectedDate
                 );
 
+                showToast(
+                    "✓ Activity Updated"
+                );
+
             } catch (error) {
                 console.error(
                     error
@@ -1879,6 +1883,9 @@ function setupMealForm() {
                 renderApp(
                     selectedDate
                 );
+                showToast(
+                    "✓ Activity Updated"
+                );
 
             } catch (error) {
                 alert(
@@ -1912,6 +1919,10 @@ function setupWaterForm() {
             renderApp(
                 selectedDate
             );
+
+            showToast(
+                "✓ Water Updated"
+            );
         }
     );
 }
@@ -1938,6 +1949,10 @@ function setupSleepForm() {
 
             renderApp(
                 selectedDate
+            );
+
+            showToast(
+                "✓ Sleep Logged"
             );
         }
     );
@@ -1983,6 +1998,10 @@ function setupWorkoutForm() {
                     selectedDate
                 );
 
+                showToast(
+                    "✓ Workout Added"
+                );
+
             } catch (error) {
                 alert(
                     error.message
@@ -2025,6 +2044,10 @@ function setupSettingsForm() {
             renderApp(
                 selectedDate
             );
+
+            showToast(
+                "✓ Goals Updated"
+            );
         }
     );
 }
@@ -2044,7 +2067,18 @@ function setupExportButton() {
     button.addEventListener(
         "click",
         () => {
-            exportHealthData();
+
+            const success =
+                exportHealthData();
+
+            if (success) {
+
+                showToast(
+                    "📥 Data Exported"
+                );
+
+            }
+
         }
     );
 }
@@ -2239,14 +2273,23 @@ function setupMealDeletion() {
                 return;
             }
 
-            removeMeal(
-                selectedDate,
-                button.dataset.id
-            );
+            const success =
+                removeMeal(
+                    selectedDate,
+                    button.dataset.id
+                );
 
-            renderApp(
-                selectedDate
-            );
+            if (success) {
+
+                renderApp(
+                    selectedDate
+                );
+
+                showToast(
+                    "🗑️ Meal Removed"
+                );
+
+            }
         }
     );
 }
@@ -2266,14 +2309,46 @@ function setupWorkoutDeletion() {
                 return;
             }
 
-            removeWorkout(
-                selectedDate,
-                button.dataset.id
-            );
+            const success =
+                removeWorkout(
+                    selectedDate,
+                    button.dataset.id
+                );
 
-            renderApp(
-                selectedDate
-            );
+            if (success) {
+
+                renderApp(
+                    selectedDate
+                );
+
+                showToast(
+                    "🗑️ Workout Removed"
+                );
+
+            }
         }
     );
+}
+
+function showToast(message) {
+
+    const container =
+        document.getElementById(
+            "toast-container"
+        );
+
+    const toast =
+        document.createElement("div");
+
+    toast.className = "toast";
+
+    toast.textContent = message;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+
+        toast.remove();
+
+    }, 2500);
 }

@@ -1262,3 +1262,495 @@ function getTrendChartData(
         })
     );
 }
+
+/* =========================================================
+   PART 5 — RENDERING LAYER
+   DOM RENDERERS
+   ========================================================= */
+
+/* =========================================================
+   DOM CACHE
+   ========================================================= */
+
+const DOM = {
+    dateInput: document.getElementById("selected-date"),
+
+    /* Activity */
+    stepsValue: document.getElementById("steps-value"),
+    activeMinutesValue: document.getElementById("active-minutes-value"),
+    distanceValue: document.getElementById("distance-value"),
+    activityStatus: document.getElementById("activity-status"),
+
+    /* Nutrition */
+    caloriesConsumed: document.getElementById("calories-consumed"),
+    caloriesGoal: document.getElementById("calories-goal"),
+    caloriesRemaining: document.getElementById("calories-remaining"),
+    nutritionStatus: document.getElementById("nutrition-status"),
+    mealList: document.getElementById("meal-list"),
+
+    /* Water */
+    waterValue: document.getElementById("water-value"),
+    waterGoal: document.getElementById("water-goal"),
+    waterStatus: document.getElementById("water-status"),
+    progressPlaceholder: document.querySelector(".progress-placeholder"),
+
+    /* Sleep */
+    sleepValue: document.getElementById("sleep-value"),
+    sleepStatus: document.getElementById("sleep-status"),
+    sleepWarning: document.getElementById("sleep-warning"),
+
+    /* Workout */
+    workoutCount: document.getElementById("workout-count"),
+    workoutMinutes: document.getElementById("workout-minutes"),
+    workoutCalories: document.getElementById("workout-calories"),
+    workoutStatus: document.getElementById("workout-status"),
+    workoutList: document.getElementById("workout-list"),
+
+    /* Health */
+    healthScoreValue: document.getElementById("health-score-value"),
+    healthScoreLabel: document.getElementById("health-score-label"),
+    quickInsight: document.getElementById("quick-insight"),
+
+    /* Trends */
+    weeklySummary: document.getElementById("weekly-summary"),
+    stepsChart: document.getElementById("steps-chart"),
+    sleepChart: document.getElementById("sleep-chart"),
+    caloriesChart: document.getElementById("calories-chart"),
+
+    /* Alerts */
+    alertContainer: document.getElementById("alert-container"),
+
+    /* Timeline */
+    timelineList: document.getElementById("timeline-list")
+};
+
+/* =========================================================
+   STATUS HELPERS
+   ========================================================= */
+
+function applyStatusBadge(element, status) {
+    if (!element) return;
+
+    element.classList.remove(
+        "status-green",
+        "status-amber",
+        "status-red"
+    );
+
+    if (status === "green") {
+        element.classList.add("status-green");
+        element.textContent = "On Track";
+    } else if (status === "amber") {
+        element.classList.add("status-amber");
+        element.textContent = "Close";
+    } else {
+        element.classList.add("status-red");
+        element.textContent = "Off Track";
+    }
+}
+
+/* =========================================================
+   ACTIVITY
+   ========================================================= */
+
+function renderActivity(date) {
+    const log = getOrCreateDayLog(date);
+
+    DOM.stepsValue.textContent =
+        log.activity.steps;
+
+    DOM.activeMinutesValue.textContent =
+        log.activity.activeMinutes;
+
+    DOM.distanceValue.textContent =
+        log.activity.distance;
+
+    applyStatusBadge(
+        DOM.activityStatus,
+        calculateActivityStatus(log)
+    );
+}
+
+/* =========================================================
+   NUTRITION
+   ========================================================= */
+
+function renderNutrition(date) {
+    const log = getOrCreateDayLog(date);
+
+    const consumed =
+        calculateCaloriesConsumed(log);
+
+    const remaining =
+        calculateCaloriesRemaining(log);
+
+    const settings =
+        getSettings();
+
+    DOM.caloriesConsumed.textContent =
+        consumed;
+
+    DOM.caloriesGoal.textContent =
+        settings.calorieGoal;
+
+    DOM.caloriesRemaining.textContent =
+        remaining;
+
+    applyStatusBadge(
+        DOM.nutritionStatus,
+        calculateNutritionStatus(log)
+    );
+
+    if (!log.nutrition.meals.length) {
+        DOM.mealList.innerHTML = `
+            <div class="empty-state">
+                No meals logged yet.
+            </div>
+        `;
+        return;
+    }
+
+    DOM.mealList.innerHTML =
+        log.nutrition.meals
+            .map(
+                meal => `
+                <div class="meal-item">
+                    <span>${meal.name}</span>
+                    <strong>${meal.calories} cal</strong>
+                </div>
+            `
+            )
+            .join("");
+}
+
+/* =========================================================
+   WATER
+   ========================================================= */
+
+function renderWater(date) {
+    const log = getOrCreateDayLog(date);
+
+    const settings =
+        getSettings();
+
+    DOM.waterValue.textContent =
+        log.water.glasses;
+
+    DOM.waterGoal.textContent =
+        settings.waterGoal;
+
+    applyStatusBadge(
+        DOM.waterStatus,
+        calculateWaterStatus(log)
+    );
+
+    const percentage =
+        Math.min(
+            (
+                log.water.glasses /
+                settings.waterGoal
+            ) * 100,
+            100
+        );
+
+    DOM.progressPlaceholder.innerHTML = `
+        <div
+            class="progress-fill"
+            style="width:${percentage}%"
+        ></div>
+    `;
+}
+
+/* =========================================================
+   SLEEP
+   ========================================================= */
+
+function renderSleep(date) {
+    const log = getOrCreateDayLog(date);
+
+    DOM.sleepValue.textContent =
+        log.sleep.hours;
+
+    applyStatusBadge(
+        DOM.sleepStatus,
+        calculateSleepStatus(log)
+    );
+
+    if (
+        log.sleep.hours > 0 &&
+        log.sleep.hours < 6
+    ) {
+        DOM.sleepWarning.textContent =
+            "Rest Needed: Less than 6 hours logged.";
+
+        DOM.sleepWarning.classList.add(
+            "active"
+        );
+    } else {
+        DOM.sleepWarning.textContent = "";
+
+        DOM.sleepWarning.classList.remove(
+            "active"
+        );
+    }
+}
+
+/* =========================================================
+   WORKOUT
+   ========================================================= */
+
+function renderWorkout(date) {
+    const log = getOrCreateDayLog(date);
+
+    DOM.workoutCount.textContent =
+        log.workouts.length;
+
+    DOM.workoutMinutes.textContent =
+        calculateWorkoutMinutes(log);
+
+    DOM.workoutCalories.textContent =
+        calculateWorkoutCalories(log);
+
+    const workoutStatus =
+        log.workouts.length > 0
+            ? "green"
+            : "red";
+
+    applyStatusBadge(
+        DOM.workoutStatus,
+        workoutStatus
+    );
+
+    if (!log.workouts.length) {
+        DOM.workoutList.innerHTML = `
+            <div class="empty-state">
+                No workouts logged yet.
+            </div>
+        `;
+        return;
+    }
+
+    DOM.workoutList.innerHTML =
+        log.workouts
+            .map(
+                workout => `
+                <div class="workout-item">
+                    <span>${workout.type}</span>
+                    <strong>
+                        ${workout.duration} min
+                    </strong>
+                </div>
+            `
+            )
+            .join("");
+}
+
+/* =========================================================
+   HEALTH SCORE
+   ========================================================= */
+
+function renderHealthScore(date) {
+    const log = getOrCreateDayLog(date);
+
+    const result =
+        calculateHealthScore(log);
+
+    DOM.healthScoreValue.textContent =
+        result.score;
+
+    DOM.healthScoreLabel.textContent =
+        result.label;
+}
+
+/* =========================================================
+   QUICK INSIGHT
+   ========================================================= */
+
+function renderQuickInsight(date) {
+    const log = getOrCreateDayLog(date);
+
+    DOM.quickInsight.textContent =
+        generateQuickInsight(log);
+}
+
+/* =========================================================
+   WEEKLY SUMMARY
+   ========================================================= */
+
+function renderWeeklySummary(date) {
+    const trends =
+        calculateWeeklyTrends(date);
+
+    DOM.weeklySummary.innerHTML = `
+        <strong>7-Day Summary</strong><br>
+        Average Steps:
+        ${trends.averageSteps.toLocaleString()}<br>
+
+        Average Calories:
+        ${trends.averageCalories}<br>
+
+        Average Sleep:
+        ${trends.averageSleep} hrs<br>
+
+        Total Workouts:
+        ${trends.totalWorkouts}
+    `;
+}
+
+/* =========================================================
+   SIMPLE CHARTS
+   ========================================================= */
+
+function renderTrendCharts(date) {
+    const chartData =
+        getTrendChartData(date);
+
+    DOM.stepsChart.innerHTML = `
+        <strong>Steps</strong><br>
+        ${chartData
+            .map(
+                item =>
+                    `${item.date.slice(5)}:
+                    ${item.steps}`
+            )
+            .join("<br>")}
+    `;
+
+    DOM.sleepChart.innerHTML = `
+        <strong>Sleep</strong><br>
+        ${chartData
+            .map(
+                item =>
+                    `${item.date.slice(5)}:
+                    ${item.sleep}h`
+            )
+            .join("<br>")}
+    `;
+
+    DOM.caloriesChart.innerHTML = `
+        <strong>Calories</strong><br>
+        ${chartData
+            .map(
+                item =>
+                    `${item.date.slice(5)}:
+                    ${item.calories}`
+            )
+            .join("<br>")}
+    `;
+}
+
+/* =========================================================
+   ALERTS
+   ========================================================= */
+
+function renderAlerts(date) {
+    const alert =
+        checkLowActivityAlert(date);
+
+    if (!alert) {
+        DOM.alertContainer.innerHTML = `
+            <div class="empty-state">
+                No health alerts at the moment.
+            </div>
+        `;
+        return;
+    }
+
+    DOM.alertContainer.innerHTML = `
+        <div class="alert-card alert-warning">
+            <strong>${alert.title}</strong>
+            <p>${alert.message}</p>
+        </div>
+    `;
+}
+
+/* =========================================================
+   TIMELINE
+   ========================================================= */
+
+function renderTimeline() {
+    const entries =
+        getRecentTimelineEntries();
+
+    if (!entries.length) {
+        DOM.timelineList.innerHTML = `
+            <div class="empty-state">
+                No recent activity available.
+            </div>
+        `;
+        return;
+    }
+
+    DOM.timelineList.innerHTML =
+        entries
+            .map(
+                entry => `
+                <div class="timeline-item">
+                    <div class="timeline-title">
+                        ${entry.action}
+                    </div>
+
+                    <div class="timeline-meta">
+                        ${entry.details}
+                    </div>
+                </div>
+            `
+            )
+            .join("");
+}
+
+/* =========================================================
+   SETTINGS
+   ========================================================= */
+
+function renderSettings() {
+    const settings =
+        getSettings();
+
+    document.getElementById(
+        "step-goal-input"
+    ).value =
+        settings.stepGoal;
+
+    document.getElementById(
+        "calorie-goal-input"
+    ).value =
+        settings.calorieGoal;
+
+    document.getElementById(
+        "water-goal-input"
+    ).value =
+        settings.waterGoal;
+}
+
+/* =========================================================
+   MASTER RENDER
+   ========================================================= */
+
+function renderApp(
+    date = getTodayDate()
+) {
+    renderActivity(date);
+
+    renderNutrition(date);
+
+    renderWater(date);
+
+    renderSleep(date);
+
+    renderWorkout(date);
+
+    renderHealthScore(date);
+
+    renderQuickInsight(date);
+
+    renderWeeklySummary(date);
+
+    renderTrendCharts(date);
+
+    renderAlerts(date);
+
+    renderTimeline();
+
+    renderSettings();
+}

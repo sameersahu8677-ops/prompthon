@@ -376,3 +376,98 @@ Optimized for:
 - Desktop
 
 ---
+
+
+
+## A6 - Personal Portfolio Website
+
+### Overview
+
+A responsive and accessible personal portfolio website built using HTML, CSS, and JavaScript.
+
+The website showcases personal information, technical skills, projects, and contact details while demonstrating modern frontend development practices.
+
+---
+
+## Features
+
+- About Me section
+- Skills showcase
+- Project portfolio
+- Contact form with CAPTCHA validation
+- Toast notifications
+- Light/Dark theme toggle
+- Theme persistence using localStorage
+- Responsive design
+- Accessibility support
+
+---
+
+## Technologies Used
+
+- HTML5
+- CSS3
+- JavaScript (Vanilla)
+
+---
+
+## Projects Showcased
+
+1. Expense Tracker
+2. Flashcard Learning System
+3. Bill Splitter
+
+Each project includes:
+
+- Preview image
+- Description
+- Technology stack
+- Live Demo link
+- Source Code link
+
+---
+
+## How To Use
+
+1. Open the website.
+2. Navigate through About, Skills, Projects, and Contact sections.
+3. Explore project demos and source code.
+4. Switch between Light and Dark modes.
+5. Submit the contact form using the CAPTCHA challenge.
+
+---
+
+## Responsive Design
+
+Optimized for:
+
+- Mobile
+- Tablet
+- Desktop
+
+---
+
+## Accessibility
+
+- Semantic HTML
+- Keyboard navigation
+- Focus indicators
+- ARIA support
+- Accessible forms
+- Reduced motion support
+
+---
+
+## Author
+
+**Sameer**
+
+First-Year Developer
+
+Learning:
+
+- HTML
+- CSS
+- JavaScript
+- Python
+- Git

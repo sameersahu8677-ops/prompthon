@@ -256,28 +256,6 @@ function isValidTier(tier) {
     ].includes(tier);
 }
 
-/* =========================================================
-   APPLICATION INITIALIZATION
-   ========================================================= */
-
-/**
- * Main application bootstrap.
- * Future modules will be integrated here.
- */
-function initializeApp() {
-    console.log(
-        "🎬 Seat Booking Engine Initializing..."
-    );
-
-    console.log(
-        "Configuration loaded:",
-        CONFIG
-    );
-
-    console.log(
-        "Application state ready."
-    );
-}
 
 /* =========================================================
    PAGE LOAD ENTRY POINT
@@ -620,27 +598,8 @@ function setupSeatEngine() {
     );
 }
 
-/* =========================================================
-   INITIALIZATION INTEGRATION
-   ========================================================= */
 
-/*
-   Replace the current initializeApp()
-   from Part 1 with this version.
-*/
 
-function initializeApp() {
-
-    console.log(
-        "🎬 Seat Booking Engine Initializing..."
-    );
-
-    setupSeatEngine();
-
-    console.log(
-        "✅ Seat engine initialized."
-    );
-}
 
 /* =========================================================
    PART 3 — SELECTION LOGIC & TRANSACTION MANAGER

@@ -289,3 +289,355 @@ document.addEventListener(
         initializeApp();
     }
 );
+
+/* =========================================================
+   PART 2 — SEAT ENGINE & UI RENDERING
+   ========================================================= */
+
+/* =========================================================
+   SEAT ENGINE
+   ========================================================= */
+
+/**
+ * Creates a single seat object.
+ * @param {string} row
+ * @param {number} number
+ * @param {string} tier
+ * @returns {Object}
+ */
+function createSeat(row, number, tier) {
+    return {
+        id: `${row}${number}`,
+        row,
+        number,
+        tier,
+        price: CONFIG.pricing[tier],
+        state: "available"
+    };
+}
+
+/**
+ * Generates all seats from CONFIG.
+ * @returns {Array}
+ */
+function generateSeatLayout() {
+    const seats = [];
+
+    Object.entries(CONFIG.layout).forEach(
+        ([tier, tierConfig]) => {
+
+            tierConfig.rows.forEach(row => {
+
+                for (
+                    let seatNumber = 1;
+                    seatNumber <= tierConfig.seatsPerRow;
+                    seatNumber++
+                ) {
+                    seats.push(
+                        createSeat(
+                            row,
+                            seatNumber,
+                            tier
+                        )
+                    );
+                }
+
+            });
+
+        }
+    );
+
+    return seats;
+}
+
+/**
+ * Initializes seat state.
+ */
+function initializeSeats() {
+    appState.seats = generateSeatLayout();
+}
+
+/* =========================================================
+   SEAT GROUPING HELPERS
+   ========================================================= */
+
+/**
+ * Returns seats grouped by tier.
+ * @returns {Object}
+ */
+function groupSeatsByTier() {
+    return appState.seats.reduce(
+        (groups, seat) => {
+
+            if (!groups[seat.tier]) {
+                groups[seat.tier] = [];
+            }
+
+            groups[seat.tier].push(seat);
+
+            return groups;
+
+        },
+        {}
+    );
+}
+
+/**
+ * Returns seats grouped by row.
+ * @param {Array} seats
+ * @returns {Object}
+ */
+function groupSeatsByRow(seats) {
+    return seats.reduce(
+        (groups, seat) => {
+
+            if (!groups[seat.row]) {
+                groups[seat.row] = [];
+            }
+
+            groups[seat.row].push(seat);
+
+            return groups;
+
+        },
+        {}
+    );
+}
+
+/* =========================================================
+   CSS CLASS HELPERS
+   ========================================================= */
+
+/**
+ * Returns seat state class.
+ * @param {Object} seat
+ * @returns {string}
+ */
+function getSeatStateClass(seat) {
+
+    switch (seat.state) {
+
+        case "selected":
+            return "seat-selected";
+
+        case "booked":
+            return "seat-booked";
+
+        default:
+            return "seat-available";
+    }
+}
+
+/**
+ * Returns tier class.
+ * @param {string} tier
+ * @returns {string}
+ */
+function getTierClass(tier) {
+
+    switch (tier) {
+
+        case "VIP":
+            return "vip";
+
+        case "CLUB":
+            return "club";
+
+        case "FRONT":
+            return "front";
+
+        default:
+            return "";
+    }
+}
+
+/**
+ * Returns seat-specific classes.
+ * @param {Object} seat
+ * @returns {string}
+ */
+function buildSeatClassList(seat) {
+
+    const classes = [
+        "seat",
+        getSeatStateClass(seat)
+    ];
+
+    if (seat.tier === "VIP") {
+        classes.push("vip-seat");
+    }
+
+    return classes.join(" ");
+}
+
+/* =========================================================
+   HTML GENERATORS
+   ========================================================= */
+
+/**
+ * Creates seat button HTML.
+ * @param {Object} seat
+ * @returns {string}
+ */
+function createSeatMarkup(seat) {
+
+    return `
+        <button
+            type="button"
+            class="${buildSeatClassList(seat)}"
+            data-seat-id="${seat.id}"
+            aria-label="${seat.id} ${seat.tier} ${seat.state}"
+            aria-pressed="${seat.state === "selected"}"
+            ${seat.state === "booked" ? "disabled" : ""}
+        >
+            ${seat.number}
+        </button>
+    `;
+}
+
+/**
+ * Creates row HTML.
+ * @param {string} row
+ * @param {Array} seats
+ * @returns {string}
+ */
+function createRowMarkup(row, seats) {
+
+    const seatsHTML = seats
+        .map(createSeatMarkup)
+        .join("");
+
+    return `
+        <div class="seat-row">
+            <div class="row-label">
+                ${row}
+            </div>
+
+            ${seatsHTML}
+        </div>
+    `;
+}
+
+/**
+ * Creates tier section HTML.
+ * @param {string} tier
+ * @param {Array} seats
+ * @returns {string}
+ */
+function createTierMarkup(tier, seats) {
+
+    const groupedRows = groupSeatsByRow(seats);
+
+    const rowsHTML = Object.entries(groupedRows)
+        .map(([row, rowSeats]) =>
+            createRowMarkup(row, rowSeats)
+        )
+        .join("");
+
+    return `
+        <section class="tier-section">
+
+            <div
+                class="tier-header ${getTierClass(tier)}"
+            >
+                <span>${tier}</span>
+
+                <span>
+                    ₹${CONFIG.pricing[tier]}
+                </span>
+            </div>
+
+            ${rowsHTML}
+
+        </section>
+    `;
+}
+
+/* =========================================================
+   SEAT GRID RENDERER
+   ========================================================= */
+
+/**
+ * Renders complete seat grid.
+ */
+function renderSeatGrid() {
+
+    if (!DOM.seatGrid) {
+        return;
+    }
+
+    const groupedTiers = groupSeatsByTier();
+
+    const tierOrder = [
+        "VIP",
+        "CLUB",
+        "FRONT"
+    ];
+
+    const html = tierOrder
+        .filter(
+            tier => groupedTiers[tier]
+        )
+        .map(
+            tier =>
+                createTierMarkup(
+                    tier,
+                    groupedTiers[tier]
+                )
+        )
+        .join("");
+
+    DOM.seatGrid.innerHTML = html;
+}
+
+/* =========================================================
+   UI REFRESH HELPERS
+   ========================================================= */
+
+/**
+ * Re-renders seat grid.
+ * Future modules will trigger this.
+ */
+function refreshSeatUI() {
+    renderSeatGrid();
+}
+
+/* =========================================================
+   SEAT INITIALIZATION FLOW
+   ========================================================= */
+
+/**
+ * Creates and renders all seats.
+ */
+function setupSeatEngine() {
+
+    initializeSeats();
+
+    renderSeatGrid();
+
+    console.log(
+        `🎟️ Generated ${appState.seats.length} seats`
+    );
+}
+
+/* =========================================================
+   INITIALIZATION INTEGRATION
+   ========================================================= */
+
+/*
+   Replace the current initializeApp()
+   from Part 1 with this version.
+*/
+
+function initializeApp() {
+
+    console.log(
+        "🎬 Seat Booking Engine Initializing..."
+    );
+
+    setupSeatEngine();
+
+    console.log(
+        "✅ Seat engine initialized."
+    );
+}

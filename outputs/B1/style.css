@@ -142,3 +142,98 @@ textarea {
         box-shadow var(--transition-speed),
         transform var(--transition-speed);
 }
+
+/* =========================================================
+   4. HEADER LAYOUT
+========================================================= */
+
+.app-header {
+    max-width: var(--max-width);
+    margin: 0 auto 1.75rem;
+
+    text-align: center;
+
+    background: var(--surface-color);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+
+    padding: 1.5rem;
+}
+
+.app-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+}
+
+.app-header p {
+    color: var(--muted-text);
+    font-size: 1rem;
+}
+
+
+/* =========================================================
+   5. MAIN WORKSPACE
+========================================================= */
+
+.workspace {
+    max-width: var(--max-width);
+    margin: 0 auto;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+
+    align-items: stretch;
+}
+
+
+/* =========================================================
+   6. PANEL CARDS
+========================================================= */
+
+.editor-panel,
+.preview-panel {
+    background: var(--surface-color);
+
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+
+    padding: 1.25rem;
+
+    display: flex;
+    flex-direction: column;
+
+    min-height: 650px;
+}
+
+
+/* =========================================================
+   7. PANEL HEADERS
+========================================================= */
+
+.panel-header {
+    border-bottom: 1px solid var(--border-color);
+
+    padding-bottom: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.panel-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+
+/* =========================================================
+   8. PANEL SPACING UTILITIES
+========================================================= */
+
+.editor-panel > *:not(:last-child),
+.preview-panel > *:not(:last-child) {
+    margin-bottom: 1rem;
+}
+

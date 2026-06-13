@@ -384,3 +384,323 @@ section {
         scroll-behavior: auto !important;
     }
 }
+
+/* ==========================================
+   PART 2 - DASHBOARD LAYER
+   ========================================== */
+
+/* ==========================================
+   HEADER
+   ========================================== */
+
+#app-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(248, 250, 252, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.header-content {
+    width: min(100% - 2rem, var(--max-width));
+    margin-inline: auto;
+    padding: var(--space-4) 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+}
+
+.branding {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+#app-title {
+    color: var(--color-primary);
+    letter-spacing: -0.03em;
+}
+
+.tagline {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+/* ==========================================
+   LEVEL BADGE
+   ========================================== */
+
+#level-badge {
+    background: linear-gradient(135deg,
+            var(--color-secondary),
+            #f4a62a);
+
+    color: white;
+
+    padding: 0.75rem 1rem;
+
+    border-radius: 999px;
+
+    font-weight: 700;
+
+    box-shadow: var(--shadow-sm);
+
+    transition:
+        transform var(--transition-normal),
+        box-shadow var(--transition-normal);
+}
+
+#level-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+#header-level-display {
+    font-weight: 800;
+}
+
+/* ==========================================
+   HERO SECTION
+   ========================================== */
+
+#hero-section {
+    background:
+        linear-gradient(135deg,
+            rgba(5, 150, 105, 0.08),
+            rgba(217, 119, 6, 0.08));
+
+    border: 1px solid rgba(5, 150, 105, 0.12);
+
+    border-radius: var(--radius-xl);
+
+    padding: var(--space-8);
+
+    animation: fadeIn 0.5s ease;
+}
+
+#hero-title {
+    margin-bottom: var(--space-3);
+}
+
+#hero-description {
+    max-width: 700px;
+    font-size: var(--font-size-lg);
+}
+
+#motivation-message {
+    margin-top: var(--space-4);
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+/* ==========================================
+   DASHBOARD SECTION
+   ========================================== */
+
+#dashboard-section .stats-grid {
+    margin-top: var(--space-4);
+}
+
+.stat-card {
+    position: relative;
+
+    overflow: hidden;
+
+    min-height: 130px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    gap: var(--space-2);
+}
+
+.stat-card::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 4px;
+
+    background: var(--color-primary);
+}
+
+.stat-card h3 {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}
+
+.stat-card p {
+    color: var(--color-text-primary);
+
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+
+    font-weight: 800;
+}
+
+/* ==========================================
+   INDIVIDUAL STAT ACCENTS
+   ========================================== */
+
+#level-card::before {
+    background: var(--color-secondary);
+}
+
+#xp-card::before {
+    background: var(--color-secondary);
+}
+
+#hp-card::before {
+    background: var(--color-hp);
+}
+
+#streak-card::before {
+    background: var(--color-primary);
+}
+
+#longest-streak-card::before {
+    background: var(--color-primary);
+}
+
+/* ==========================================
+   DAILY SUMMARY
+   ========================================== */
+
+#daily-summary-section .summary-card {
+    background: var(--color-surface);
+}
+
+.summary-item {
+    padding: var(--space-2);
+}
+
+.summary-label {
+    color: var(--color-text-secondary);
+    font-weight: 600;
+}
+
+#completed-today,
+#total-habits-today {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+/* ==========================================
+   XP PROGRESS
+   ========================================== */
+
+#xp-progress-section {
+    animation: slideUp 0.4s ease;
+}
+
+.progress-wrapper {
+    background: var(--color-surface);
+
+    border-radius: var(--radius-lg);
+
+    padding: var(--space-5);
+
+    box-shadow: var(--shadow-sm);
+
+    border: 1px solid var(--color-border);
+}
+
+#xp-progress-bar {
+    width: 100%;
+    height: 16px;
+
+    background: #e5e7eb;
+
+    border-radius: 999px;
+
+    overflow: hidden;
+
+    position: relative;
+}
+
+#xp-progress-fill {
+    width: 0%;
+
+    height: 100%;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(90deg,
+            var(--color-secondary),
+            #f4a62a);
+
+    transition:
+        width 0.6s ease;
+}
+
+#xp-progress-text {
+    margin-top: var(--space-3);
+
+    font-weight: 700;
+
+    text-align: center;
+
+    color: var(--color-text-primary);
+}
+
+/* ==========================================
+   SECTION POLISH
+   ========================================== */
+
+#dashboard-section,
+#daily-summary-section,
+#xp-progress-section {
+    scroll-margin-top: 100px;
+}
+
+/* ==========================================
+   TABLET
+   ========================================== */
+
+@media (min-width: 768px) {
+
+    #hero-section {
+        padding: var(--space-10);
+    }
+
+    .progress-wrapper {
+        padding: var(--space-6);
+    }
+
+    .stat-card {
+        min-height: 150px;
+    }
+}
+
+/* ==========================================
+   DESKTOP
+   ========================================== */
+
+@media (min-width: 1024px) {
+
+    .header-content {
+        padding-block: var(--space-5);
+    }
+
+    #hero-section {
+        padding: var(--space-12);
+    }
+
+    #hero-description {
+        font-size: 1.2rem;
+    }
+
+    .stat-card {
+        min-height: 170px;
+    }
+}

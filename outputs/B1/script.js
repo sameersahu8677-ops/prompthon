@@ -570,3 +570,257 @@ function updateStatistics(content) {
     wordCount.textContent = `Words: ${words}`;
     characterCount.textContent = `Characters: ${characters}`;
 }
+
+/* =========================================================
+   8. TOAST SYSTEM
+========================================================= */
+
+/**
+ * Displays a temporary toast notification.
+ *
+ * @param {string} message
+ * @param {"success"|"error"|"warning"|"info"} type
+ */
+function showToast(message, type = "info") {
+    try {
+        const toast = document.createElement("div");
+
+        toast.classList.add("toast", type);
+        toast.textContent = message;
+
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.add("hide");
+
+            setTimeout(() => {
+                toast.remove();
+            }, 250);
+        }, 3000);
+    } catch (error) {
+        console.error(
+            "[Toast] Failed to display toast:",
+            error
+        );
+    }
+}
+
+
+/* =========================================================
+   9. CLIPBOARD SYSTEM
+========================================================= */
+
+/**
+ * Copies rendered HTML from preview.
+ */
+async function copyRenderedHTML() {
+    try {
+        const html = previewContent.innerHTML;
+
+        if (!html.trim()) {
+            showToast(
+                "Nothing to copy.",
+                "warning"
+            );
+            return;
+        }
+
+        if (
+            navigator.clipboard &&
+            window.isSecureContext
+        ) {
+            await navigator.clipboard.writeText(html);
+
+            showToast(
+                "HTML copied successfully.",
+                "success"
+            );
+
+            return;
+        }
+
+        const temporaryTextArea =
+            document.createElement("textarea");
+
+        temporaryTextArea.value = html;
+
+        temporaryTextArea.style.position = "fixed";
+        temporaryTextArea.style.left = "-9999px";
+
+        document.body.appendChild(
+            temporaryTextArea
+        );
+
+        temporaryTextArea.focus();
+        temporaryTextArea.select();
+
+        const successful =
+            document.execCommand("copy");
+
+        document.body.removeChild(
+            temporaryTextArea
+        );
+
+        if (successful) {
+            showToast(
+                "HTML copied successfully.",
+                "success"
+            );
+        } else {
+            throw new Error(
+                "Clipboard fallback failed."
+            );
+        }
+    } catch (error) {
+        console.error(
+            "[Clipboard] Copy failed:",
+            error
+        );
+
+        showToast(
+            "Unable to copy HTML.",
+            "error"
+        );
+    }
+}
+
+
+/* =========================================================
+   10. EXPORT SYSTEM
+========================================================= */
+
+/**
+ * Downloads rendered content
+ * as a complete HTML file.
+ */
+function exportHTML() {
+    try {
+        const renderedContent =
+            previewContent.innerHTML;
+
+        if (!renderedContent.trim()) {
+            showToast(
+                "Nothing to export.",
+                "warning"
+            );
+            return;
+        }
+
+        const exportDocument = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+<title>Markdown Export</title>
+
+<style>
+body{
+    max-width:900px;
+    margin:40px auto;
+    padding:20px;
+    font-family:Arial,sans-serif;
+    line-height:1.7;
+    color:#222;
+}
+
+h1,h2,h3{
+    margin-top:1.5rem;
+}
+
+code{
+    background:#f4f4f4;
+    padding:2px 6px;
+    border-radius:4px;
+    font-family:Consolas,monospace;
+}
+</style>
+</head>
+<body>
+
+${renderedContent}
+
+</body>
+</html>
+`;
+
+        const blob = new Blob(
+            [exportDocument],
+            {
+                type: "text/html"
+            }
+        );
+
+        const url =
+            URL.createObjectURL(blob);
+
+        const link =
+            document.createElement("a");
+
+        link.href = url;
+        link.download =
+            "markdown-export.html";
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        document.body.removeChild(link);
+
+        URL.revokeObjectURL(url);
+
+        showToast(
+            "HTML exported successfully.",
+            "success"
+        );
+    } catch (error) {
+        console.error(
+            "[Export] Export failed:",
+            error
+        );
+
+        showToast(
+            "Export failed.",
+            "error"
+        );
+    }
+}
+
+
+/* =========================================================
+   11. RESET SYSTEM
+========================================================= */
+
+/**
+ * Clears editor, preview,
+ * statistics and storage.
+ */
+function resetDocument() {
+    try {
+        markdownEditor.value = "";
+
+        clearContent();
+
+        renderPreview();
+        updateStatistics("");
+
+        saveStatus.textContent =
+            STATUS.READY;
+
+        showToast(
+            "Document cleared.",
+            "success"
+        );
+    } catch (error) {
+        console.error(
+            "[Reset] Failed to reset document:",
+            error
+        );
+
+        showToast(
+            "Unable to clear document.",
+            "error"
+        );
+    }
+}

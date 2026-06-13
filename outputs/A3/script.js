@@ -58,8 +58,15 @@ function createDefaultState() {
 
         appMeta: {
             createdAt: getTodayDate(),
-            lastOpenedDate: getTodayDate(),
-            lastDailyCheckDate: null
+
+            lastOpenedDate:
+                getTodayDate(),
+
+            lastDailyCheckDate:
+                null,
+
+            lastStreakEvaluationDate:
+                null
         }
     };
 }
@@ -1125,6 +1132,15 @@ function getEligibleHabitsForDate(
     );
 }
 
+function isHabitEligibleForDate(
+    habit,
+    date
+) {
+
+    return (
+        habit.trackingStartDate <= date
+    );
+}
 /* ==========================================
    SUCCESSFUL DAY LOGIC
    ========================================== */
@@ -1159,25 +1175,25 @@ function isSuccessfulDay(
 
 function calculateCurrentStreak() {
 
-    const today =
-        getTodayDate();
+    const today = getTodayDate();
 
     let streak = 0;
 
     let currentDate = today;
 
+    if (!isSuccessfulDay(today)) {
+        currentDate =
+            getPreviousDate(today);
+    }
+
     while (
-        isSuccessfulDay(
-            currentDate
-        )
+        isSuccessfulDay(currentDate)
     ) {
 
         streak++;
 
         currentDate =
-            getPreviousDate(
-                currentDate
-            );
+            getPreviousDate(currentDate);
     }
 
     return streak;
@@ -1314,6 +1330,18 @@ function evaluateHabitMisses(
             evaluationDate
         );
 
+    if (
+        !isHabitEligibleForDate(
+            habit,
+            previousDay
+        )
+    ) {
+
+        return {
+            penaltyTriggered: false
+        };
+    }
+
     const currentMiss =
         !isHabitCompletedOnDate(
             habit,
@@ -1332,7 +1360,7 @@ function evaluateHabitMisses(
     ) {
 
         habit.missTracking
-            .consecutiveMisses = 2;
+            .consecutiveMisses += 1;
 
         if (
             !habit.missTracking
@@ -1940,3 +1968,1516 @@ function getAchievementStatistics() {
             )
     };
 }
+
+/* ==========================================
+   PART 6A - RENDERING ENGINE
+   ========================================== */
+
+/* ==========================================
+   DOM CACHE
+   ========================================== */
+
+const DOM = {};
+
+function cacheDOMElements() {
+
+    DOM.levelDisplay =
+        document.getElementById(
+            "level-display"
+        );
+
+    DOM.xpDisplay =
+        document.getElementById(
+            "xp-display"
+        );
+
+    DOM.hpDisplay =
+        document.getElementById(
+            "hp-display"
+        );
+
+    DOM.streakDisplay =
+        document.getElementById(
+            "streak-display"
+        );
+
+    DOM.longestStreakDisplay =
+        document.getElementById(
+            "longest-streak-display"
+        );
+
+    DOM.xpProgressFill =
+        document.getElementById(
+            "xp-progress-fill"
+        );
+
+    DOM.xpProgressText =
+        document.getElementById(
+            "xp-progress-text"
+        );
+
+    DOM.completedToday =
+        document.getElementById(
+            "completed-today"
+        );
+
+    DOM.totalToday =
+        document.getElementById(
+            "total-habits-today"
+        );
+
+    DOM.habitList =
+        document.getElementById(
+            "habit-list"
+        );
+
+    DOM.activityFeed =
+        document.getElementById(
+            "activity-feed"
+        );
+
+    DOM.achievementsContainer =
+        document.getElementById(
+            "achievements-container"
+        );
+
+    DOM.emptyState =
+        document.getElementById(
+            "empty-state"
+        );
+
+    DOM.motivationMessage =
+        document.getElementById(
+            "motivation-message"
+        );
+}
+
+/* ==========================================
+   DASHBOARD RENDERING
+   ========================================== */
+
+function renderDashboard() {
+
+    if (
+        !DOM.levelDisplay
+    ) {
+        return;
+    }
+
+    DOM.levelDisplay.textContent =
+        appState.player.level;
+
+    DOM.xpDisplay.textContent =
+        appState.player.totalXP;
+
+    DOM.streakDisplay.textContent =
+        appState.player.currentStreak;
+
+    DOM.longestStreakDisplay.textContent =
+        appState.player.longestStreak;
+
+    renderHPHearts();
+}
+
+/* ==========================================
+   HP HEARTS
+   ========================================== */
+
+function renderHPHearts() {
+
+    if (
+        !DOM.hpDisplay
+    ) {
+        return;
+    }
+
+    const hp =
+        appState.player.hp;
+
+    let heartsHTML =
+        '<div class="hp-hearts">';
+
+    for (
+        let i = 1;
+        i <= HP_CONFIG.MAX_HP;
+        i++
+    ) {
+
+        heartsHTML += `
+            <span
+                class="hp-heart ${i <= hp
+                ? ""
+                : "empty"
+            }"
+            >
+                ❤️
+            </span>
+        `;
+    }
+
+    heartsHTML += `
+        </div>
+        <div class="hp-count">
+            HP ${hp}/${HP_CONFIG.MAX_HP}
+        </div>
+    `;
+
+    DOM.hpDisplay.innerHTML =
+        heartsHTML;
+}
+
+/* ==========================================
+   XP PROGRESS
+   ========================================== */
+
+function renderProgress() {
+
+    if (
+        !DOM.xpProgressFill ||
+        !DOM.xpProgressText
+    ) {
+        return;
+    }
+
+    const progress =
+        getLevelProgressData();
+
+    DOM.xpProgressFill.style.width =
+        `${progress.progressPercent}%`;
+
+    DOM.xpProgressText.textContent =
+        `${progress.xpIntoCurrentLevel}/${LEVEL_CONFIG.XP_PER_LEVEL} XP • ${progress.xpNeeded} XP to next level`;
+}
+
+/* ==========================================
+   HABIT CARD
+   ========================================== */
+
+function createHabitCard(
+    habit
+) {
+
+    const today =
+        getTodayDate();
+
+    const completed =
+        isHabitCompletedOnDate(
+            habit,
+            today
+        );
+
+    return `
+        <article
+            class="habit-card ${completed
+            ? "completed"
+            : ""
+        }"
+            data-habit-id="${habit.id}"
+        >
+
+            <div class="habit-header">
+
+                <div class="habit-title-group">
+
+                    <h3 class="habit-name">
+                        ${habit.name}
+                    </h3>
+
+                    <div class="habit-meta">
+
+                        <span class="
+                            difficulty-badge
+                            difficulty-${habit.difficulty}
+                        ">
+                            ${habit.difficulty}
+                        </span>
+
+                        <span class="xp-chip">
+                            +${habit.xpReward} XP
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="habit-footer">
+
+                <div class="habit-completion">
+
+                    <input
+                        type="checkbox"
+                        class="habit-checkbox"
+                        data-habit-id="${habit.id}"
+                        ${completed
+            ? "checked"
+            : ""
+        }
+                    >
+
+                    <span class="completion-label">
+                        Completed Today
+                    </span>
+
+                </div>
+
+                <div class="habit-actions">
+
+                    <button
+                        class="habit-action-btn habit-edit-btn"
+                        data-action="edit"
+                        data-habit-id="${habit.id}"
+                    >
+                        ✏️
+                    </button>
+
+                    <button
+                        class="habit-action-btn habit-archive-btn"
+                        data-action="archive"
+                        data-habit-id="${habit.id}"
+                    >
+                        📦
+                    </button>
+
+                    <button
+                        class="habit-action-btn habit-delete-btn"
+                        data-action="delete"
+                        data-habit-id="${habit.id}"
+                    >
+                        🗑️
+                    </button>
+
+                </div>
+
+            </div>
+
+        </article>
+    `;
+}
+
+/* ==========================================
+   HABITS
+   ========================================== */
+
+function renderHabits() {
+
+    if (
+        !DOM.habitList
+    ) {
+        return;
+    }
+
+    const habits =
+        getTodaysHabits();
+
+    if (
+        habits.length === 0
+    ) {
+
+        DOM.habitList.innerHTML =
+            "";
+
+        return;
+    }
+
+    DOM.habitList.innerHTML =
+        habits
+            .map(
+                createHabitCard
+            )
+            .join("");
+
+    if (
+        DOM.completedToday
+    ) {
+
+        DOM.completedToday.textContent =
+            getCompletedToday();
+    }
+
+    if (
+        DOM.totalToday
+    ) {
+
+        DOM.totalToday.textContent =
+            getTotalToday();
+    }
+}
+
+/* ==========================================
+   ACTIVITY FEED
+   ========================================== */
+
+function createActivityHTML(
+    activity
+) {
+
+    return `
+        <div
+            class="activity-item activity-${activity.type}"
+        >
+
+            <div class="activity-content">
+
+                <div class="activity-title">
+                    ${activity.title}
+                </div>
+
+                <div class="activity-description">
+                    ${activity.description}
+                </div>
+
+                <div class="activity-time">
+                    ${new Date(
+        activity.timestamp
+    ).toLocaleString()}
+                </div>
+
+            </div>
+
+        </div>
+    `;
+}
+
+function renderActivityFeed() {
+
+    if (
+        !DOM.activityFeed
+    ) {
+        return;
+    }
+
+    const activities =
+        getRecentActivities();
+
+    if (
+        activities.length === 0
+    ) {
+
+        DOM.activityFeed.innerHTML = `
+            <div class="activity-empty">
+                No activity yet.
+            </div>
+        `;
+
+        return;
+    }
+
+    DOM.activityFeed.innerHTML =
+        activities
+            .map(
+                createActivityHTML
+            )
+            .join("");
+}
+
+/* ==========================================
+   ACHIEVEMENTS
+   ========================================== */
+
+function createAchievementCard(
+    achievement
+) {
+
+    const unlocked =
+        isAchievementUnlocked(
+            achievement.id
+        );
+
+    return `
+        <article
+            class="
+                achievement-card
+                ${unlocked
+            ? "unlocked"
+            : "locked"
+        }
+            "
+        >
+
+            <div class="achievement-icon">
+                ${unlocked
+            ? "🏆"
+            : "🔒"
+        }
+            </div>
+
+            <h3 class="achievement-title">
+                ${achievement.title}
+            </h3>
+
+            <p class="achievement-description">
+                ${achievement.description}
+            </p>
+
+            ${unlocked
+            ? `
+                    <div class="achievement-date">
+                        Unlocked
+                    </div>
+                    `
+            : `
+                    <div class="achievement-date">
+                        Locked
+                    </div>
+                    `
+        }
+
+        </article>
+    `;
+}
+
+function renderAchievements() {
+
+    if (
+        !DOM.achievementsContainer
+    ) {
+        return;
+    }
+
+    const allAchievements =
+        Object.values(
+            ACHIEVEMENTS
+        );
+
+    DOM.achievementsContainer.innerHTML =
+        allAchievements
+            .map(
+                createAchievementCard
+            )
+            .join("");
+}
+
+/* ==========================================
+   EMPTY STATE
+   ========================================== */
+
+function renderEmptyState() {
+
+    if (
+        !DOM.emptyState
+    ) {
+        return;
+    }
+
+    const hasHabits =
+        getActiveHabits()
+            .length > 0;
+
+    DOM.emptyState.style.display =
+        hasHabits
+            ? "none"
+            : "block";
+}
+
+/* ==========================================
+   MOTIVATION MESSAGE
+   ========================================== */
+
+function renderMotivationMessage() {
+
+    if (
+        !DOM.motivationMessage
+    ) {
+        return;
+    }
+
+    const streak =
+        appState.player
+            .currentStreak;
+
+    const level =
+        appState.player.level;
+
+    const progress =
+        getLevelProgressData();
+
+    let message =
+        "Your adventure begins today.";
+
+    if (
+        streak >= 30
+    ) {
+
+        message =
+            "Legendary consistency. Keep dominating.";
+
+    } else if (
+        streak >= 7
+    ) {
+
+        message =
+            "Your streak is becoming powerful.";
+
+    } else if (
+        progress.xpNeeded <= 20
+    ) {
+
+        message =
+            `Only ${progress.xpNeeded} XP until Level ${level + 1}!`;
+
+    } else if (
+        level >= 5
+    ) {
+
+        message =
+            `Level ${level} adventurer. Keep climbing.`;
+    }
+
+    DOM.motivationMessage.textContent =
+        message;
+}
+
+/* ==========================================
+   MASTER RENDER
+   ========================================== */
+
+function renderApp() {
+
+    renderDashboard();
+
+    renderProgress();
+
+    renderHabits();
+
+    renderActivityFeed();
+
+    renderAchievements();
+
+    renderEmptyState();
+
+    renderMotivationMessage();
+}
+
+/* ==========================================
+   PART 6B - UI SYSTEMS
+   ========================================== */
+
+/* ==========================================
+   EXTENDED DOM CACHE
+   ========================================== */
+
+function cacheUISystemElements() {
+
+    DOM.toastContainer =
+        document.getElementById(
+            "toast-container"
+        );
+
+    DOM.habitModal =
+        document.getElementById(
+            "habit-modal"
+        );
+
+    DOM.habitForm =
+        document.getElementById(
+            "habit-form"
+        );
+
+    DOM.modalTitle =
+        document.getElementById(
+            "modal-title"
+        );
+
+    DOM.habitNameInput =
+        document.getElementById(
+            "habit-name"
+        );
+
+    DOM.habitDifficultyInput =
+        document.getElementById(
+            "habit-difficulty"
+        );
+
+    DOM.saveHabitBtn =
+        document.getElementById(
+            "save-habit-btn"
+        );
+
+    DOM.cancelHabitBtn =
+        document.getElementById(
+            "cancel-habit-btn"
+        );
+
+    DOM.addHabitBtn =
+        document.getElementById(
+            "add-habit-btn"
+        );
+}
+
+/* ==========================================
+   MODAL STATE
+   ========================================== */
+
+const modalState = {
+
+    mode: "create",
+
+    editingHabitId: null
+};
+
+/* ==========================================
+   TOAST SYSTEM
+   ========================================== */
+
+const TOAST_CONFIG = Object.freeze({
+
+    DEFAULT_DURATION: 3500,
+
+    MAX_TOASTS: 4
+});
+
+function generateToastId() {
+
+    return `toast_${Date.now()}_${Math.random()
+        .toString(36)
+        .substring(2, 7)}`;
+}
+
+function removeToast(
+    toastId
+) {
+
+    const toast =
+        document.querySelector(
+            `[data-toast-id="${toastId}"]`
+        );
+
+    if (!toast) {
+        return;
+    }
+
+    toast.remove();
+}
+
+function showToast(
+    title,
+    message,
+    type = "success",
+    duration =
+        TOAST_CONFIG.DEFAULT_DURATION
+) {
+
+    if (
+        !DOM.toastContainer
+    ) {
+        return;
+    }
+
+    const existingToasts =
+        DOM.toastContainer
+            .querySelectorAll(
+                ".toast"
+            );
+
+    if (
+        existingToasts.length >=
+        TOAST_CONFIG.MAX_TOASTS
+    ) {
+
+        existingToasts[0].remove();
+    }
+
+    const toastId =
+        generateToastId();
+
+    const toast =
+        document.createElement(
+            "div"
+        );
+
+    toast.className =
+        `toast toast-${type}`;
+
+    toast.dataset.toastId =
+        toastId;
+
+    toast.innerHTML = `
+        <div class="toast-title">
+            ${title}
+        </div>
+
+        <div class="toast-message">
+            ${message}
+        </div>
+    `;
+
+    DOM.toastContainer.appendChild(
+        toast
+    );
+
+    setTimeout(
+        () =>
+            removeToast(
+                toastId
+            ),
+        duration
+    );
+
+    return toastId;
+}
+
+/* ==========================================
+   SPECIALIZED TOASTS
+   ========================================== */
+
+function showXPGainToast(
+    xp
+) {
+
+    showToast(
+        "XP Earned",
+        `+${xp} XP gained`,
+        "reward"
+    );
+}
+
+function showLevelUpToast(
+    level
+) {
+
+    showToast(
+        "Level Up!",
+        `You reached Level ${level}`,
+        "reward",
+        5000
+    );
+}
+
+function showHPLossToast(
+    hp
+) {
+
+    showToast(
+        "HP Lost",
+        `Current HP: ${hp}`,
+        "hp"
+    );
+}
+
+function showHPRestoreToast(
+    hp
+) {
+
+    showToast(
+        "HP Restored",
+        `Current HP: ${hp}`,
+        "success"
+    );
+}
+
+function showAchievementToast(
+    achievement
+) {
+
+    showToast(
+        "Achievement Unlocked",
+        achievement.title,
+        "reward",
+        5000
+    );
+}
+
+/* ==========================================
+   MODAL SYSTEM
+   ========================================== */
+
+function resetHabitForm() {
+
+    if (
+        DOM.habitForm
+    ) {
+
+        DOM.habitForm.reset();
+    }
+
+    modalState.mode =
+        "create";
+
+    modalState.editingHabitId =
+        null;
+}
+
+function openHabitModal() {
+
+    if (
+        !DOM.habitModal
+    ) {
+        return;
+    }
+
+    DOM.habitModal.showModal();
+}
+
+function closeHabitModal() {
+
+    if (
+        !DOM.habitModal
+    ) {
+        return;
+    }
+
+    DOM.habitModal.close();
+
+    resetHabitForm();
+}
+
+function openCreateHabitModal() {
+
+    resetHabitForm();
+
+    modalState.mode =
+        "create";
+
+    if (
+        DOM.modalTitle
+    ) {
+
+        DOM.modalTitle.textContent =
+            "Create New Quest";
+    }
+
+    openHabitModal();
+}
+
+function openEditHabitModal(
+    habitId
+) {
+
+    const habit =
+        findHabitById(
+            habitId
+        );
+
+    if (!habit) {
+
+        throw new Error(
+            "Habit not found."
+        );
+    }
+
+    modalState.mode =
+        "edit";
+
+    modalState.editingHabitId =
+        habitId;
+
+    if (
+        DOM.modalTitle
+    ) {
+
+        DOM.modalTitle.textContent =
+            "Edit Quest";
+    }
+
+    if (
+        DOM.habitNameInput
+    ) {
+
+        DOM.habitNameInput.value =
+            habit.name;
+    }
+
+    if (
+        DOM.habitDifficultyInput
+    ) {
+
+        DOM.habitDifficultyInput.value =
+            habit.difficulty;
+    }
+
+    openHabitModal();
+}
+
+/* ==========================================
+   FORM VALIDATION
+   ========================================== */
+
+function validateHabitForm() {
+
+    const name =
+        DOM.habitNameInput
+            ?.value
+            ?.trim();
+
+    const difficulty =
+        DOM.habitDifficultyInput
+            ?.value;
+
+    if (
+        !validateHabitName(
+            name
+        )
+    ) {
+
+        throw new Error(
+            "Please enter a valid habit name."
+        );
+    }
+
+    if (
+        !validateDifficulty(
+            difficulty
+        )
+    ) {
+
+        throw new Error(
+            "Please select a valid difficulty."
+        );
+    }
+
+    return {
+        name,
+        difficulty
+    };
+}
+
+/* ==========================================
+   FORM SUBMISSION
+   ========================================== */
+
+function submitHabitForm() {
+
+    const formData =
+        validateHabitForm();
+
+    if (
+        modalState.mode ===
+        "create"
+    ) {
+
+        const habit =
+            createHabit(
+                formData.name,
+                formData.difficulty
+            );
+
+        addActivity(
+            "habit",
+            "Quest Created",
+            habit.name
+        );
+
+        showToast(
+            "Quest Created",
+            habit.name,
+            "success"
+        );
+
+    } else {
+
+        updateHabit(
+            modalState
+                .editingHabitId,
+            formData
+        );
+
+        showToast(
+            "Quest Updated",
+            formData.name,
+            "success"
+        );
+    }
+
+    closeHabitModal();
+
+    renderApp();
+}
+
+/* ==========================================
+   MODAL EVENT HELPERS
+   ========================================== */
+
+function handleModalCancel() {
+
+    closeHabitModal();
+}
+
+function handleModalSubmit(
+    event
+) {
+
+    event.preventDefault();
+
+    try {
+
+        submitHabitForm();
+
+    } catch (error) {
+
+        showToast(
+            "Validation Error",
+            error.message,
+            "warning"
+        );
+    }
+}
+
+/* ==========================================
+   UI SYSTEM INITIALIZER
+   ========================================== */
+
+function initializeUISystems() {
+
+    cacheUISystemElements();
+
+    if (
+        DOM.addHabitBtn
+    ) {
+
+        DOM.addHabitBtn
+            .addEventListener(
+                "click",
+                openCreateHabitModal
+            );
+    }
+
+    if (
+        DOM.cancelHabitBtn
+    ) {
+
+        DOM.cancelHabitBtn
+            .addEventListener(
+                "click",
+                handleModalCancel
+            );
+    }
+
+    if (
+        DOM.habitForm
+    ) {
+
+        DOM.habitForm
+            .addEventListener(
+                "submit",
+                handleModalSubmit
+            );
+    }
+}
+
+/* ==========================================
+   PART 6C - INTEGRATION & STARTUP
+   ========================================== */
+
+/* ==========================================
+   HEADER RENDERING
+   ========================================== */
+
+function renderHeaderLevel() {
+
+    const headerLevel =
+        document.getElementById(
+            "header-level-display"
+        );
+
+    if (!headerLevel) {
+        return;
+    }
+
+    headerLevel.textContent =
+        appState.player.level;
+}
+
+/* ==========================================
+   ENHANCED APP RENDER
+   ========================================== */
+
+const originalRenderApp =
+    renderApp;
+
+renderApp = function () {
+
+    originalRenderApp();
+
+    renderHeaderLevel();
+};
+
+/* ==========================================
+   HABIT COMPLETION ORCHESTRATION
+   ========================================== */
+
+function handleHabitToggle(
+    habitId
+) {
+
+    const habit =
+        findHabitById(
+            habitId
+        );
+
+    if (!habit) {
+        return;
+    }
+
+    const today =
+        getTodayDate();
+
+    const wasCompleted =
+        isHabitCompletedOnDate(
+            habit,
+            today
+        );
+
+    toggleHabitCompletion(
+        habitId,
+        today
+    );
+
+    if (!wasCompleted) {
+
+        const result =
+            processHabitCompletionXP(
+                habitId,
+                today
+            );
+
+        logHabitCompletion(
+            habit
+        );
+
+        if (
+            result?.xpResult
+        ) {
+
+            logXPGain(
+                result.xpResult
+                    .xpAwarded
+            );
+
+            showXPGainToast(
+                result.xpResult
+                    .xpAwarded
+            );
+        }
+
+        if (
+            result?.levelResult
+        ) {
+
+            logLevelUp(
+                result.levelResult
+                    .previousLevel,
+                result.levelResult
+                    .newLevel
+            );
+
+            showLevelUpToast(
+                result.levelResult
+                    .newLevel
+            );
+        }
+
+    } else {
+
+        processHabitUncompletionXP(
+            habitId,
+            today
+        );
+    }
+
+    updateCurrentStreak();
+
+    updateLongestStreak();
+
+    checkAchievements();
+
+    renderApp();
+}
+
+/* ==========================================
+   ARCHIVE HANDLER
+   ========================================== */
+
+function handleArchiveHabit(
+    habitId
+) {
+
+    const habit =
+        findHabitById(
+            habitId
+        );
+
+    if (!habit) {
+        return;
+    }
+
+    archiveHabit(
+        habitId
+    );
+
+    addActivity(
+        "habit",
+        "Quest Archived",
+        habit.name
+    );
+
+    showToast(
+        "Quest Archived",
+        habit.name,
+        "success"
+    );
+
+    renderApp();
+}
+
+/* ==========================================
+   DELETE HANDLER
+   ========================================== */
+
+function handleDeleteHabit(
+    habitId
+) {
+
+    const habit =
+        findHabitById(
+            habitId
+        );
+
+    if (!habit) {
+        return;
+    }
+
+    const confirmed =
+        confirm(
+            `Delete "${habit.name}"?`
+        );
+
+    if (!confirmed) {
+        return;
+    }
+
+    deleteHabit(
+        habitId
+    );
+
+    addActivity(
+        "habit",
+        "Quest Deleted",
+        habit.name
+    );
+
+    showToast(
+        "Quest Deleted",
+        habit.name,
+        "warning"
+    );
+
+    renderApp();
+}
+
+/* ==========================================
+   EDIT HANDLER
+   ========================================== */
+
+function handleEditHabit(
+    habitId
+) {
+
+    openEditHabitModal(
+        habitId
+    );
+}
+
+/* ==========================================
+   ACHIEVEMENT DETECTION WRAPPER
+   ========================================== */
+
+function processAchievementChanges() {
+
+    const before =
+        appState.achievements.length;
+
+    checkAchievements();
+
+    const after =
+        appState.achievements.length;
+
+    if (
+        after <= before
+    ) {
+        return;
+    }
+
+    const newestAchievement =
+        appState.achievements[
+        after - 1
+        ];
+
+    showAchievementToast(
+        newestAchievement
+    );
+}
+
+/* ==========================================
+   EVENT DELEGATION
+   ========================================== */
+
+function handleHabitListClick(
+    event
+) {
+
+    const habitId =
+        event.target.dataset
+            .habitId;
+
+    if (!habitId) {
+        return;
+    }
+
+    if (
+        event.target.classList.contains(
+            "habit-checkbox"
+        )
+    ) {
+
+        handleHabitToggle(
+            habitId
+        );
+
+        return;
+    }
+
+    const action =
+        event.target.dataset
+            .action;
+
+    switch (
+    action
+    ) {
+
+        case "edit":
+
+            handleEditHabit(
+                habitId
+            );
+
+            break;
+
+        case "archive":
+
+            handleArchiveHabit(
+                habitId
+            );
+
+            break;
+
+        case "delete":
+
+            handleDeleteHabit(
+                habitId
+            );
+
+            break;
+    }
+}
+
+/* ==========================================
+   EVENT REGISTRATION
+   ========================================== */
+
+function registerEventListeners() {
+
+    if (
+        DOM.habitList
+    ) {
+
+        DOM.habitList
+            .addEventListener(
+                "click",
+                handleHabitListClick
+            );
+    }
+}
+
+/* ==========================================
+   DAILY SYSTEM INTEGRATION
+   ========================================== */
+
+function runIntegratedDailyChecks() {
+
+    const oldHP =
+        appState.player.hp;
+
+    runDailyChecks();
+
+    if (
+        appState.player.hp >
+        oldHP
+    ) {
+
+        logHPRestore(
+            oldHP,
+            appState.player.hp
+        );
+
+        showHPRestoreToast(
+            appState.player.hp
+        );
+    }
+
+    if (
+        appState.player.hp <
+        oldHP
+    ) {
+
+        logHPLoss(
+            oldHP,
+            appState.player.hp
+        );
+
+        showHPLossToast(
+            appState.player.hp
+        );
+    }
+}
+
+/* ==========================================
+   APPLICATION STARTUP
+   ========================================== */
+
+function startApplication() {
+
+    try {
+
+        cacheDOMElements();
+
+        initializeUISystems();
+
+        initializeApp();
+
+        runIntegratedDailyChecks();
+
+        processAchievementChanges();
+
+        renderApp();
+
+        registerEventListeners();
+
+        console.info(
+            "QuestForge started successfully."
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Application startup failed:",
+            error
+        );
+
+        showToast(
+            "Startup Error",
+            "Failed to initialize application.",
+            "warning"
+        );
+    }
+}
+
+/* ==========================================
+   BOOTSTRAP
+   ========================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    startApplication
+);

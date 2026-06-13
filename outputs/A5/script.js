@@ -551,3 +551,264 @@ function validateRegistration(
 
     return createValidationResult(true);
 }
+
+/* ==================================================
+   1. FEEDBACK SYSTEM
+================================================== */
+
+let isSubmissionInProgress = false;
+
+function clearMessages() {
+    if (domElements.successMessage) {
+        domElements.successMessage.textContent = "";
+        domElements.successMessage.style.display = "none";
+    }
+
+    if (domElements.errorMessage) {
+        domElements.errorMessage.textContent = "";
+        domElements.errorMessage.style.display = "none";
+    }
+}
+
+function showSuccessMessage(message) {
+    clearMessages();
+
+    if (!domElements.successMessage) {
+        return;
+    }
+
+    domElements.successMessage.textContent = message;
+    domElements.successMessage.style.display = "block";
+}
+
+function showErrorMessage(message) {
+    clearMessages();
+
+    if (!domElements.errorMessage) {
+        return;
+    }
+
+    domElements.errorMessage.textContent = message;
+    domElements.errorMessage.style.display = "block";
+}
+
+/* ==================================================
+   2. REGISTRATION CREATION
+================================================== */
+
+function generateRegistrationId() {
+    return (
+        "reg_" +
+        Date.now() +
+        "_" +
+        Math.random()
+            .toString(36)
+            .slice(2, 10)
+    );
+}
+
+function generateRegistrationTimestamp() {
+    return new Date().toISOString();
+}
+
+function createRegistration(
+    normalizedData
+) {
+    const selectedEvent =
+        getEventById(
+            normalizedData.eventSelection
+        );
+
+    if (!selectedEvent) {
+        throw new Error(
+            "Selected event configuration could not be found."
+        );
+    }
+
+    return {
+        id: generateRegistrationId(),
+
+        studentName:
+            normalizedData.studentName,
+
+        studentId:
+            normalizedData.studentId,
+
+        collegeEmail:
+            normalizedData.collegeEmail,
+
+        phoneNumber:
+            normalizedData.phoneNumber,
+
+        eventId: selectedEvent.id,
+
+        eventName: selectedEvent.name,
+
+        slot: selectedEvent.slot,
+
+        registeredAt:
+            generateRegistrationTimestamp()
+    };
+}
+
+/* ==================================================
+   3. FORM RESET
+================================================== */
+
+function resetRegistrationForm() {
+    if (
+        domElements.registrationForm
+    ) {
+        domElements.registrationForm.reset();
+    }
+
+    clearAllValidationMessages();
+
+    if (
+        domElements.studentNameInput
+    ) {
+        domElements.studentNameInput.focus();
+    }
+}
+
+/* ==================================================
+   4. SUBMISSION LOCK HELPERS
+================================================== */
+
+function setSubmissionState(
+    isProcessing
+) {
+    isSubmissionInProgress =
+        isProcessing;
+
+    if (
+        domElements.submitRegistrationButton
+    ) {
+        domElements.submitRegistrationButton.disabled =
+            isProcessing;
+    }
+}
+
+/* ==================================================
+   5. REGISTRATION SUBMISSION WORKFLOW
+================================================== */
+
+function collectFormData() {
+    return {
+        studentName:
+            domElements.studentNameInput
+                ?.value || "",
+
+        studentId:
+            domElements.studentIdInput
+                ?.value || "",
+
+        collegeEmail:
+            domElements
+                .collegeEmailInput
+                ?.value || "",
+
+        phoneNumber:
+            domElements
+                .phoneNumberInput
+                ?.value || "",
+
+        eventSelection:
+            domElements
+                .eventSelectionInput
+                ?.value || ""
+    };
+}
+
+function handleRegistrationSubmit(
+    event
+) {
+    event.preventDefault();
+
+    if (
+        isSubmissionInProgress
+    ) {
+        return;
+    }
+
+    setSubmissionState(true);
+
+    try {
+        clearMessages();
+
+        const rawFormData =
+            collectFormData();
+
+        const normalizedData =
+            normalizeRegistrationData(
+                rawFormData
+            );
+
+        const validationResult =
+            validateRegistration(
+                normalizedData
+            );
+
+        if (
+            !validationResult.isValid
+        ) {
+            showErrorMessage(
+                "Please correct the highlighted fields and try again."
+            );
+
+            return;
+        }
+
+        const registration =
+            createRegistration(
+                normalizedData
+            );
+
+        registrations.push(
+            registration
+        );
+
+        const saveSuccessful =
+            saveRegistrations();
+
+        if (
+            !saveSuccessful
+        ) {
+            registrations.pop();
+
+            showErrorMessage(
+                "Unable to save registration data. Please try again."
+            );
+
+            return;
+        }
+
+        showSuccessMessage(
+            "Registration completed successfully."
+        );
+
+        resetRegistrationForm();
+
+        /*
+         * Rendering hooks intentionally deferred
+         * to Part 4.
+         *
+         * Future integration:
+         *
+         * renderDashboard();
+         * renderParticipantTable();
+         * toggleEmptyState();
+         */
+    } catch (error) {
+        console.error(
+            "Registration workflow failed:",
+            error
+        );
+
+        showErrorMessage(
+            "Something went wrong while processing the registration."
+        );
+    } finally {
+        setSubmissionState(false);
+    }
+}

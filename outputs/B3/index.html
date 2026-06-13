@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seat Booking Engine</title>
+    <meta name="description"
+        content="Interactive seat booking engine with transaction integrity, dynamic seat layouts, analytics, and booking history.">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="app-container">
+
+        <!-- Accessibility Live Region -->
+        <div id="announcement-region" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1>Seat Booking Engine</h1>
+                <p>Interactive Booking & Transaction Simulation</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-layout">
+
+            <!-- Booking Section -->
+            <section class="booking-section" aria-labelledby="booking-heading">
+                <h2 id="booking-heading" class="section-title">
+                    Select Your Seats
+                </h2>
+
+                <!-- Screen Indicator -->
+                <div id="screen-indicator" aria-label="Cinema screen">
+                    <span>SCREEN</span>
+                </div>
+
+                <!-- Seat Legend -->
+                <section id="seat-legend" aria-labelledby="legend-heading">
+                    <h3 id="legend-heading">Seat Legend</h3>
+
+                    <div class="legend-items">
+
+                        <div class="legend-item">
+                            <span class="legend-color available" aria-hidden="true"></span>
+                            <span>Available</span>
+                        </div>
+
+                        <div class="legend-item">
+                            <span class="legend-color selected" aria-hidden="true"></span>
+                            <span>Selected</span>
+                        </div>
+
+                        <div class="legend-item">
+                            <span class="legend-color booked" aria-hidden="true"></span>
+                            <span>Booked</span>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- Dynamic Seat Grid -->
+                <section class="seat-layout-section" aria-labelledby="seat-grid-heading">
+                    <h3 id="seat-grid-heading">Seat Layout</h3>
+
+                    <div id="seat-grid" class="seat-grid" role="grid" aria-label="Seat selection grid">
+                        <!-- Seats generated dynamically via JavaScript -->
+                    </div>
+                </section>
+            </section>
+
+            <!-- Summary Panel -->
+            <aside id="summary-panel" class="summary-panel" aria-labelledby="summary-heading">
+                <h2 id="summary-heading">
+                    Booking Summary
+                </h2>
+
+                <section class="summary-section">
+                    <h3>Selected Seats</h3>
+
+                    <div id="selected-seats">
+                        <!-- Dynamic content -->
+                    </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Seat Count</h3>
+
+                    <div id="seat-count">
+                        0
+                    </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Tier Breakdown</h3>
+
+                    <div id="tier-breakdown">
+                        <!-- Dynamic content -->
+                    </div>
+                </section>
+
+                <section class="summary-section total-section">
+                    <h3>Total Price</h3>
+
+                    <div id="total-price">
+                        ₹0
+                    </div>
+                </section>
+
+                <div class="summary-actions">
+
+                    <button id="clear-btn" type="button">
+                        Clear Selection
+                    </button>
+
+                    <button id="confirm-btn" type="button">
+                        Confirm Booking
+                    </button>
+
+                </div>
+            </aside>
+
+        </main>
+
+        <!-- Analytics Dashboard -->
+        <section id="analytics-dashboard" class="analytics-dashboard" aria-labelledby="analytics-heading">
+            <h2 id="analytics-heading">
+                Analytics Dashboard
+            </h2>
+
+            <div class="analytics-grid">
+
+                <article class="analytics-card">
+                    <h3>Available Seats</h3>
+                    <div id="available-count">0</div>
+                </article>
+
+                <article class="analytics-card">
+                    <h3>Booked Seats</h3>
+                    <div id="booked-count">0</div>
+                </article>
+
+                <article class="analytics-card">
+                    <h3>Selected Seats</h3>
+                    <div id="selected-count">0</div>
+                </article>
+
+                <article class="analytics-card">
+                    <h3>Revenue</h3>
+                    <div id="revenue-total">₹0</div>
+                </article>
+
+                <article class="analytics-card">
+                    <h3>Occupancy</h3>
+                    <div id="occupancy-rate">0%</div>
+                </article>
+
+                <article class="analytics-card">
+                    <h3>Booking Count</h3>
+                    <div id="booking-count">0</div>
+                </article>
+
+            </div>
+        </section>
+
+        <!-- Booking History -->
+        <section id="booking-history" class="booking-history" aria-labelledby="history-heading">
+            <h2 id="history-heading">
+                Booking History
+            </h2>
+
+            <div id="history-list">
+                <!-- Dynamic booking records -->
+            </div>
+        </section>
+
+        <!-- Confirmation Modal -->
+        <div id="booking-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title"
+            aria-hidden="true">
+            <div class="modal-content">
+
+                <header class="modal-header">
+                    <h2 id="modal-title">
+                        Confirm Booking
+                    </h2>
+                </header>
+
+                <div class="modal-body">
+
+                    <section>
+                        <h3>Selected Seats</h3>
+
+                        <div id="modal-seats">
+                            <!-- Dynamic content -->
+                        </div>
+                    </section>
+
+                    <section>
+                        <h3>Pricing Summary</h3>
+
+                        <div id="modal-price">
+                            <!-- Dynamic content -->
+                        </div>
+                    </section>
+
+                </div>
+
+                <footer class="modal-footer">
+
+                    <button id="cancel-booking" type="button">
+                        Cancel
+                    </button>
+
+                    <button id="confirm-booking" type="button">
+                        Confirm Booking
+                    </button>
+
+                </footer>
+
+            </div>
+        </div>
+
+        <!-- Toast Notification Container -->
+        <div id="toast-container" aria-live="polite" aria-label="Notifications">
+            <!-- Dynamic toasts -->
+        </div>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>Seat Booking Engine</p>
+        </footer>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>

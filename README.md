@@ -19,7 +19,7 @@ participant : Sameer.
 | A5 | College Fest Event Registration Dashboard | ✅ Completed | outputs/A5 |
 | A3 | Gamified Habit Tracker & Daily Routine Planner | ✅ Completed | outputs/A3 |
 | A7 | Fitness And Health Tracker App  | ✅ Completed | outputs/A7 |
-| B1 | TBD | ⏳ Pending | outputs/B1 |
+| B1 | Real-Time Markdown Editor & Live Previewer | ✅ Completed | outputs/B1 |
 | B2 | TBD | ⏳ Pending | outputs/B2 |
 | B3 | TBD | ⏳ Pending | outputs/B3 |
 | B4 | TBD | ⏳ Pending | outputs/B4 |
@@ -854,3 +854,88 @@ All data is stored locally in the browser using Local Storage. No external datab
 - Persistent health records
 - Beginner-friendly interface
 - Promptathon-ready implementation
+
+----------------------------------------
+
+## B1 - RealTime Markdown Editor & Live Previewer
+
+A secure Markdown editor that provides real-time preview, automatic saving, and HTML export functionality.
+
+---
+
+## Features
+
+- Real-time Markdown preview
+- Split-screen editor and preview
+- Supports:
+  - H1, H2, H3
+  - Bold
+  - Italic
+  - Ordered Lists
+  - Unordered Lists
+  - Paragraphs
+  - Inline Code
+- XSS-safe rendering
+- Auto-save with Local Storage
+- Copy rendered HTML
+- Export as HTML file
+- Toast notifications
+- Responsive design
+
+---
+
+## How to Use
+
+1. Write Markdown in the editor.
+2. View rendered output instantly.
+3. Copy generated HTML using **Copy HTML**.
+4. Download output using **Export HTML**.
+5. Clear content using **New Document**.
+
+---
+
+## Security
+
+All user input is sanitized before rendering.
+
+Protected against:
+
+- Script Injection
+- Malicious HTML
+- XSS Attacks
+
+---
+
+## Technologies
+
+- HTML5
+- CSS3
+- Vanilla JavaScript
+- Local Storage API
+- Clipboard API
+
+---
+
+## Project Structure
+
+```text
+index.html
+style.css
+script.js
+```
+
+---
+
+## Responsive Support
+
+- Desktop
+- Tablet
+- Mobile
+
+---
+
+## Future Improvements
+
+- Extended Markdown Support
+- Theme Toggle
+- Markdown File Import

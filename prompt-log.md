@@ -66,7 +66,7 @@
 **Total Prompts: 23**
 
 
-# A4 – Smart Budget & Pocket Money Manager
+## A4 – Smart Budget & Pocket Money Manager
 
 | # | Chat | Tool | Purpose |
 |---|------|------|---------|
@@ -193,7 +193,7 @@
 **Total Prompts: 39**
 
 
-# Problem A3 (Gamified Habit Tracker & Daily Routine Planner)
+## Problem A3 (Gamified Habit Tracker & Daily Routine Planner)
 
 | # | Chat | Tool | Purpose |
 |---|------|------|---------|
@@ -291,3 +291,42 @@
 | 33 | Main | ChatGPT | Final Promptathon readiness audit, bug review, UX validation, and submission preparation |
 
 **Total Prompts: 33**
+
+
+
+## B1 - Real-Time Markdown Editor & Live Previewer
+
+| # | Chat | Tool | Purpose |
+|---|------|------|---------|
+| 1 | Main | ChatGPT | Analyze problem statement, Promptathon expectations, real-world usability, security requirements, and judging criteria |
+| 2 | Main | ChatGPT | Define complete requirements, edge cases, user flows, functional scope, and non-functional requirements |
+| 3 | Main | ChatGPT | Design overall architecture, module boundaries, frontend structure, data flow, and security strategy |
+| 4 | Main | ChatGPT | Lock requirements, architecture, validation rules, XSS prevention strategy, and project structure |
+| 5 | Main | ChatGPT | Create master code-generation prompt for the complete application |
+| 6 | Main | ChatGPT | Audit architecture and prepare HTML structure generation plan |
+| 7 | Main | ChatGPT | Generate HTML generation prompt and review structure requirements |
+| 8 | Main | ChatGPT | Generate complete index.html and perform architecture audit |
+| 9 | Main | ChatGPT | Design CSS architecture, design system, responsive strategy, and UI/UX styling plan |
+| 10 | Main | ChatGPT | Generate modular CSS prompt set (Foundation, Layout, Editor, Toolbar, Toast, Responsive) |
+| 11 | Main | ChatGPT | Implement CSS Foundation Layer (reset, variables, global styles) |
+| 12 | Main | ChatGPT | Implement CSS Layout Layer (header, workspace, panels) |
+| 13 | Main | ChatGPT | Review theme direction and adopt GitHub-inspired dark design strategy |
+| 14 | Main | ChatGPT | Implement CSS Editor & Preview Layer with markdown typography styling |
+| 15 | Main | ChatGPT | Implement CSS Toolbar & Button Layer |
+| 16 | Main | ChatGPT | Implement CSS Toast Notification & Animation Layer |
+| 17 | Main | ChatGPT | Implement CSS Responsive & Accessibility Layer |
+| 18 | Main | ChatGPT | Perform full HTML + CSS audit and lock frontend architecture |
+| 19 | Main | ChatGPT | Design JavaScript architecture, module structure, security flow, and data pipeline |
+| 20 | Main | ChatGPT | Generate modular JavaScript prompt set |
+| 21 | Main | ChatGPT | Implement JS Core Setup, Selectors, Constants, and Storage Module |
+| 22 | Main | ChatGPT | Implement JS Sanitizer Module for XSS prevention |
+| 23 | Main | ChatGPT | Implement JS Markdown Parser Module |
+| 24 | Main | ChatGPT | Implement JS Preview Renderer and Statistics System |
+| 25 | Main | ChatGPT | Implement JS Toast, Clipboard, Export, and Reset Systems |
+| 26 | Main | ChatGPT | Implement JS Event Registration, Initialization, and Application Controller |
+| 27 | Main | ChatGPT | Conduct full-project audit, functional testing, security review, and Promptathon evaluation |
+| 28 | Main | ChatGPT | Identify parser duplication issue and heading parsing bug |
+| 29 | Main | ChatGPT | Generate exact fixes for parser duplication and H1/H2/H3 parsing logic |
+| 30 | Main | ChatGPT | Final submission-readiness review and stability verification |
+
+**Total Prompts: 30**

@@ -660,3 +660,377 @@ function getHabitStatistics() {
         archived
     };
 }
+
+/* ==========================================
+   PART 3 - XP & LEVEL ENGINE
+   ========================================== */
+
+/* ==========================================
+   XP HELPERS
+   ========================================== */
+
+function getHabitXP(habit) {
+
+    if (!habit) {
+        return 0;
+    }
+
+    return habit.xpReward ||
+        XP_REWARDS[habit.difficulty] ||
+        0;
+}
+
+function getCompletionEntry(
+    habit,
+    date
+) {
+
+    if (!habit?.completionHistory) {
+        return null;
+    }
+
+    return (
+        habit.completionHistory[date] ||
+        null
+    );
+}
+
+/* ==========================================
+   XP AWARDING
+   ========================================== */
+
+function awardXP(
+    habitId,
+    date = getTodayDate()
+) {
+
+    const habit =
+        findHabitById(habitId);
+
+    if (!habit) {
+        throw new Error(
+            "Habit not found."
+        );
+    }
+
+    const completion =
+        getCompletionEntry(
+            habit,
+            date
+        );
+
+    if (
+        !completion ||
+        !completion.completed
+    ) {
+        return false;
+    }
+
+    if (completion.xpAwarded) {
+        return false;
+    }
+
+    const xp =
+        getHabitXP(habit);
+
+    appState.player.totalXP += xp;
+
+    completion.xpAwarded = true;
+    completion.xpAwardedAt =
+        new Date().toISOString();
+
+    StorageService.saveState(appState);
+
+    return {
+        success: true,
+        xpAwarded: xp,
+        totalXP:
+            appState.player.totalXP
+    };
+}
+
+function removeXP(
+    habitId,
+    date = getTodayDate()
+) {
+
+    const habit =
+        findHabitById(habitId);
+
+    if (!habit) {
+        throw new Error(
+            "Habit not found."
+        );
+    }
+
+    const completion =
+        getCompletionEntry(
+            habit,
+            date
+        );
+
+    if (
+        !completion ||
+        !completion.xpAwarded
+    ) {
+        return false;
+    }
+
+    const xp =
+        getHabitXP(habit);
+
+    appState.player.totalXP =
+        Math.max(
+            0,
+            appState.player.totalXP - xp
+        );
+
+    completion.xpAwarded = false;
+    completion.xpRemovedAt =
+        new Date().toISOString();
+
+    StorageService.saveState(appState);
+
+    return {
+        success: true,
+        xpRemoved: xp,
+        totalXP:
+            appState.player.totalXP
+    };
+}
+
+/* ==========================================
+   LEVEL CALCULATIONS
+   ========================================== */
+
+function calculateLevel(
+    totalXP =
+        appState.player.totalXP
+) {
+
+    return (
+        Math.floor(
+            totalXP /
+            LEVEL_CONFIG.XP_PER_LEVEL
+        ) + 1
+    );
+}
+
+function getCurrentLevelXP() {
+
+    const level =
+        calculateLevel();
+
+    return (
+        (level - 1) *
+        LEVEL_CONFIG.XP_PER_LEVEL
+    );
+}
+
+function getNextLevelXP() {
+
+    const level =
+        calculateLevel();
+
+    return (
+        level *
+        LEVEL_CONFIG.XP_PER_LEVEL
+    );
+}
+
+function getXPIntoCurrentLevel() {
+
+    return (
+        appState.player.totalXP -
+        getCurrentLevelXP()
+    );
+}
+
+function getXPNeededForNextLevel() {
+
+    return (
+        getNextLevelXP() -
+        appState.player.totalXP
+    );
+}
+
+/* ==========================================
+   LEVEL PROGRESS
+   ========================================== */
+
+function getLevelProgressPercent() {
+
+    const currentLevelXP =
+        getCurrentLevelXP();
+
+    const nextLevelXP =
+        getNextLevelXP();
+
+    const xpRange =
+        nextLevelXP -
+        currentLevelXP;
+
+    const progressXP =
+        appState.player.totalXP -
+        currentLevelXP;
+
+    if (xpRange <= 0) {
+        return 100;
+    }
+
+    return Math.min(
+        100,
+        Math.max(
+            0,
+            Math.round(
+                (
+                    progressXP /
+                    xpRange
+                ) * 100
+            )
+        )
+    );
+}
+
+function getLevelProgressData() {
+
+    return {
+        currentLevel:
+            calculateLevel(),
+
+        totalXP:
+            appState.player.totalXP,
+
+        currentLevelXP:
+            getCurrentLevelXP(),
+
+        nextLevelXP:
+            getNextLevelXP(),
+
+        xpIntoCurrentLevel:
+            getXPIntoCurrentLevel(),
+
+        xpNeeded:
+            getXPNeededForNextLevel(),
+
+        progressPercent:
+            getLevelProgressPercent()
+    };
+}
+
+/* ==========================================
+   LEVEL-UP DETECTION
+   ========================================== */
+
+function detectLevelUp() {
+
+    const previousLevel =
+        appState.player.level;
+
+    const calculatedLevel =
+        calculateLevel();
+
+    if (
+        calculatedLevel <=
+        previousLevel
+    ) {
+        return null;
+    }
+
+    appState.player.level =
+        calculatedLevel;
+
+    StorageService.saveState(
+        appState
+    );
+
+    return {
+        leveledUp: true,
+
+        previousLevel,
+
+        newLevel:
+            calculatedLevel
+    };
+}
+
+function syncPlayerLevel() {
+
+    const calculatedLevel =
+        calculateLevel();
+
+    appState.player.level =
+        calculatedLevel;
+
+    StorageService.saveState(
+        appState
+    );
+
+    return calculatedLevel;
+}
+
+/* ==========================================
+   XP PROCESSING PIPELINE
+   ========================================== */
+
+function processHabitCompletionXP(
+    habitId,
+    date = getTodayDate()
+) {
+
+    const xpResult =
+        awardXP(
+            habitId,
+            date
+        );
+
+    if (!xpResult) {
+        return null;
+    }
+
+    const levelResult =
+        detectLevelUp();
+
+    return {
+        xpResult,
+        levelResult
+    };
+}
+
+function processHabitUncompletionXP(
+    habitId,
+    date = getTodayDate()
+) {
+
+    const xpResult =
+        removeXP(
+            habitId,
+            date
+        );
+
+    syncPlayerLevel();
+
+    return xpResult;
+}
+
+/* ==========================================
+   XP QUERY HELPERS
+   ========================================== */
+
+function getTotalXP() {
+    return appState.player.totalXP;
+}
+
+function getCurrentLevel() {
+    return appState.player.level;
+}
+
+function hasReachedXP(
+    targetXP
+) {
+
+    return (
+        appState.player.totalXP >=
+        targetXP
+    );
+}

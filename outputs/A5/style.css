@@ -478,3 +478,210 @@ a {
 #art-exhibition-count {
     color: #c026d3;
 }
+
+/* ==================================================
+   10. PARTICIPANT TABLE
+================================================== */
+
+.participants-table-container {
+    overflow-x: auto;
+    overflow-y: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    max-height: 650px;
+}
+
+.participants-table {
+    width: 100%;
+    min-width: 850px;
+    border-collapse: collapse;
+}
+
+.participants-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: linear-gradient(135deg,
+            rgba(124, 58, 237, 0.08),
+            rgba(236, 72, 153, 0.06));
+    color: var(--color-text-primary);
+    font-weight: 700;
+    text-align: left;
+    white-space: nowrap;
+    backdrop-filter: blur(8px);
+}
+
+.participants-table th,
+.participants-table td {
+    padding: 1rem 1.1rem;
+}
+
+.participants-table tbody tr {
+    border-bottom: 1px solid rgba(233, 213, 255, 0.8);
+    transition:
+        background-color var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.participants-table tbody tr:hover {
+    background: rgba(124, 58, 237, 0.04);
+}
+
+.participants-table tbody td {
+    color: var(--color-text-secondary);
+}
+
+.participants-table tbody td:first-child {
+    color: var(--color-text-primary);
+    font-weight: 600;
+}
+
+/* ==================================================
+   11. EMPTY STATE
+================================================== */
+
+.empty-state-message {
+    display: none;
+    text-align: center;
+    padding: var(--space-2xl);
+    margin-bottom: var(--space-lg);
+
+    background:
+        linear-gradient(135deg,
+            rgba(124, 58, 237, 0.06),
+            rgba(236, 72, 153, 0.04));
+
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius-lg);
+
+    color: var(--color-text-secondary);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* ==================================================
+   12. FOOTER
+================================================== */
+
+.site-footer {
+    margin-top: var(--space-2xl);
+    padding: var(--space-xl);
+    text-align: center;
+    border-top: 1px solid var(--color-border);
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+}
+
+.site-footer p {
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+}
+
+/* ==================================================
+   13. RESPONSIVE DESIGN
+================================================== */
+
+@media (max-width: 1200px) {
+    .dashboard-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .registration-section,
+    .statistics-section,
+    .participants-section {
+        grid-column: 1;
+    }
+
+    .registration-panel {
+        position: static;
+    }
+
+    .statistics-grid {
+        grid-template-columns: repeat(auto-fit,
+                minmax(220px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-layout {
+        padding: var(--space-lg);
+        gap: var(--space-lg);
+    }
+
+    .registration-panel,
+    .statistics-panel,
+    .participants-panel {
+        padding: var(--space-lg);
+    }
+
+    .statistics-grid {
+        grid-template-columns: repeat(auto-fit,
+                minmax(170px, 1fr));
+    }
+
+    .participants-table th,
+    .participants-table td {
+        padding: 0.85rem;
+    }
+
+    .site-header {
+        padding: var(--space-2xl) var(--space-md);
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-layout {
+        padding: var(--space-md);
+    }
+
+    .registration-panel,
+    .statistics-panel,
+    .participants-panel {
+        padding: var(--space-md);
+    }
+
+    #application-title {
+        font-size: 1.9rem;
+    }
+
+    #application-description {
+        font-size: 0.95rem;
+    }
+
+    .statistics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .participants-table-container {
+        border-radius: var(--radius-md);
+    }
+
+    .empty-state-message {
+        padding: var(--space-lg);
+    }
+}
+
+/* ==================================================
+   14. ACCESSIBILITY ENHANCEMENTS
+================================================== */
+
+:focus-visible {
+    outline: 3px solid rgba(124, 58, 237, 0.35);
+    outline-offset: 3px;
+}
+
+::selection {
+    background: rgba(124, 58, 237, 0.18);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+}

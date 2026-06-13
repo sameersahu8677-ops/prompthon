@@ -762,6 +762,18 @@ button:active,
    Notifications
 =================================== */
 
+.notification-success {
+    color: var(--color-success);
+}
+
+.notification-error {
+    color: var(--color-error);
+}
+
+.notification-info {
+    color: var(--color-accent);
+}
+
 .notification {
     min-height: 1.5rem;
 

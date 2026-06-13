@@ -135,3 +135,44 @@ function resetCaptcha() {
 
     generateCaptcha();
 }
+
+/* ==========================================
+   NOTIFICATION SYSTEM
+========================================== */
+
+const formMessage = document.getElementById("form-message");
+
+function clearNotification() {
+    if (!formMessage) return;
+
+    formMessage.textContent = "";
+    formMessage.className = "notification";
+}
+
+function showNotification(message, type = "info") {
+    if (!formMessage) return;
+
+    clearNotification();
+
+    formMessage.textContent = message;
+
+    formMessage.classList.add(
+        type === "success"
+            ? "notification-success"
+            : type === "error"
+                ? "notification-error"
+                : "notification-info"
+    );
+}
+
+function showSuccess(message) {
+    showNotification(message, "success");
+}
+
+function showError(message) {
+    showNotification(message, "error");
+}
+
+function showInfo(message) {
+    showNotification(message, "info");
+}

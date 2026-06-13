@@ -1323,7 +1323,10 @@ function processHPRecovery() {
     appState.player
         .lastHPRewardStreakMilestone =
         milestone;
-
+        
+    StorageService.saveState(
+        appState
+    );
     return {
         restored: true,
         milestone,
@@ -2484,11 +2487,11 @@ function renderActivityFeed() {
     ) {
 
         DOM.activityFeed.innerHTML = `
-            <div class="activity-empty">
-                No activity yet.Your adventure has just begun.
-Complete a quest to generate activity.v>
-        `;
-
+    <div class="activity-empty">
+        Your adventure has just begun.
+        Complete a quest to generate activity.
+    </div>
+`;
         return;
     }
 

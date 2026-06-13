@@ -715,3 +715,188 @@ textarea {
         transform: translateY(12px);
     }
 }
+
+/* =========================================================
+   29. TABLET RESPONSIVE LAYER
+========================================================= */
+
+@media (max-width: 1024px) {
+
+    .workspace {
+        grid-template-columns: 0.95fr 1.05fr;
+        gap: 1rem;
+    }
+
+    .editor-panel,
+    .preview-panel {
+        min-height: 600px;
+        padding: 1rem;
+    }
+
+    .app-header h1 {
+        font-size: 1.8rem;
+    }
+
+    #markdown-editor,
+    #preview-content {
+        min-height: 400px;
+    }
+
+    .toolbar {
+        gap: 0.85rem;
+    }
+}
+
+
+/* =========================================================
+   30. MOBILE RESPONSIVE LAYER
+========================================================= */
+
+@media (max-width: 768px) {
+
+    body {
+        padding: 1rem;
+    }
+
+    .workspace {
+        grid-template-columns: 1fr;
+    }
+
+    .editor-panel,
+    .preview-panel {
+        min-height: auto;
+    }
+
+    #markdown-editor {
+        min-height: 320px;
+    }
+
+    #preview-content {
+        min-height: 320px;
+    }
+
+    .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .stats-group,
+    .actions-group {
+        width: 100%;
+    }
+
+    .stats-group {
+        justify-content: center;
+        text-align: center;
+    }
+
+    .actions-group {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    #copy-btn,
+    #reset-btn,
+    #export-btn {
+        width: 100%;
+    }
+
+    .app-header {
+        padding: 1.25rem;
+    }
+
+    .app-header h1 {
+        font-size: 1.6rem;
+    }
+
+    .app-header p {
+        font-size: 0.95rem;
+    }
+
+    .markdown-help {
+        font-size: 0.9rem;
+    }
+
+    #toast-container {
+        left: 1rem;
+        right: 1rem;
+        bottom: 1rem;
+
+        max-width: none;
+    }
+
+    .toast {
+        min-width: auto;
+        max-width: none;
+    }
+}
+
+
+/* =========================================================
+   31. SMALL MOBILE OPTIMIZATION
+========================================================= */
+
+@media (max-width: 480px) {
+
+    body {
+        padding: 0.75rem;
+    }
+
+    .app-header h1 {
+        font-size: 1.4rem;
+    }
+
+    .panel-header h2 {
+        font-size: 1.1rem;
+    }
+
+    #markdown-editor,
+    #preview-content {
+        padding: 0.9rem;
+        font-size: 0.92rem;
+    }
+
+    .stats-group {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+
+/* =========================================================
+   32. ACCESSIBILITY - FOCUS STATES
+========================================================= */
+
+#markdown-editor:focus-visible {
+    outline: none;
+
+    box-shadow:
+        0 0 0 3px rgba(88, 166, 255, 0.35);
+}
+
+#copy-btn:focus-visible,
+#reset-btn:focus-visible,
+#export-btn:focus-visible {
+    outline: none;
+
+    box-shadow:
+        0 0 0 3px rgba(88, 166, 255, 0.35);
+}
+
+
+/* =========================================================
+   33. ACCESSIBILITY - REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

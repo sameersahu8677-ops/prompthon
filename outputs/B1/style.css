@@ -237,3 +237,202 @@ textarea {
     margin-bottom: 1rem;
 }
 
+/* =========================================================
+   9. MARKDOWN CHEAT SHEET
+========================================================= */
+
+.markdown-help {
+    background: #111827;
+    border: 1px solid #374151;
+    border-radius: var(--radius);
+
+    padding: 1rem;
+
+    color: #e5e7eb;
+}
+
+.markdown-help h3 {
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+    color: #f9fafb;
+}
+
+.markdown-help ul {
+    list-style: none;
+    padding-left: 0;
+
+    display: grid;
+    gap: 0.5rem;
+}
+
+.markdown-help li {
+    font-size: 0.9rem;
+    color: #d1d5db;
+}
+
+.markdown-help code {
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 6px;
+
+    padding: 0.15rem 0.4rem;
+
+    color: #93c5fd;
+}
+
+
+/* =========================================================
+   10. EDITOR LABEL
+========================================================= */
+
+.editor-label {
+    display: inline-block;
+
+    font-size: 0.95rem;
+    font-weight: 600;
+
+    color: var(--muted-text);
+}
+
+
+/* =========================================================
+   11. MARKDOWN EDITOR
+========================================================= */
+
+#markdown-editor {
+    flex: 1;
+
+    width: 100%;
+    min-height: 450px;
+
+    resize: none;
+
+    padding: 1rem 1.2rem;
+
+    border: 1px solid #374151;
+    border-radius: var(--radius);
+
+    background: #0d1117;
+    color: #e6edf3;
+
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    line-height: 1.7;
+
+    overflow-y: auto;
+    caret-color: #58a6ff;
+}
+
+#markdown-editor::placeholder {
+    color: #8b949e;
+}
+
+#markdown-editor:focus {
+    border-color: #58a6ff;
+    box-shadow:
+        0 0 0 3px rgba(88, 166, 255, 0.20);
+}
+
+
+/* =========================================================
+   12. LIVE PREVIEW CONTAINER
+========================================================= */
+
+#preview-content {
+    flex: 1;
+
+    min-height: 450px;
+
+    padding: 1.25rem;
+
+    border: 1px solid #374151;
+    border-radius: var(--radius);
+
+    background: #0d1117;
+    color: #e6edf3;
+
+    overflow-y: auto;
+
+    line-height: 1.8;
+}
+
+
+/* =========================================================
+   13. MARKDOWN TYPOGRAPHY
+========================================================= */
+
+#preview-content h1 {
+    font-size: 2rem;
+    font-weight: 700;
+
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+
+    border-bottom: 1px solid #30363d;
+
+    color: #f0f6fc;
+}
+
+#preview-content h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+
+    margin-top: 1.5rem;
+    margin-bottom: 0.85rem;
+
+    border-bottom: 1px solid #30363d;
+    padding-bottom: 0.4rem;
+
+    color: #f0f6fc;
+}
+
+#preview-content h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+
+    margin-top: 1.2rem;
+    margin-bottom: 0.75rem;
+
+    color: #f0f6fc;
+}
+
+#preview-content p {
+    margin-bottom: 1rem;
+    color: #e6edf3;
+}
+
+#preview-content ul,
+#preview-content ol {
+    margin-bottom: 1rem;
+    padding-left: 1.8rem;
+}
+
+#preview-content li {
+    margin-bottom: 0.45rem;
+}
+
+#preview-content code {
+    background: #161b22;
+
+    border: 1px solid #30363d;
+    border-radius: 6px;
+
+    padding: 0.15rem 0.4rem;
+
+    color: #79c0ff;
+
+    font-size: 0.92em;
+    font-family: var(--font-mono);
+}
+
+
+/* =========================================================
+   14. EMPTY PREVIEW STATE SUPPORT
+========================================================= */
+
+#preview-content:empty::before {
+    content: "Start typing Markdown to see live preview...";
+
+    color: #8b949e;
+    font-style: italic;
+}

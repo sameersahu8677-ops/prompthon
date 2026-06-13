@@ -257,16 +257,7 @@ function isValidTier(tier) {
 }
 
 
-/* =========================================================
-   PAGE LOAD ENTRY POINT
-   ========================================================= */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-        initializeApp();
-    }
-);
 
 /* =========================================================
    PART 2 — SEAT ENGINE & UI RENDERING
@@ -692,7 +683,7 @@ function selectSeat(seatId) {
 
     syncTransactionState();
 
-    refreshSeatUI();
+    refreshBookingUI();
 
     return true;
 }
@@ -714,16 +705,13 @@ function unselectSeat(seatId) {
         return false;
     }
 
-    seat.state = "available";
+    seat.state = "selected";
 
-    appState.selectedSeats =
-        appState.selectedSeats.filter(
-            id => id !== seatId
-        );
+    appState.selectedSeats.push(seatId);
 
     syncTransactionState();
 
-    refreshSeatUI();
+    refreshBookingUI();
 
     return true;
 }
@@ -763,7 +751,7 @@ function clearSelection() {
 
     syncTransactionState();
 
-    refreshSeatUI();
+    refreshBookingUI();
 
     if (typeof showToast === "function") {
         showToast(
@@ -883,13 +871,11 @@ function commitTransaction() {
         }
     );
 
-    appState.selectedSeats = [];
+    appState.selectedSeats.push(seatId);
 
-    transactionState.active = false;
+    syncTransactionState();
 
-    transactionState.seats = [];
-
-    refreshSeatUI();
+    refreshBookingUI();
 
     return true;
 }
@@ -927,7 +913,7 @@ function rollbackTransaction() {
 
     transactionState.seats = [];
 
-    refreshSeatUI();
+    refreshBookingUI();
 
     return true;
 }
@@ -1027,24 +1013,7 @@ function hasActiveTransaction() {
     );
 }
 
-/* =========================================================
-   EVENT DELEGATION BINDING
-   ========================================================= */
 
-/**
- * Must be called once during app startup.
- */
-function bindSeatEvents() {
-
-    if (!DOM.seatGrid) {
-        return;
-    }
-
-    DOM.seatGrid.addEventListener(
-        "click",
-        handleSeatClick
-    );
-}
 
 /* =========================================================
    PART 4 — PRICING ENGINE, SUMMARY PANEL & MODAL MANAGER
@@ -1269,49 +1238,44 @@ function populateModal() {
     const pricing =
         getPricingSummary();
 
+    const breakdown =
+        pricing.breakdown;
+
     /* Seats */
 
-    DOM.modalSeats.innerHTML =
-        selectedSeats.length > 0
-            ? `
-                <div class="modal-seat-list">
-                    ${selectedSeats
-                .map(
-                    seat => `
-                                <div>
-                                    ${seat.id}
-                                    (${seat.tier})
-                                </div>
-                            `
-                )
-                .join("")}
-                </div>
-            `
-            : `
-                <p>
-                    No seats selected
-                </p>
-            `;
-
-    /* Pricing */
-
     DOM.modalPrice.innerHTML = `
-        <div>
-            Seats:
-            <strong>
-                ${pricing.count}
-            </strong>
-        </div>
 
-        <div>
-            Total:
-            <strong>
-                ${formatCurrency(
+    <div>
+        Seats:
+        <strong>
+            ${pricing.count}
+        </strong>
+    </div>
+
+    <div>
+        VIP:
+        ${breakdown.VIP.count}
+    </div>
+
+    <div>
+        CLUB:
+        ${breakdown.CLUB.count}
+    </div>
+
+    <div>
+        FRONT:
+        ${breakdown.FRONT.count}
+    </div>
+
+    <div>
+        Total:
+        <strong>
+            ${formatCurrency(
         pricing.total
     )}
-            </strong>
-        </div>
-    `;
+        </strong>
+    </div>
+`;
 }
 
 /**
@@ -1378,7 +1342,7 @@ function closeModal() {
  */
 function refreshBookingUI() {
 
-    refreshSeatUI();
+    refreshBookingUI();
 
     renderSummary();
 }
@@ -1662,31 +1626,23 @@ function resetStorage() {
  *
  * @returns {Object}
  */
-function createBookingRecord() {
-
-    const summary =
-        getPricingSummary();
-
-    const selectedSeats =
-        getSelectedSeatObjects();
+function createBookingRecord(snapshot) {
 
     return {
-        bookingId:
-            generateBookingId(),
+        bookingId: generateBookingId(),
 
-        seats:
-            selectedSeats.map(
-                seat => seat.id
-            ),
+        seats: snapshot.seats.map(
+            seat => seat.id
+        ),
 
         seatCount:
-            summary.count,
+            snapshot.summary.count,
 
         breakdown:
-            summary.breakdown,
+            snapshot.summary.breakdown,
 
         amount:
-            summary.total,
+            snapshot.summary.total,
 
         timestamp:
             Date.now()
@@ -1921,10 +1877,10 @@ function updateOccupancyBar(
  * Storage
  * Analytics
  */
-function finalizeBooking() {
+function finalizeBooking(snapshot) {
 
     const booking =
-        createBookingRecord();
+        createBookingRecord(snapshot);
 
     addBookingRecord(
         booking
@@ -2191,6 +2147,12 @@ function handleConfirmBooking() {
         return;
     }
 
+    const bookingSnapshot = {
+        seats: getSelectedSeatObjects(),
+
+        summary: getPricingSummary()
+    };
+
     const committed =
         commitTransaction();
 
@@ -2207,8 +2169,9 @@ function handleConfirmBooking() {
     }
 
     const booking =
-        finalizeBooking();
-
+        finalizeBooking(
+            bookingSnapshot
+        );
     closeModal();
 
     refreshBookingUI();

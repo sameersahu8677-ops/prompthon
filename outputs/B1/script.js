@@ -824,3 +824,136 @@ function resetDocument() {
         );
     }
 }
+
+/* =========================================================
+   12. APPLICATION CONTROLLER
+========================================================= */
+
+/**
+ * Updates save status text.
+ *
+ * @param {string} status
+ */
+function updateSaveStatus(status) {
+    saveStatus.textContent = status;
+}
+
+
+/**
+ * Handles all editor updates.
+ *
+ * Flow:
+ * Save Content
+ * ↓
+ * Render Preview
+ * ↓
+ * Update Statistics
+ * ↓
+ * Update Save Status
+ */
+function handleEditorUpdate() {
+    const content = markdownEditor.value;
+
+    saveContent(content);
+
+    renderPreview();
+
+    updateStatistics(content);
+
+    updateSaveStatus(
+        STATUS.SAVED
+    );
+}
+
+
+/* =========================================================
+   13. EVENT REGISTRATION
+========================================================= */
+
+/**
+ * Registers all application events.
+ */
+function registerEventListeners() {
+
+    /* Live Preview */
+    markdownEditor.addEventListener(
+        "input",
+        handleEditorUpdate
+    );
+
+    /* Copy HTML */
+    copyButton.addEventListener(
+        "click",
+        copyRenderedHTML
+    );
+
+    /* Export HTML */
+    exportButton.addEventListener(
+        "click",
+        exportHTML
+    );
+
+    /* Reset Document */
+    resetButton.addEventListener(
+        "click",
+        resetDocument
+    );
+}
+
+
+/* =========================================================
+   14. APPLICATION INITIALIZATION
+========================================================= */
+
+/**
+ * Initializes application.
+ */
+function initializeApp() {
+    try {
+
+        const storedContent =
+            loadContent();
+
+        if (
+            storedContent &&
+            storedContent.trim() !== ""
+        ) {
+            markdownEditor.value =
+                storedContent;
+        }
+
+        renderPreview();
+
+        updateStatistics(
+            markdownEditor.value
+        );
+
+        updateSaveStatus(
+            STATUS.READY
+        );
+
+        registerEventListeners();
+
+    } catch (error) {
+
+        console.error(
+            "[App] Initialization failed:",
+            error
+        );
+
+        showToast(
+            "Application failed to initialize.",
+            "error"
+        );
+    }
+}
+
+
+/* =========================================================
+   15. APPLICATION STARTUP
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    initializeApp
+);

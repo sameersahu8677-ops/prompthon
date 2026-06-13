@@ -826,3 +826,467 @@ Expected JS Structure Example
         width: 100%;
     }
 }
+
+/* =========================================================
+   PART 3 — SUMMARY PANEL, ANALYTICS & BOOKING HISTORY
+   ========================================================= */
+
+/* =========================================================
+   SUMMARY PANEL
+   ========================================================= */
+
+.summary-panel {
+    position: sticky;
+    top: 20px;
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+
+    height: fit-content;
+}
+
+.summary-panel h2 {
+    color: var(--gold-primary);
+}
+
+/* =========================================================
+   SUMMARY SECTIONS
+   ========================================================= */
+
+.summary-section {
+    background:
+        linear-gradient(180deg,
+            rgba(255, 255, 255, 0.03),
+            rgba(255, 255, 255, 0.01));
+
+    border: 1px solid var(--border-color);
+
+    border-radius: var(--radius-md);
+
+    padding: var(--space-lg);
+}
+
+.summary-section h3 {
+    margin-bottom: 0.75rem;
+
+    color: var(--text-secondary);
+
+    font-size: 0.95rem;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.06em;
+}
+
+/* =========================================================
+   SELECTED SEATS
+   ========================================================= */
+
+#selected-seats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    min-height: 40px;
+}
+
+.selected-seat-chip {
+    padding: 0.45rem 0.8rem;
+
+    border-radius: 999px;
+
+    background:
+        rgba(212, 175, 55, 0.12);
+
+    border: 1px solid rgba(212, 175, 55, 0.25);
+
+    color: var(--gold-primary);
+
+    font-weight: 600;
+}
+
+/* =========================================================
+   SUMMARY VALUES
+   ========================================================= */
+
+#seat-count,
+#tier-breakdown {
+    color: var(--text-primary);
+}
+
+#tier-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+/* =========================================================
+   TOTAL PRICE
+   ========================================================= */
+
+.total-section {
+    border-color:
+        rgba(212, 175, 55, 0.25);
+
+    background:
+        linear-gradient(180deg,
+            rgba(212, 175, 55, 0.08),
+            rgba(212, 175, 55, 0.02));
+}
+
+#total-price {
+    color: var(--gold-primary);
+
+    font-size: 2rem;
+
+    font-weight: 800;
+
+    letter-spacing: 0.02em;
+
+    text-shadow:
+        0 0 15px rgba(212, 175, 55, 0.15);
+}
+
+/* =========================================================
+   SUMMARY ACTIONS
+   ========================================================= */
+
+.summary-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+#clear-btn,
+#confirm-btn {
+    padding: 0.95rem 1rem;
+
+    border-radius: var(--radius-md);
+
+    font-weight: 700;
+
+    transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast),
+        opacity var(--transition-fast);
+}
+
+/* Clear Button */
+
+#clear-btn {
+    background: transparent;
+
+    border: 1px solid var(--border-light);
+
+    color: var(--text-secondary);
+}
+
+#clear-btn:hover {
+    background:
+        rgba(255, 255, 255, 0.04);
+}
+
+/* Confirm Button */
+
+#confirm-btn {
+    background:
+        linear-gradient(135deg,
+            var(--gold-primary),
+            var(--gold-secondary));
+
+    color: #111111;
+
+    box-shadow:
+        0 10px 25px rgba(212, 175, 55, 0.22);
+}
+
+#confirm-btn:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 14px 30px rgba(212, 175, 55, 0.32);
+}
+
+/* =========================================================
+   ANALYTICS DASHBOARD
+   ========================================================= */
+
+.analytics-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.analytics-dashboard h2 {
+    color: var(--gold-primary);
+}
+
+.analytics-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(180px, 1fr));
+
+    gap: var(--space-lg);
+}
+
+/* =========================================================
+   ANALYTICS CARDS
+   ========================================================= */
+
+.analytics-card {
+    position: relative;
+
+    background:
+        linear-gradient(180deg,
+            var(--bg-elevated),
+            var(--bg-secondary));
+
+    border: 1px solid var(--border-color);
+
+    border-radius: var(--radius-md);
+
+    padding: var(--space-lg);
+
+    overflow: hidden;
+
+    transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.analytics-card:hover {
+    transform: translateY(-4px);
+
+    box-shadow: var(--shadow-md);
+}
+
+.analytics-card h3 {
+    color: var(--text-secondary);
+
+    margin-bottom: 0.75rem;
+
+    font-size: 0.9rem;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.05em;
+}
+
+.analytics-card div {
+    font-size: 1.8rem;
+
+    font-weight: 800;
+
+    color: var(--text-primary);
+}
+
+/* Accent Bars */
+
+.analytics-card::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 4px;
+
+    background: var(--gold-primary);
+}
+
+/* Metric-specific accents */
+
+.analytics-card:nth-child(1)::before {
+    background: var(--success);
+}
+
+.analytics-card:nth-child(2)::before {
+    background: var(--danger);
+}
+
+.analytics-card:nth-child(3)::before {
+    background: var(--warning);
+}
+
+.analytics-card:nth-child(4)::before {
+    background: var(--gold-primary);
+}
+
+.analytics-card:nth-child(5)::before {
+    background: var(--info);
+}
+
+.analytics-card:nth-child(6)::before {
+    background: var(--gold-secondary);
+}
+
+/* =========================================================
+   OCCUPANCY PROGRESS BAR
+   ========================================================= */
+
+.occupancy-progress {
+    width: 100%;
+
+    height: 10px;
+
+    margin-top: 0.75rem;
+
+    border-radius: 999px;
+
+    overflow: hidden;
+
+    background:
+        rgba(255, 255, 255, 0.08);
+}
+
+.occupancy-progress-fill {
+    height: 100%;
+
+    width: 0%;
+
+    background:
+        linear-gradient(90deg,
+            var(--info),
+            var(--gold-primary));
+
+    border-radius: inherit;
+
+    transition:
+        width var(--transition-slow);
+}
+
+/* =========================================================
+   BOOKING HISTORY
+   ========================================================= */
+
+.booking-history {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.booking-history h2 {
+    color: var(--gold-primary);
+}
+
+#history-list {
+    display: flex;
+    flex-direction: column;
+
+    gap: 1rem;
+
+    max-height: 500px;
+
+    overflow-y: auto;
+
+    padding-right: 4px;
+}
+
+/* =========================================================
+   HISTORY CARD
+   ========================================================= */
+
+.history-card {
+    background:
+        linear-gradient(180deg,
+            rgba(255, 255, 255, 0.03),
+            rgba(255, 255, 255, 0.01));
+
+    border: 1px solid var(--border-color);
+
+    border-radius: var(--radius-md);
+
+    padding: var(--space-lg);
+
+    transition:
+        transform var(--transition-fast),
+        border-color var(--transition-fast);
+}
+
+.history-card:hover {
+    transform: translateY(-2px);
+
+    border-color:
+        rgba(212, 175, 55, 0.3);
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 0.75rem;
+}
+
+.booking-id {
+    color: var(--gold-primary);
+
+    font-weight: 700;
+}
+
+.booking-time {
+    color: var(--text-muted);
+
+    font-size: 0.85rem;
+}
+
+.booking-seats {
+    color: var(--text-primary);
+
+    margin-bottom: 0.5rem;
+}
+
+.booking-amount {
+    color: var(--gold-secondary);
+
+    font-weight: 700;
+
+    font-size: 1.05rem;
+}
+
+/* =========================================================
+   HISTORY SCROLLBAR
+   ========================================================= */
+
+#history-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+#history-list::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+#history-list::-webkit-scrollbar-thumb {
+    background: var(--gold-dark);
+
+    border-radius: 999px;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .summary-panel {
+        position: static;
+    }
+
+    .analytics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #total-price {
+        font-size: 1.75rem;
+    }
+
+    .history-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.35rem;
+    }
+}

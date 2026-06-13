@@ -18,7 +18,6 @@ participant : Sameer.
 | A6 | Personal Portfolio Website With Interactive Components | ✅ Completed | outputs/A6 |
 | A3 | TBD | ⏳ Pending | outputs/A3 |
 | A5 | TBD | ⏳ Pending | outputs/A5 |
-
 | A7 | TBD | ⏳ Pending | outputs/A7 |
 | B1 | TBD | ⏳ Pending | outputs/B1 |
 | B2 | TBD | ⏳ Pending | outputs/B2 |

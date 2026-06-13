@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>College Fest Event Registration Dashboard</title>
+    <meta name="description"
+        content="College Fest Event Registration Dashboard for managing participant registrations and event statistics." />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="header-content">
+            <h1 id="application-title">College Fest Event Registration Dashboard</h1>
+            <p id="application-description">
+                Manage registrations, monitor event participation, and track festival activity in real time.
+            </p>
+        </div>
+    </header>
+
+    <main class="dashboard-layout">
+        <!-- Registration Form Section -->
+        <section class="registration-section" aria-labelledby="registration-section-title">
+            <div class="panel-card registration-panel">
+                <div class="section-header">
+                    <h2 id="registration-section-title">Participant Registration</h2>
+                    <p>
+                        Register students for college fest events using the form below.
+                    </p>
+                </div>
+
+                <div id="form-success-message" class="feedback-message success-message" role="status"
+                    aria-live="polite"></div>
+
+                <div id="form-error-message" class="feedback-message error-message" role="alert" aria-live="assertive">
+                </div>
+
+                <form id="registration-form" class="registration-form" novalidate>
+                    <div class="form-field">
+                        <label for="student-name">Student Name</label>
+                        <input type="text" id="student-name" name="studentName" placeholder="Enter full name"
+                            maxlength="50" required autocomplete="name" />
+                        <small id="student-name-validation" class="field-validation-message" aria-live="polite"></small>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="student-id">Student ID</label>
+                        <input type="text" id="student-id" name="studentId" placeholder="Enter student ID"
+                            maxlength="20" required autocomplete="off" />
+                        <small id="student-id-validation" class="field-validation-message" aria-live="polite"></small>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="college-email">College Email</label>
+                        <input type="email" id="college-email" name="collegeEmail" placeholder="student@college.edu"
+                            required autocomplete="email" />
+                        <small id="college-email-validation" class="field-validation-message"
+                            aria-live="polite"></small>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="phone-number">Phone Number</label>
+                        <input type="tel" id="phone-number" name="phoneNumber" placeholder="10-digit phone number"
+                            maxlength="10" required autocomplete="tel" />
+                        <small id="phone-number-validation" class="field-validation-message" aria-live="polite"></small>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="event-selection">Select Event</label>
+                        <select id="event-selection" name="eventSelection" required>
+                            <option value="">Choose an event</option>
+                            <option value="coding-competition">
+                                Coding Competition
+                            </option>
+                            <option value="sports-tournament">
+                                Sports Tournament
+                            </option>
+                            <option value="music-performance">
+                                Music Performance
+                            </option>
+                            <option value="art-exhibition">
+                                Art Exhibition
+                            </option>
+                        </select>
+                        <small id="event-selection-validation" class="field-validation-message"
+                            aria-live="polite"></small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" id="submit-registration-button">
+                            Register Participant
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Dashboard Statistics Section -->
+        <section class="statistics-section" aria-labelledby="statistics-section-title">
+            <div class="panel-card statistics-panel">
+                <div class="section-header">
+                    <h2 id="statistics-section-title">
+                        Registration Overview
+                    </h2>
+                    <p>Live registration metrics across all festival events.</p>
+                </div>
+
+                <div class="statistics-grid">
+                    <article class="statistic-card">
+                        <h3>Total Registrations</h3>
+                        <p id="total-registrations-count" class="statistic-value" aria-label="Total registrations">
+                            0
+                        </p>
+                    </article>
+
+                    <article class="statistic-card">
+                        <h3>Coding Competition</h3>
+                        <p id="coding-competition-count" class="statistic-value"
+                            aria-label="Coding competition registrations">
+                            0
+                        </p>
+                    </article>
+
+                    <article class="statistic-card">
+                        <h3>Sports Tournament</h3>
+                        <p id="sports-tournament-count" class="statistic-value"
+                            aria-label="Sports tournament registrations">
+                            0
+                        </p>
+                    </article>
+
+                    <article class="statistic-card">
+                        <h3>Music Performance</h3>
+                        <p id="music-performance-count" class="statistic-value"
+                            aria-label="Music performance registrations">
+                            0
+                        </p>
+                    </article>
+
+                    <article class="statistic-card">
+                        <h3>Art Exhibition</h3>
+                        <p id="art-exhibition-count" class="statistic-value" aria-label="Art exhibition registrations">
+                            0
+                        </p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- Participant List Section -->
+        <section class="participants-section" aria-labelledby="participants-section-title">
+            <div class="panel-card participants-panel">
+                <div class="section-header">
+                    <h2 id="participants-section-title">
+                        Registered Participants
+                    </h2>
+                    <p>
+                        View all participant registrations and event assignments.
+                    </p>
+                </div>
+
+                <div id="participants-empty-state" class="empty-state-message" role="status" aria-live="polite">
+                    No registrations yet.
+                </div>
+
+                <div class="participants-table-container" aria-label="Scrollable participant list">
+                    <table class="participants-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Student Name</th>
+                                <th scope="col">Student ID</th>
+                                <th scope="col">Event</th>
+                                <th scope="col">Slot</th>
+                                <th scope="col">Registration Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="participants-table-body">
+                            <!-- JavaScript will populate participant rows here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <p>
+            College Fest Event Registration Dashboard
+        </p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

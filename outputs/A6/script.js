@@ -91,3 +91,47 @@ if (themeToggle) {
         toggleTheme
     );
 }
+
+/* ==========================================
+   CAPTCHA SYSTEM
+========================================== */
+
+const captchaQuestion = document.getElementById("captcha-question");
+const captchaAnswer = document.getElementById("captcha-answer");
+
+let currentCaptchaAnswer = null;
+
+function generateRandomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function generateCaptcha() {
+    if (!captchaQuestion) return;
+
+    const firstNumber = generateRandomNumber(1, 20);
+    const secondNumber = generateRandomNumber(1, 20);
+
+    currentCaptchaAnswer = firstNumber + secondNumber;
+
+    captchaQuestion.textContent =
+        `What is ${firstNumber} + ${secondNumber}?`;
+}
+
+function validateCaptcha() {
+    if (!captchaAnswer) return false;
+
+    const userAnswer = Number.parseInt(
+        captchaAnswer.value.trim(),
+        10
+    );
+
+    return userAnswer === currentCaptchaAnswer;
+}
+
+function resetCaptcha() {
+    if (captchaAnswer) {
+        captchaAnswer.value = "";
+    }
+
+    generateCaptcha();
+}

@@ -1602,41 +1602,25 @@ function renderWeeklySummary(date) {
    ========================================================= */
 
 function renderTrendCharts(date) {
-    const chartData =
-        getTrendChartData(date);
+    const data = getTrendChartData(date);
 
-    DOM.stepsChart.innerHTML = `
-        <strong>Steps</strong><br>
-        ${chartData
-            .map(
-                item =>
-                    `${item.date.slice(5)}:
-                    ${item.steps}`
-            )
-            .join("<br>")}
-    `;
+    DOM.stepsChart.innerHTML =
+        "<strong>7-Day Steps Trend</strong><br><br>" +
+        data.map(day => {
+            const bars =
+                "█".repeat(
+                    Math.max(
+                        1,
+                        Math.round(day.steps / 1000)
+                    )
+                );
 
-    DOM.sleepChart.innerHTML = `
-        <strong>Sleep</strong><br>
-        ${chartData
-            .map(
-                item =>
-                    `${item.date.slice(5)}:
-                    ${item.sleep}h`
-            )
-            .join("<br>")}
-    `;
-
-    DOM.caloriesChart.innerHTML = `
-        <strong>Calories</strong><br>
-        ${chartData
-            .map(
-                item =>
-                    `${item.date.slice(5)}:
-                    ${item.calories}`
-            )
-            .join("<br>")}
-    `;
+            return `
+                ${day.date.slice(5)}
+                ${bars}
+                (${day.steps})
+            `;
+        }).join("<br>");
 }
 
 /* =========================================================

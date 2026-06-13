@@ -996,7 +996,7 @@ textarea {
 #steps-chart,
 #sleep-chart,
 #calories-chart {
-    min-height: 260px;
+    min-height: 160px;
 
     background: #ffffff;
 
@@ -1325,9 +1325,7 @@ textarea {
     }
 
     #charts-container {
-        grid-template-columns:
-            repeat(auto-fit,
-                minmax(240px, 1fr));
+        display: block;
     }
 }
 

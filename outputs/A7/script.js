@@ -933,3 +933,332 @@ function generateQuickInsight(
 
     return "🌟 Keep tracking your health habits to build consistency.";
 }
+
+/* =========================================================
+   PART 4 — TRENDS
+   ALERTS
+   TIMELINE RETRIEVAL
+   EXPORT ENGINE
+   ========================================================= */
+
+/* =========================================================
+   DATE RANGE HELPERS
+   ========================================================= */
+
+function getPreviousDate(dateKey, daysBack = 1) {
+    const date = new Date(dateKey);
+    date.setDate(date.getDate() - daysBack);
+
+    return formatDateKey(date);
+}
+
+function getLast7DaysData(
+    referenceDate = getTodayDate()
+) {
+    const result = [];
+
+    for (let i = 6; i >= 0; i--) {
+        const dateKey =
+            getPreviousDate(
+                referenceDate,
+                i
+            );
+
+        const log =
+            healthTrackerData.logs[
+            dateKey
+            ];
+
+        if (log) {
+            result.push({
+                date: dateKey,
+                log
+            });
+        }
+    }
+
+    return result;
+}
+
+/* =========================================================
+   WEEKLY TREND ANALYSIS
+   ========================================================= */
+
+function calculateWeeklyTrends(
+    referenceDate = getTodayDate()
+) {
+    const records =
+        getLast7DaysData(
+            referenceDate
+        );
+
+    if (records.length === 0) {
+        return {
+            averageSteps: 0,
+            averageCalories: 0,
+            averageSleep: 0,
+            totalWorkouts: 0,
+            daysTracked: 0
+        };
+    }
+
+    let totalSteps = 0;
+    let totalCalories = 0;
+    let totalSleep = 0;
+    let totalWorkouts = 0;
+
+    records.forEach(record => {
+        const log = record.log;
+
+        totalSteps +=
+            log.activity?.steps || 0;
+
+        totalCalories +=
+            calculateCaloriesConsumed(
+                log
+            );
+
+        totalSleep +=
+            log.sleep?.hours || 0;
+
+        totalWorkouts +=
+            log.workouts?.length || 0;
+    });
+
+    const daysTracked =
+        records.length;
+
+    return {
+        averageSteps: Math.round(
+            totalSteps / daysTracked
+        ),
+
+        averageCalories:
+            Math.round(
+                totalCalories /
+                daysTracked
+            ),
+
+        averageSleep:
+            Number(
+                (
+                    totalSleep /
+                    daysTracked
+                ).toFixed(1)
+            ),
+
+        totalWorkouts,
+
+        daysTracked
+    };
+}
+
+/* =========================================================
+   ALERT ENGINE
+   ========================================================= */
+
+function checkLowActivityAlert(
+    referenceDate = getTodayDate()
+) {
+    const lowActivityDays = [];
+
+    for (
+        let i = 0;
+        i < CONFIG.LOW_ACTIVITY_DAYS;
+        i++
+    ) {
+        const dateKey =
+            getPreviousDate(
+                referenceDate,
+                i
+            );
+
+        const log =
+            healthTrackerData.logs[
+            dateKey
+            ];
+
+        if (!log) {
+            return null;
+        }
+
+        const steps =
+            log.activity?.steps || 0;
+
+        if (
+            steps >=
+            CONFIG.STEP_ALERT_THRESHOLD
+        ) {
+            return null;
+        }
+
+        lowActivityDays.push(
+            dateKey
+        );
+    }
+
+    return {
+        type: "warning",
+
+        title:
+            "Low Activity Alert",
+
+        message:
+            "You've been under your step goal for 3 days. Try a 20-minute walk today!",
+
+        days: lowActivityDays
+    };
+}
+
+/* =========================================================
+   TIMELINE RETRIEVAL
+   ========================================================= */
+
+function getRecentTimelineEntries(
+    limit = 10
+) {
+    const entries = [];
+
+    Object.entries(
+        healthTrackerData.logs
+    ).forEach(
+        ([dateKey, log]) => {
+            if (
+                !Array.isArray(
+                    log.timeline
+                )
+            ) {
+                return;
+            }
+
+            log.timeline.forEach(
+                entry => {
+                    entries.push({
+                        ...entry,
+                        date: dateKey
+                    });
+                }
+            );
+        }
+    );
+
+    entries.sort(
+        (a, b) =>
+            new Date(
+                b.timestamp
+            ) -
+            new Date(
+                a.timestamp
+            )
+    );
+
+    return entries.slice(
+        0,
+        limit
+    );
+}
+
+/* =========================================================
+   EXPORT ENGINE
+   ========================================================= */
+
+function exportHealthData() {
+    try {
+        const json =
+            JSON.stringify(
+                healthTrackerData,
+                null,
+                2
+            );
+
+        const blob =
+            new Blob(
+                [json],
+                {
+                    type:
+                        "application/json"
+                }
+            );
+
+        const url =
+            URL.createObjectURL(
+                blob
+            );
+
+        const link =
+            document.createElement(
+                "a"
+            );
+
+        link.href = url;
+
+        link.download =
+            "health-tracker-data.json";
+
+        document.body.appendChild(
+            link
+        );
+
+        link.click();
+
+        document.body.removeChild(
+            link
+        );
+
+        URL.revokeObjectURL(
+            url
+        );
+
+        return true;
+
+    } catch (error) {
+        console.error(
+            "Export failed:",
+            error
+        );
+
+        return false;
+    }
+}
+
+/* =========================================================
+   RESET CONFIRMATION
+   ========================================================= */
+
+function confirmReset() {
+    return window.confirm(
+        "Are you sure you want to delete all health data? This action cannot be undone."
+    );
+}
+
+/* =========================================================
+   TREND DATA HELPERS
+   ========================================================= */
+
+function getTrendChartData(
+    referenceDate = getTodayDate()
+) {
+    const records =
+        getLast7DaysData(
+            referenceDate
+        );
+
+    return records.map(
+        record => ({
+            date: record.date,
+
+            steps:
+                record.log.activity
+                    ?.steps || 0,
+
+            sleep:
+                record.log.sleep
+                    ?.hours || 0,
+
+            calories:
+                calculateCaloriesConsumed(
+                    record.log
+                )
+        })
+    );
+}

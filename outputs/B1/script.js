@@ -135,3 +135,357 @@ function sanitizeInput(text) {
         (character) => escapeMap[character]
     );
 }
+
+/* =========================================================
+   5. MARKDOWN PARSER MODULE
+========================================================= */
+
+/**
+ * Converts sanitized markdown into safe HTML.
+ *
+ * Supported:
+ * - H1, H2, H3
+ * - Bold
+ * - Italic
+ * - Inline Code
+ * - Ordered Lists
+ * - Unordered Lists
+ * - Paragraphs
+ *
+ * @param {string} markdown
+ * @returns {string}
+ */
+function parseMarkdown(markdown) {
+    if (!markdown || typeof markdown !== "string") {
+        return "";
+    }
+
+    const lines = markdown.split("\n");
+
+    let html = [];
+
+    let inOrderedList = false;
+    let inUnorderedList = false;
+
+    /**
+     * Close any active lists before
+     * switching to another block type.
+     */
+    function closeLists() {
+        if (inOrderedList) {
+            html.push("</ol>");
+            inOrderedList = false;
+        }
+
+        if (inUnorderedList) {
+            html.push("</ul>");
+            inUnorderedList = false;
+        }
+    }
+
+    /**
+     * Inline markdown parsing.
+     * Order matters.
+     */
+    function parseInline(text) {
+        let result = text;
+
+        /* Inline Code */
+        result = result.replace(
+            /`([^`]+)`/g,
+            "<code>$1</code>"
+        );
+
+        /* Bold */
+        result = result.replace(
+            /\*\*(.+?)\*\*/g,
+            "<strong>$1</strong>"
+        );
+
+        /* Italic */
+        result = result.replace(
+            /\*(.+?)\*/g,
+            "<em>$1</em>"
+        );
+
+        return result;
+    }
+
+    for (const rawLine of lines) {
+        const line = rawLine.trim();
+
+        /* Empty Line */
+        if (line === "") {
+            closeLists();
+            continue;
+        }
+
+        /* H1 */
+        if (/^#\s+/.test(line)) {
+            closeLists();
+
+            html.push(
+                `<h1>${parseInline(
+                    line.replace(/^#\s+/, "")
+                )}</h1>`
+            );
+
+            continue;
+        }
+
+        /* H2 */
+        if (/^##\s+/.test(line)) {
+            closeLists();
+
+            html.push(
+                `<h2>${parseInline(
+                    line.replace(/^##\s+/, "")
+                )}</h2>`
+            );
+
+            continue;
+        }
+
+        /* H3 */
+        if (/^###\s+/.test(line)) {
+            closeLists();
+
+            html.push(
+                `<h3>${parseInline(
+                    line.replace(/^###\s+/, "")
+                )}</h3>`
+            );
+
+            continue;
+        }
+
+        /* Ordered List */
+        if (/^\d+\.\s+/.test(line)) {
+            if (inUnorderedList) {
+                html.push("</ul>");
+                inUnorderedList = false;
+            }
+
+            if (!inOrderedList) {
+                html.push("<ol>");
+                inOrderedList = true;
+            }
+
+            html.push(
+                `<li>${parseInline(
+                    line.replace(/^\d+\.\s+/, "")
+                )}</li>`
+            );
+
+            continue;
+        }
+
+        /* Unordered List */
+        if (/^-\s+/.test(line)) {
+            if (inOrderedList) {
+                html.push("</ol>");
+                inOrderedList = false;
+            }
+
+            if (!inUnorderedList) {
+                html.push("<ul>");
+                inUnorderedList = true;
+            }
+
+            html.push(
+                `<li>${parseInline(
+                    line.replace(/^-\s+/, "")
+                )}</li>`
+            );
+
+            continue;
+        }
+
+        /* Paragraph */
+        closeLists();
+
+        html.push(
+            `<p>${parseInline(line)}</p>`
+        );
+    }
+
+    closeLists();
+
+    return html.join("\n");
+}/* =========================================================
+   5. MARKDOWN PARSER MODULE
+========================================================= */
+
+/**
+ * Converts sanitized markdown into safe HTML.
+ *
+ * Supported:
+ * - H1, H2, H3
+ * - Bold
+ * - Italic
+ * - Inline Code
+ * - Ordered Lists
+ * - Unordered Lists
+ * - Paragraphs
+ *
+ * @param {string} markdown
+ * @returns {string}
+ */
+function parseMarkdown(markdown) {
+    if (!markdown || typeof markdown !== "string") {
+        return "";
+    }
+
+    const lines = markdown.split("\n");
+
+    let html = [];
+
+    let inOrderedList = false;
+    let inUnorderedList = false;
+
+    /**
+     * Close any active lists before
+     * switching to another block type.
+     */
+    function closeLists() {
+        if (inOrderedList) {
+            html.push("</ol>");
+            inOrderedList = false;
+        }
+
+        if (inUnorderedList) {
+            html.push("</ul>");
+            inUnorderedList = false;
+        }
+    }
+
+    /**
+     * Inline markdown parsing.
+     * Order matters.
+     */
+    function parseInline(text) {
+        let result = text;
+
+        /* Inline Code */
+        result = result.replace(
+            /`([^`]+)`/g,
+            "<code>$1</code>"
+        );
+
+        /* Bold */
+        result = result.replace(
+            /\*\*(.+?)\*\*/g,
+            "<strong>$1</strong>"
+        );
+
+        /* Italic */
+        result = result.replace(
+            /\*(.+?)\*/g,
+            "<em>$1</em>"
+        );
+
+        return result;
+    }
+
+    for (const rawLine of lines) {
+        const line = rawLine.trim();
+
+        /* Empty Line */
+        if (line === "") {
+            closeLists();
+            continue;
+        }
+
+        /* H1 */
+        if (/^#\s+/.test(line)) {
+            closeLists();
+
+            html.push(
+                `<h1>${parseInline(
+                    line.replace(/^#\s+/, "")
+                )}</h1>`
+            );
+
+            continue;
+        }
+
+        /* H2 */
+        if (/^##\s+/.test(line)) {
+            closeLists();
+
+            html.push(
+                `<h2>${parseInline(
+                    line.replace(/^##\s+/, "")
+                )}</h2>`
+            );
+
+            continue;
+        }
+
+        /* H3 */
+        if (/^###\s+/.test(line)) {
+            closeLists();
+
+            html.push(
+                `<h3>${parseInline(
+                    line.replace(/^###\s+/, "")
+                )}</h3>`
+            );
+
+            continue;
+        }
+
+        /* Ordered List */
+        if (/^\d+\.\s+/.test(line)) {
+            if (inUnorderedList) {
+                html.push("</ul>");
+                inUnorderedList = false;
+            }
+
+            if (!inOrderedList) {
+                html.push("<ol>");
+                inOrderedList = true;
+            }
+
+            html.push(
+                `<li>${parseInline(
+                    line.replace(/^\d+\.\s+/, "")
+                )}</li>`
+            );
+
+            continue;
+        }
+
+        /* Unordered List */
+        if (/^-\s+/.test(line)) {
+            if (inOrderedList) {
+                html.push("</ol>");
+                inOrderedList = false;
+            }
+
+            if (!inUnorderedList) {
+                html.push("<ul>");
+                inUnorderedList = true;
+            }
+
+            html.push(
+                `<li>${parseInline(
+                    line.replace(/^-\s+/, "")
+                )}</li>`
+            );
+
+            continue;
+        }
+
+        /* Paragraph */
+        closeLists();
+
+        html.push(
+            `<p>${parseInline(line)}</p>`
+        );
+    }
+
+    closeLists();
+
+    return html.join("\n");
+}

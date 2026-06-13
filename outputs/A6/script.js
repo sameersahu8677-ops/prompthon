@@ -372,3 +372,22 @@ function initializeNavigation() {
         updateActiveNavigation
     );
 }
+
+/* ==========================================
+   APP INITIALIZATION
+========================================== */
+
+function initializeApplication() {
+    initializeTheme();
+
+    generateCaptcha();
+
+    initializeContactForm();
+
+    initializeNavigation();
+}
+
+document.addEventListener(
+    "DOMContentLoaded",
+    initializeApplication
+);

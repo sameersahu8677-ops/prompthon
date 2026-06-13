@@ -1541,3 +1541,402 @@ function getCurrentHP() {
 
     return appState.player.hp;
 }
+
+/* ==========================================
+   PART 5 - ACHIEVEMENTS & ACTIVITY FEED
+   ========================================== */
+
+/* ==========================================
+   ACTIVITY CONFIG
+   ========================================== */
+
+const ACTIVITY_CONFIG = Object.freeze({
+    MAX_ENTRIES: 100
+});
+
+const ACHIEVEMENT_IDS = Object.freeze({
+    FIRST_HABIT: "first_habit_completed",
+    FIRST_LEVEL_UP: "first_level_up",
+    STREAK_7: "streak_7",
+    STREAK_30: "streak_30",
+    XP_100: "xp_100",
+    XP_500: "xp_500"
+});
+
+/* ==========================================
+   ACHIEVEMENT DEFINITIONS
+   ========================================== */
+
+const ACHIEVEMENTS = Object.freeze({
+
+    [ACHIEVEMENT_IDS.FIRST_HABIT]: {
+        id: ACHIEVEMENT_IDS.FIRST_HABIT,
+        title: "First Quest",
+        description: "Complete your first habit."
+    },
+
+    [ACHIEVEMENT_IDS.FIRST_LEVEL_UP]: {
+        id: ACHIEVEMENT_IDS.FIRST_LEVEL_UP,
+        title: "Rising Adventurer",
+        description: "Reach Level 2."
+    },
+
+    [ACHIEVEMENT_IDS.STREAK_7]: {
+        id: ACHIEVEMENT_IDS.STREAK_7,
+        title: "Streak Warrior",
+        description: "Maintain a 7-day streak."
+    },
+
+    [ACHIEVEMENT_IDS.STREAK_30]: {
+        id: ACHIEVEMENT_IDS.STREAK_30,
+        title: "Legendary Consistency",
+        description: "Maintain a 30-day streak."
+    },
+
+    [ACHIEVEMENT_IDS.XP_100]: {
+        id: ACHIEVEMENT_IDS.XP_100,
+        title: "Century Club",
+        description: "Earn 100 total XP."
+    },
+
+    [ACHIEVEMENT_IDS.XP_500]: {
+        id: ACHIEVEMENT_IDS.XP_500,
+        title: "XP Master",
+        description: "Earn 500 total XP."
+    }
+});
+
+/* ==========================================
+   ACTIVITY FEED ENGINE
+   ========================================== */
+
+function addActivity(
+    type,
+    title,
+    description = ""
+) {
+
+    const activity = {
+        id: `activity_${Date.now()}`,
+        type,
+        title,
+        description,
+
+        timestamp:
+            new Date().toISOString()
+    };
+
+    appState.activityFeed.unshift(
+        activity
+    );
+
+    if (
+        appState.activityFeed.length >
+        ACTIVITY_CONFIG.MAX_ENTRIES
+    ) {
+
+        appState.activityFeed =
+            appState.activityFeed.slice(
+                0,
+                ACTIVITY_CONFIG.MAX_ENTRIES
+            );
+    }
+
+    StorageService.saveState(
+        appState
+    );
+
+    return activity;
+}
+
+function getRecentActivities(
+    limit = 20
+) {
+
+    return appState.activityFeed
+        .slice(0, limit);
+}
+
+/* ==========================================
+   ACHIEVEMENT HELPERS
+   ========================================== */
+
+function isAchievementUnlocked(
+    achievementId
+) {
+
+    return appState.achievements.some(
+        achievement =>
+            achievement.id ===
+            achievementId
+    );
+}
+
+function getUnlockedAchievements() {
+
+    return appState.achievements;
+}
+
+function getAchievementById(
+    achievementId
+) {
+
+    return (
+        ACHIEVEMENTS[
+        achievementId
+        ] || null
+    );
+}
+
+/* ==========================================
+   ACHIEVEMENT UNLOCKING
+   ========================================== */
+
+function unlockAchievement(
+    achievementId
+) {
+
+    if (
+        isAchievementUnlocked(
+            achievementId
+        )
+    ) {
+
+        return null;
+    }
+
+    const definition =
+        getAchievementById(
+            achievementId
+        );
+
+    if (!definition) {
+
+        throw new Error(
+            "Achievement definition not found."
+        );
+    }
+
+    const achievement = {
+        id: definition.id,
+
+        title: definition.title,
+
+        description:
+            definition.description,
+
+        unlockedAt:
+            new Date().toISOString()
+    };
+
+    appState.achievements.push(
+        achievement
+    );
+
+    addActivity(
+        "achievement",
+        "Achievement Unlocked",
+        definition.title
+    );
+
+    StorageService.saveState(
+        appState
+    );
+
+    return achievement;
+}
+
+/* ==========================================
+   ACHIEVEMENT CHECKERS
+   ========================================== */
+
+function checkFirstHabitAchievement() {
+
+    const completedHabits =
+        appState.habits.some(
+            habit =>
+                Object.values(
+                    habit.completionHistory
+                ).some(
+                    entry =>
+                        entry.completed
+                )
+        );
+
+    if (
+        completedHabits
+    ) {
+
+        unlockAchievement(
+            ACHIEVEMENT_IDS.FIRST_HABIT
+        );
+    }
+}
+
+function checkLevelAchievements() {
+
+    if (
+        appState.player.level >= 2
+    ) {
+
+        unlockAchievement(
+            ACHIEVEMENT_IDS.FIRST_LEVEL_UP
+        );
+    }
+}
+
+function checkStreakAchievements() {
+
+    const streak =
+        appState.player
+            .currentStreak;
+
+    if (
+        streak >= 7
+    ) {
+
+        unlockAchievement(
+            ACHIEVEMENT_IDS.STREAK_7
+        );
+    }
+
+    if (
+        streak >= 30
+    ) {
+
+        unlockAchievement(
+            ACHIEVEMENT_IDS.STREAK_30
+        );
+    }
+}
+
+function checkXPAchievements() {
+
+    const totalXP =
+        appState.player.totalXP;
+
+    if (
+        totalXP >=
+        ACHIEVEMENT_THRESHOLDS.XP_100
+    ) {
+
+        unlockAchievement(
+            ACHIEVEMENT_IDS.XP_100
+        );
+    }
+
+    if (
+        totalXP >=
+        ACHIEVEMENT_THRESHOLDS.XP_500
+    ) {
+
+        unlockAchievement(
+            ACHIEVEMENT_IDS.XP_500
+        );
+    }
+}
+
+/* ==========================================
+   MASTER ACHIEVEMENT CHECKER
+   ========================================== */
+
+function checkAchievements() {
+
+    checkFirstHabitAchievement();
+
+    checkLevelAchievements();
+
+    checkStreakAchievements();
+
+    checkXPAchievements();
+
+    StorageService.saveState(
+        appState
+    );
+}
+
+/* ==========================================
+   FEED EVENT HELPERS
+   ========================================== */
+
+function logHabitCompletion(
+    habit
+) {
+
+    addActivity(
+        "habit",
+        "Quest Completed",
+        `${habit.name} (+${habit.xpReward} XP)`
+    );
+}
+
+function logLevelUp(
+    oldLevel,
+    newLevel
+) {
+
+    addActivity(
+        "level",
+        "Level Up!",
+        `Level ${oldLevel} → Level ${newLevel}`
+    );
+}
+
+function logHPLoss(
+    oldHP,
+    newHP
+) {
+
+    addActivity(
+        "hp",
+        "HP Lost",
+        `${oldHP} → ${newHP}`
+    );
+}
+
+function logHPRestore(
+    oldHP,
+    newHP
+) {
+
+    addActivity(
+        "hp",
+        "HP Restored",
+        `${oldHP} → ${newHP}`
+    );
+}
+
+function logXPGain(
+    amount
+) {
+
+    addActivity(
+        "xp",
+        "XP Earned",
+        `+${amount} XP`
+    );
+}
+
+/* ==========================================
+   ACHIEVEMENT STATISTICS
+   ========================================== */
+
+function getAchievementStatistics() {
+
+    const unlocked =
+        appState.achievements.length;
+
+    const total =
+        Object.keys(
+            ACHIEVEMENTS
+        ).length;
+
+    return {
+        unlocked,
+        total,
+        completionPercent:
+            Math.round(
+                (unlocked / total) * 100
+            )
+    };
+}

@@ -1633,3 +1633,42 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
+
+.timeline-time {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+.delete-meal-btn,
+.delete-workout-btn {
+
+    width: 28px;
+    height: 28px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(220, 38, 38, .1);
+
+    color:
+        var(--color-danger);
+
+    font-size: .8rem;
+
+    font-weight: 700;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: .2s;
+}
+
+.delete-meal-btn:hover,
+.delete-workout-btn:hover {
+
+    background:
+        rgba(220, 38, 38, .2);
+
+    transform: scale(1.05);
+}

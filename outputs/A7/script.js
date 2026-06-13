@@ -676,20 +676,27 @@ function calculateWorkoutCalories(log) {
    ========================================================= */
 
 function calculateActivityStatus(log) {
+    const settings = getSettings();
+
+    const goal =
+        Math.max(
+            settings.stepGoal,
+            1
+        );
+
     const steps =
         log?.activity?.steps || 0;
 
-    if (steps >= 8000) {
+    if (steps >= goal) {
         return "green";
     }
 
-    if (steps >= 5000) {
+    if (steps >= goal * 0.7) {
         return "amber";
     }
 
     return "red";
 }
-
 function calculateWaterStatus(log) {
     const settings = getSettings();
 
@@ -1414,10 +1421,22 @@ function renderNutrition(date) {
         log.nutrition.meals
             .map(
                 meal => `
-                <div class="meal-item">
-                    <span>${meal.name}</span>
-                    <strong>${meal.calories} cal</strong>
-                </div>
+               <div class="meal-item">
+
+    <span>${meal.name}</span>
+
+    <strong>
+        ${meal.calories} cal
+    </strong>
+
+    <button
+        class="delete-meal-btn"
+        data-id="${meal.id}"
+    >
+        ✕
+    </button>
+
+</div>
             `
             )
             .join("");
@@ -1534,12 +1553,22 @@ function renderWorkout(date) {
         log.workouts
             .map(
                 workout => `
-                <div class="workout-item">
-                    <span>${workout.type}</span>
-                    <strong>
-                        ${workout.duration} min
-                    </strong>
-                </div>
+               <div class="workout-item">
+
+    <span>${workout.type}</span>
+
+    <strong>
+        ${workout.duration} min
+    </strong>
+
+    <button
+        class="delete-workout-btn"
+        data-id="${workout.id}"
+    >
+        ✕
+    </button>
+
+</div>
             `
             )
             .join("");
@@ -1667,9 +1696,16 @@ function renderTimeline() {
 
     DOM.timelineList.innerHTML =
         entries
-            .map(
-                entry => `
+            .map(entry => {
+
+                const date =
+                    new Date(
+                        entry.timestamp
+                    );
+
+                return `
                 <div class="timeline-item">
+
                     <div class="timeline-title">
                         ${entry.action}
                     </div>
@@ -1677,9 +1713,14 @@ function renderTimeline() {
                     <div class="timeline-meta">
                         ${entry.details}
                     </div>
+
+                    <div class="timeline-time">
+                        ${date.toLocaleString()}
+                    </div>
+
                 </div>
-            `
-            )
+            `;
+            })
             .join("");
 }
 
@@ -2086,6 +2127,7 @@ function setupDateSelector() {
    ========================================================= */
 
 function setupEventListeners() {
+
     setupActivityForm();
 
     setupMealForm();
@@ -2103,6 +2145,10 @@ function setupEventListeners() {
     setupResetButton();
 
     setupDateSelector();
+
+    setupMealDeletion();
+
+    setupWorkoutDeletion();
 }
 
 /* =========================================================
@@ -2177,3 +2223,57 @@ document.addEventListener(
     "DOMContentLoaded",
     initApp
 );
+
+function setupMealDeletion() {
+
+    DOM.mealList.addEventListener(
+        "click",
+        event => {
+
+            const button =
+                event.target.closest(
+                    ".delete-meal-btn"
+                );
+
+            if (!button) {
+                return;
+            }
+
+            removeMeal(
+                selectedDate,
+                button.dataset.id
+            );
+
+            renderApp(
+                selectedDate
+            );
+        }
+    );
+}
+
+function setupWorkoutDeletion() {
+
+    DOM.workoutList.addEventListener(
+        "click",
+        event => {
+
+            const button =
+                event.target.closest(
+                    ".delete-workout-btn"
+                );
+
+            if (!button) {
+                return;
+            }
+
+            removeWorkout(
+                selectedDate,
+                button.dataset.id
+            );
+
+            renderApp(
+                selectedDate
+            );
+        }
+    );
+}

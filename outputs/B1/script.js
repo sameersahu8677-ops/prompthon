@@ -489,3 +489,84 @@ function parseMarkdown(markdown) {
 
     return html.join("\n");
 }
+
+/* =========================================================
+   6. PREVIEW RENDERER MODULE
+========================================================= */
+
+/**
+ * Renders markdown content into the live preview.
+ *
+ * Flow:
+ * Raw Editor Content
+ *      ↓
+ * sanitizeInput()
+ *      ↓
+ * parseMarkdown()
+ *      ↓
+ * Preview Output
+ */
+function renderPreview() {
+    try {
+        const content = markdownEditor.value;
+
+        if (!content || content.trim() === "") {
+            previewContent.innerHTML = "";
+            return;
+        }
+
+        const sanitizedContent = sanitizeInput(content);
+        const renderedHTML = parseMarkdown(sanitizedContent);
+
+        previewContent.innerHTML = renderedHTML;
+    } catch (error) {
+        console.error(
+            "[Preview] Failed to render preview:",
+            error
+        );
+
+        previewContent.innerHTML = `
+            <p>Preview could not be generated.</p>
+        `;
+    }
+}
+
+
+/* =========================================================
+   7. STATISTICS MODULE
+========================================================= */
+
+/**
+ * Counts actual words while ignoring
+ * excess whitespace.
+ *
+ * @param {string} content
+ * @returns {number}
+ */
+function calculateWordCount(content) {
+    if (!content || content.trim() === "") {
+        return 0;
+    }
+
+    return content
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .length;
+}
+
+
+/**
+ * Updates word and character statistics.
+ *
+ * @param {string} content
+ */
+function updateStatistics(content) {
+    const safeContent = content || "";
+
+    const words = calculateWordCount(safeContent);
+    const characters = safeContent.length;
+
+    wordCount.textContent = `Words: ${words}`;
+    characterCount.textContent = `Characters: ${characters}`;
+}

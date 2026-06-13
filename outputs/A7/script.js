@@ -597,3 +597,339 @@ function getSettings() {
         healthTrackerData.settings
     );
 }
+
+/* =========================================================
+   PART 3 — CALCULATIONS
+   STATUS ENGINE
+   HEALTH SCORE
+   QUICK INSIGHTS
+   ========================================================= */
+
+/* =========================================================
+   NUTRITION CALCULATIONS
+   ========================================================= */
+
+function calculateCaloriesConsumed(log) {
+    if (!log?.nutrition?.meals?.length) {
+        return 0;
+    }
+
+    return log.nutrition.meals.reduce(
+        (total, meal) =>
+            total +
+            safeParseNumber(
+                meal.calories,
+                0
+            ),
+        0
+    );
+}
+
+function calculateCaloriesRemaining(log) {
+    const settings = getSettings();
+
+    return Math.max(
+        settings.calorieGoal -
+        calculateCaloriesConsumed(log),
+        0
+    );
+}
+
+/* =========================================================
+   WORKOUT CALCULATIONS
+   ========================================================= */
+
+function calculateWorkoutMinutes(log) {
+    if (!log?.workouts?.length) {
+        return 0;
+    }
+
+    return log.workouts.reduce(
+        (total, workout) =>
+            total +
+            safeParseNumber(
+                workout.duration,
+                0
+            ),
+        0
+    );
+}
+
+function calculateWorkoutCalories(log) {
+    if (!log?.workouts?.length) {
+        return 0;
+    }
+
+    return log.workouts.reduce(
+        (total, workout) =>
+            total +
+            safeParseNumber(
+                workout.caloriesBurned,
+                0
+            ),
+        0
+    );
+}
+
+/* =========================================================
+   STATUS ENGINE
+   ========================================================= */
+
+function calculateActivityStatus(log) {
+    const steps =
+        log?.activity?.steps || 0;
+
+    if (steps >= 8000) {
+        return "green";
+    }
+
+    if (steps >= 5000) {
+        return "amber";
+    }
+
+    return "red";
+}
+
+function calculateWaterStatus(log) {
+    const settings = getSettings();
+
+    const glasses =
+        log?.water?.glasses || 0;
+
+    const percentage =
+        settings.waterGoal > 0
+            ? (glasses /
+                settings.waterGoal) *
+            100
+            : 0;
+
+    if (percentage >= 100) {
+        return "green";
+    }
+
+    if (percentage >= 75) {
+        return "amber";
+    }
+
+    return "red";
+}
+
+function calculateSleepStatus(log) {
+    const hours =
+        log?.sleep?.hours || 0;
+
+    if (hours >= 7) {
+        return "green";
+    }
+
+    if (hours >= 6) {
+        return "amber";
+    }
+
+    return "red";
+}
+
+function calculateNutritionStatus(log) {
+    const settings = getSettings();
+
+    const consumed =
+        calculateCaloriesConsumed(log);
+
+    if (
+        settings.calorieGoal <= 0
+    ) {
+        return "red";
+    }
+
+    const percentage =
+        (consumed /
+            settings.calorieGoal) *
+        100;
+
+    if (
+        percentage >= 90 &&
+        percentage <= 110
+    ) {
+        return "green";
+    }
+
+    if (
+        (percentage >= 70 &&
+            percentage < 90) ||
+        (percentage > 110 &&
+            percentage <= 120)
+    ) {
+        return "amber";
+    }
+
+    return "red";
+}
+
+/* =========================================================
+   HEALTH SCORE
+   ========================================================= */
+
+function calculateHealthScore(
+    log,
+    settings = getSettings()
+) {
+    let score = 0;
+
+    /* Activity (20) */
+
+    const stepRatio =
+        Math.min(
+            (log.activity.steps || 0) /
+            settings.stepGoal,
+            1
+        ) * 20;
+
+    score += stepRatio;
+
+    /* Water (20) */
+
+    const waterRatio =
+        Math.min(
+            (log.water.glasses || 0) /
+            settings.waterGoal,
+            1
+        ) * 20;
+
+    score += waterRatio;
+
+    /* Sleep (20) */
+
+    const sleepRatio =
+        Math.min(
+            (log.sleep.hours || 0) /
+            8,
+            1
+        ) * 20;
+
+    score += sleepRatio;
+
+    /* Nutrition (20) */
+
+    const calories =
+        calculateCaloriesConsumed(log);
+
+    const calorieDifference =
+        Math.abs(
+            calories -
+            settings.calorieGoal
+        );
+
+    const nutritionScore =
+        Math.max(
+            20 -
+            (calorieDifference /
+                settings.calorieGoal) *
+            20,
+            0
+        );
+
+    score += nutritionScore;
+
+    /* Workout (20) */
+
+    const workoutScore =
+        log.workouts.length > 0
+            ? 20
+            : 0;
+
+    score += workoutScore;
+
+    score = Math.round(score);
+
+    let label =
+        "Needs Attention";
+
+    if (score >= 90) {
+        label = "Excellent";
+    } else if (score >= 75) {
+        label = "Good";
+    } else if (score >= 50) {
+        label = "Fair";
+    }
+
+    return {
+        score,
+        label
+    };
+}
+
+/* =========================================================
+   QUICK INSIGHT ENGINE
+   ========================================================= */
+
+function generateQuickInsight(
+    log,
+    settings = getSettings()
+) {
+    const steps =
+        log?.activity?.steps || 0;
+
+    const water =
+        log?.water?.glasses || 0;
+
+    const sleep =
+        log?.sleep?.hours || 0;
+
+    const calories =
+        calculateCaloriesConsumed(log);
+
+    /* Water Goal */
+
+    if (
+        water >=
+        settings.waterGoal
+    ) {
+        return "🎉 Great job! You've reached your water goal today.";
+    }
+
+    /* Sleep Warning */
+
+    if (sleep > 0 && sleep < 6) {
+        return "😴 Rest Needed. Try to get more sleep tonight.";
+    }
+
+    /* Near Step Goal */
+
+    const stepGap =
+        settings.stepGoal -
+        steps;
+
+    if (
+        stepGap > 0 &&
+        stepGap <= 1500
+    ) {
+        return `🚶 You're only ${stepGap.toLocaleString()} steps away from today's goal.`;
+    }
+
+    /* Calorie Goal Achieved */
+
+    const caloriePercent =
+        settings.calorieGoal > 0
+            ? (calories /
+                settings.calorieGoal) *
+            100
+            : 0;
+
+    if (
+        caloriePercent >= 90 &&
+        caloriePercent <= 110
+    ) {
+        return "✅ Your nutrition is on track today.";
+    }
+
+    /* Workout Bonus */
+
+    if (
+        log.workouts &&
+        log.workouts.length > 0
+    ) {
+        return "💪 Nice work! You've completed a workout today.";
+    }
+
+    return "🌟 Keep tracking your health habits to build consistency.";
+}

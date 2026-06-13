@@ -16,8 +16,8 @@ participant : Sameer.
 | A2 | FlashCard Study Buddy - Leitner Box Systenm | ✅ Completed | outputs/A2 |
 | A4 | Smart Budget & Pocket Money Manager | ✅ Completed | outputs/A4 |
 | A6 | Personal Portfolio Website With Interactive Components | ✅ Completed | outputs/A6 |
+| A5 | College Fest Event Registration Dashboard | ✅ Completed | outputs/A5 |
 | A3 | TBD | ⏳ Pending | outputs/A3 |
-| A5 | TBD | ⏳ Pending | outputs/A5 |
 | A7 | TBD | ⏳ Pending | outputs/A7 |
 | B1 | TBD | ⏳ Pending | outputs/B1 |
 | B2 | TBD | ⏳ Pending | outputs/B2 |
@@ -471,3 +471,127 @@ Learning:
 - JavaScript
 - Python
 - Git
+--------
+
+
+## A5 - College Fest Event Registration Dashboard
+
+A responsive frontend dashboard for managing registrations across multiple college fest events. Organizers can register participants, monitor event-wise registrations, and view live registration statistics without refreshing the page.
+
+## Features
+
+### Event Registration
+Register participants for:
+
+- Coding Competition
+- Sports Tournament
+- Music Performance
+- Art Exhibition
+
+### Dashboard Statistics
+Live dashboard showing:
+
+- Total Registrations
+- Coding Competition Count
+- Sports Tournament Count
+- Music Performance Count
+- Art Exhibition Count
+
+### Participant Management
+- Scrollable participant list
+- Newest registrations shown first
+- Registration timestamp tracking
+- Automatic dashboard updates
+
+### Validation Rules
+- Phone number must be exactly 10 digits
+- Email must end with the college domain
+- Duplicate registrations are prevented
+- Slot conflicts are detected automatically
+
+### User Experience
+- Instant validation feedback
+- Success and error messages
+- Responsive design
+- Empty state handling
+- Local storage persistence
+- No page reloads required
+
+## Technologies Used
+
+- HTML5
+- CSS3
+- JavaScript (Vanilla)
+
+## How to Use
+
+### Register a Participant
+
+1. Enter Student Name
+2. Enter Student ID
+3. Enter College Email
+4. Enter Phone Number
+5. Select an Event
+6. Click **Register**
+
+### View Dashboard
+
+After registration:
+
+- Statistics update automatically
+- Participant list updates instantly
+- Data is saved locally in the browser
+
+## Validation Logic
+
+### Phone Validation
+Only valid 10-digit phone numbers are accepted.
+
+### Email Validation
+Email must belong to the college domain.
+
+### Duplicate Prevention
+A student cannot register for the same event more than once.
+
+### Conflict Detection
+A student cannot register for two events occurring in the same time slot.
+
+## Event Schedule
+
+| Event | Slot |
+|---------|---------|
+| Coding Competition | Morning |
+| Sports Tournament | Morning |
+| Music Performance | Afternoon |
+| Art Exhibition | Evening |
+
+## Data Persistence
+
+Registration data is stored using browser Local Storage, allowing data to remain available after page refreshes.
+
+## Responsive Design
+
+Optimized for:
+
+- Desktop
+- Tablet
+- Mobile
+
+## Project Structure
+
+```text
+index.html
+style.css
+script.js
+```
+
+## Key Highlights
+
+- Real-time dashboard updates
+- Robust validation system
+- Responsive UI
+- Accessibility-friendly structure
+- Modular JavaScript architecture
+- Production-oriented frontend implementation
+
+----------------------------------------------

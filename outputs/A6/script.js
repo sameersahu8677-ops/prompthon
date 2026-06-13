@@ -176,3 +176,87 @@ function showError(message) {
 function showInfo(message) {
     showNotification(message, "info");
 }
+
+/* ==========================================
+   FORM VALIDATION
+========================================== */
+
+const contactForm = document.getElementById("contact-form");
+
+function validateName(name) {
+    return name.trim().length >= 2;
+}
+
+function validateEmail(email) {
+    const emailPattern =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    return emailPattern.test(email.trim());
+}
+
+function validateSubject(subject) {
+    return subject.trim().length >= 3;
+}
+
+function validateMessage(message) {
+    return message.trim().length >= 10;
+}
+
+function getFormData() {
+    if (!contactForm) return null;
+
+    const formData = new FormData(contactForm);
+
+    return {
+        name: formData.get("name")?.trim() || "",
+        email: formData.get("email")?.trim() || "",
+        subject: formData.get("subject")?.trim() || "",
+        message: formData.get("message")?.trim() || ""
+    };
+}
+
+function validateForm() {
+    const formData = getFormData();
+
+    if (!formData) {
+        showError("Contact form not found.");
+        return false;
+    }
+
+    if (!validateName(formData.name)) {
+        showError(
+            "Please enter a valid name."
+        );
+        return false;
+    }
+
+    if (!validateEmail(formData.email)) {
+        showError(
+            "Please enter a valid email address."
+        );
+        return false;
+    }
+
+    if (!validateSubject(formData.subject)) {
+        showError(
+            "Please enter a valid subject."
+        );
+        return false;
+    }
+
+    if (!validateMessage(formData.message)) {
+        showError(
+            "Message must contain at least 10 characters."
+        );
+        return false;
+    }
+
+    if (!validateCaptcha()) {
+        showError(
+            "Incorrect CAPTCHA answer."
+        );
+        return false;
+    }
+
+    return true;
+}

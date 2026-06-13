@@ -1086,3 +1086,402 @@ function bindSeatEvents() {
         handleSeatClick
     );
 }
+
+/* =========================================================
+   PART 4 — PRICING ENGINE, SUMMARY PANEL & MODAL MANAGER
+   ========================================================= */
+
+/* =========================================================
+   PRICING ENGINE
+   ========================================================= */
+
+/**
+ * Calculates total booking amount.
+ * @returns {number}
+ */
+function calculateTotal() {
+
+    return getSelectedSeatObjects()
+        .reduce(
+            (total, seat) =>
+                total + seat.price,
+            0
+        );
+}
+
+/**
+ * Calculates selected seat count.
+ * @returns {number}
+ */
+function calculateSeatCount() {
+
+    return appState.selectedSeats.length;
+}
+
+/**
+ * Calculates tier breakdown.
+ * @returns {Object}
+ */
+function calculateBreakdown() {
+
+    const breakdown = {
+        VIP: {
+            count: 0,
+            amount: 0
+        },
+
+        CLUB: {
+            count: 0,
+            amount: 0
+        },
+
+        FRONT: {
+            count: 0,
+            amount: 0
+        }
+    };
+
+    getSelectedSeatObjects()
+        .forEach(seat => {
+
+            breakdown[seat.tier].count++;
+
+            breakdown[seat.tier].amount +=
+                seat.price;
+
+        });
+
+    return breakdown;
+}
+
+/**
+ * Returns pricing summary object.
+ * @returns {Object}
+ */
+function getPricingSummary() {
+
+    return {
+        count: calculateSeatCount(),
+        total: calculateTotal(),
+        breakdown: calculateBreakdown()
+    };
+}
+
+/* =========================================================
+   SUMMARY RENDERERS
+   ========================================================= */
+
+/**
+ * Renders selected seats.
+ */
+function renderSelectedSeats() {
+
+    if (!DOM.selectedSeats) {
+        return;
+    }
+
+    const seats =
+        getSelectedSeatObjects();
+
+    if (seats.length === 0) {
+
+        DOM.selectedSeats.innerHTML = `
+            <p>No seats selected</p>
+        `;
+
+        return;
+    }
+
+    DOM.selectedSeats.innerHTML =
+        seats.map(
+            seat => `
+                <span class="selected-seat-chip">
+                    ${seat.id}
+                </span>
+            `
+        ).join("");
+}
+
+/**
+ * Renders seat count.
+ */
+function renderSeatCount() {
+
+    if (!DOM.seatCount) {
+        return;
+    }
+
+    DOM.seatCount.textContent =
+        calculateSeatCount();
+}
+
+/**
+ * Renders tier breakdown.
+ */
+function renderTierBreakdown() {
+
+    if (!DOM.tierBreakdown) {
+        return;
+    }
+
+    const breakdown =
+        calculateBreakdown();
+
+    const tiers =
+        Object.entries(breakdown)
+            .filter(
+                ([, data]) =>
+                    data.count > 0
+            );
+
+    if (tiers.length === 0) {
+
+        DOM.tierBreakdown.innerHTML = `
+            <p>No seats selected</p>
+        `;
+
+        return;
+    }
+
+    DOM.tierBreakdown.innerHTML =
+        tiers.map(
+            ([tier, data]) => `
+                <div class="tier-breakdown-item">
+                    <strong>${tier}</strong>
+                    <span>
+                        ${data.count} seat(s)
+                    </span>
+                    <span>
+                        ${formatCurrency(data.amount)}
+                    </span>
+                </div>
+            `
+        ).join("");
+}
+
+/**
+ * Renders total amount.
+ */
+function renderTotalPrice() {
+
+    if (!DOM.totalPrice) {
+        return;
+    }
+
+    DOM.totalPrice.textContent =
+        formatCurrency(
+            calculateTotal()
+        );
+}
+
+/**
+ * Master summary renderer.
+ */
+function renderSummary() {
+
+    renderSelectedSeats();
+
+    renderSeatCount();
+
+    renderTierBreakdown();
+
+    renderTotalPrice();
+}
+
+/* =========================================================
+   MODAL MANAGER
+   ========================================================= */
+
+/**
+ * Populates booking modal.
+ */
+function populateModal() {
+
+    if (
+        !DOM.modalSeats ||
+        !DOM.modalPrice
+    ) {
+        return;
+    }
+
+    const selectedSeats =
+        getSelectedSeatObjects();
+
+    const pricing =
+        getPricingSummary();
+
+    /* Seats */
+
+    DOM.modalSeats.innerHTML =
+        selectedSeats.length > 0
+            ? `
+                <div class="modal-seat-list">
+                    ${selectedSeats
+                .map(
+                    seat => `
+                                <div>
+                                    ${seat.id}
+                                    (${seat.tier})
+                                </div>
+                            `
+                )
+                .join("")}
+                </div>
+            `
+            : `
+                <p>
+                    No seats selected
+                </p>
+            `;
+
+    /* Pricing */
+
+    DOM.modalPrice.innerHTML = `
+        <div>
+            Seats:
+            <strong>
+                ${pricing.count}
+            </strong>
+        </div>
+
+        <div>
+            Total:
+            <strong>
+                ${formatCurrency(
+        pricing.total
+    )}
+            </strong>
+        </div>
+    `;
+}
+
+/**
+ * Opens booking modal.
+ */
+function openModal() {
+
+    if (
+        appState.selectedSeats.length === 0
+    ) {
+
+        if (
+            typeof showToast ===
+            "function"
+        ) {
+
+            showToast(
+                "Select at least one seat before continuing.",
+                "warning"
+            );
+        }
+
+        return;
+    }
+
+    populateModal();
+
+    DOM.bookingModal
+        ?.classList.remove(
+            "hidden"
+        );
+
+    DOM.bookingModal
+        ?.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+}
+
+/**
+ * Closes booking modal.
+ */
+function closeModal() {
+
+    DOM.bookingModal
+        ?.classList.add(
+            "hidden"
+        );
+
+    DOM.bookingModal
+        ?.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+}
+
+/* =========================================================
+   SUMMARY REFRESH INTEGRATION
+   ========================================================= */
+
+/**
+ * Re-renders all booking UI.
+ * Future modules can use this.
+ */
+function refreshBookingUI() {
+
+    refreshSeatUI();
+
+    renderSummary();
+}
+
+/* =========================================================
+   PATCHES FOR PART 3
+   ========================================================= */
+
+/*
+Replace:
+
+refreshSeatUI();
+
+with:
+
+refreshBookingUI();
+
+inside:
+
+selectSeat()
+unselectSeat()
+clearSelection()
+commitTransaction()
+rollbackTransaction()
+
+This keeps seat grid and
+summary panel synchronized.
+*/
+
+/* =========================================================
+   INITIAL SUMMARY BOOTSTRAP
+   ========================================================= */
+
+/**
+ * Initializes summary area.
+ */
+function initializeSummary() {
+
+    renderSummary();
+}
+
+/* =========================================================
+   INITIALIZATION PATCH
+   ========================================================= */
+
+/*
+Update initializeApp()
+from Part 2:
+
+function initializeApp() {
+
+    console.log(
+        "🎬 Seat Booking Engine Initializing..."
+    );
+
+    setupSeatEngine();
+
+    initializeSummary();
+
+    console.log(
+        "✅ Seat engine initialized."
+    );
+}
+
+*/

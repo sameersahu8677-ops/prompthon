@@ -18,7 +18,7 @@ participant : Sameer.
 | A6 | Personal Portfolio Website With Interactive Components | ✅ Completed | outputs/A6 |
 | A5 | College Fest Event Registration Dashboard | ✅ Completed | outputs/A5 |
 | A3 | Gamified Habit Tracker & Daily Routine Planner | ✅ Completed | outputs/A3 |
-| A7 | TBD | ⏳ Pending | outputs/A7 |
+| A7 | Fitness And Health Tracker App  | ✅ Completed | outputs/A7 |
 | B1 | TBD | ⏳ Pending | outputs/B1 |
 | B2 | TBD | ⏳ Pending | outputs/B2 |
 | B3 | TBD | ⏳ Pending | outputs/B3 |
@@ -33,7 +33,7 @@ participant : Sameer.
 
 ## Problems Attempted
 
-## A1 - Smart Bill Splitter & Expense Tracker
+# A1 - Smart Bill Splitter & Expense Tracker
 
 A frontend-only expense splitting and tracking application built using:
 
@@ -96,7 +96,7 @@ The project focuses on:
 
 
 
-## A2 - Flash Card Study Buddy (Leitner Box System)
+# A2 - Flash Card Study Buddy (Leitner Box System)
 
 | Feature | Description |
 |----------|-------------|
@@ -241,7 +241,7 @@ One flashcard per line.
 ----
 
 
-## A-4 Smart Budget & Pocket Money Manager
+# A4 - Smart Budget & Pocket Money Manager
 
 A student-friendly budget management application designed to help first-year college students manage their monthly allowance, track expenses, and avoid overspending.
 
@@ -379,7 +379,7 @@ Optimized for:
 
 
 
-## A6 - Personal Portfolio Website
+# A6 - Personal Portfolio Website
 
 ### Overview
 
@@ -474,7 +474,7 @@ Learning:
 --------
 
 
-## A5 - College Fest Event Registration Dashboard
+# A5 - College Fest Event Registration Dashboard
 
 A responsive frontend dashboard for managing registrations across multiple college fest events. Organizers can register participants, monitor event-wise registrations, and view live registration statistics without refreshing the page.
 
@@ -598,7 +598,7 @@ script.js
 
 
 
-## A3 - Gamified Habit Tracker & Daily Routine Planner (QuestForge)
+# A3 - Gamified Habit Tracker & Daily Routine Planner (QuestForge)
 
 QuestForge transforms everyday habits into an RPG-style progression system. Complete daily quests, earn XP, level up your character, maintain streaks, unlock achievements, and protect your HP through consistent habit completion.
 
@@ -731,3 +731,126 @@ script.js
 - Ready for deployment on any static hosting platform
 
 -----------------------------------------------------------
+
+
+# A7 - Fitness & Health Tracker
+
+A personal health and wellness tracking web application that helps users monitor daily activity, nutrition, hydration, sleep, and workouts in one place. The app provides real-time health insights, weekly trend analysis, and smart alerts to encourage healthier habits.
+
+## Features
+
+### Daily Activity Tracking
+- Log daily step count
+- Track active minutes
+- Record distance covered
+- Goal-based activity status indicators
+
+### Nutrition Tracking
+- Add meals with calorie information
+- Monitor daily calorie intake
+- Compare consumption against calorie goals
+- View remaining calories
+
+### Water Intake Tracking
+- Log daily water consumption
+- Visual hydration progress indicator
+- Customizable water goals
+
+### Sleep Monitoring
+- Record hours slept
+- Automatic "Rest Needed" warning for sleep below 6 hours
+- Sleep status tracking
+
+### Workout Logging
+- Record workout type
+- Track workout duration
+- Monitor calories burned
+- View workout summaries
+
+### Health Dashboard
+- Single-page overview of all health metrics
+- Color-coded status indicators
+- Dynamic health score calculation
+- Quick health insights
+
+### Weekly Trend Analysis
+- Average daily steps
+- Average calorie intake
+- Average sleep duration
+- Total workouts completed
+- 7-day trend tracking
+
+### Smart Health Alerts
+- Detects low activity patterns
+- Generates health recommendations
+- Dynamic alert generation from actual user data
+
+### Data Management
+- Local storage persistence
+- Export health data as JSON
+- Reset application data
+- Multi-day health history tracking
+
+## How To Use
+
+### Activity Tracking
+1. Enter steps, active minutes, and distance.
+2. Click **Update Activity**.
+3. Dashboard updates automatically.
+
+### Nutrition Tracking
+1. Enter meal name and calories.
+2. Click **Add Meal**.
+3. Nutrition summary updates instantly.
+
+### Water Tracking
+1. Enter glasses of water consumed.
+2. Click **Update Water**.
+3. Hydration progress updates automatically.
+
+### Sleep Tracking
+1. Enter sleep duration.
+2. Click **Update Sleep**.
+3. Sleep status and warnings update automatically.
+
+### Workout Tracking
+1. Select workout type.
+2. Enter duration and calories burned.
+3. Click **Add Workout**.
+4. Workout statistics update instantly.
+
+### Goal Management
+1. Configure calorie, water, and activity goals.
+2. Save settings.
+3. Status indicators adjust automatically.
+
+## Smart Features
+
+- Health Score System
+- Quick Daily Insights
+- Weekly Trend Analytics
+- Smart Low Activity Alerts
+- Timeline Activity Tracking
+- Goal-Based Progress Monitoring
+- Export & Backup Support
+
+## Storage
+
+All data is stored locally in the browser using Local Storage. No external database or account is required.
+
+## Technologies Used
+
+- HTML5
+- CSS3
+- Vanilla JavaScript
+- Local Storage API
+
+## Project Highlights
+
+- Modular architecture
+- Responsive design
+- Real-world fitness tracking workflow
+- Dynamic analytics and alerts
+- Persistent health records
+- Beginner-friendly interface
+- Promptathon-ready implementation

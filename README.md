@@ -20,8 +20,8 @@ participant : Sameer.
 | A3 | Gamified Habit Tracker & Daily Routine Planner | ✅ Completed | outputs/A3 |
 | A7 | Fitness And Health Tracker App  | ✅ Completed | outputs/A7 |
 | B1 | Real-Time Markdown Editor & Live Previewer | ✅ Completed | outputs/B1 |
+| B3 | Cinema Matrix Seat Reservation Engine | ✅ Completed | outputs/B3 |
 | B2 | TBD | ⏳ Pending | outputs/B2 |
-| B3 | TBD | ⏳ Pending | outputs/B3 |
 | B4 | TBD | ⏳ Pending | outputs/B4 |
 
 ### Status Legend
@@ -857,7 +857,7 @@ All data is stored locally in the browser using Local Storage. No external datab
 
 ----------------------------------------
 
-## B1 - RealTime Markdown Editor & Live Previewer
+# B1 - RealTime Markdown Editor & Live Previewer
 
 A secure Markdown editor that provides real-time preview, automatic saving, and HTML export functionality.
 
@@ -939,3 +939,115 @@ script.js
 - Extended Markdown Support
 - Theme Toggle
 - Markdown File Import
+
+--------------------------------
+
+# B3 - Cinema Matrix Seat Reservation Engine
+
+## Overview
+
+A premium cinema-style seat booking platform that simulates real-world reservation workflows with transaction integrity, booking history, analytics, and persistent storage. Users can select seats, review pricing, confirm bookings, and manage reservations through an interactive interface.
+
+---
+
+## Features
+
+### Seat Booking
+- Dynamic 2D seat grid
+- VIP, Club, and Front Row tiers
+- Automatic seat numbering and pricing
+- Color-coded seat states:
+  - 🟢 Available
+  - 🟡 Selected
+  - 🔴 Booked
+
+### Booking Workflow
+- Multi-seat selection
+- Real-time pricing summary
+- Booking confirmation modal
+- Permanent reservation after confirmation
+- Clear selection and rollback support
+
+### Transaction Integrity
+- Batch transaction processing
+- Validation before commit
+- Commit and rollback workflow
+- Ghost reservation prevention
+- Booked seat protection
+
+### Analytics & History
+- Revenue tracking
+- Occupancy percentage
+- Seat statistics
+- Booking count
+- Persistent booking history
+
+### Persistence
+- LocalStorage integration
+- Seat state restoration
+- Revenue persistence
+- Booking history persistence
+
+### User Experience
+- Premium cinema-inspired UI
+- Responsive design
+- Toast notifications
+- Interactive seat feedback
+- Accessibility support
+
+---
+
+## Technical Highlights
+
+- Modular architecture
+- Centralized state management
+- Dynamic rendering system
+- Event delegation
+- Transaction-safe booking engine
+- Real-time analytics updates
+
+---
+
+## Technologies
+
+- HTML5
+- CSS3
+- Vanilla JavaScript
+- LocalStorage API
+
+---
+
+## Problem Statement Coverage
+
+- Dynamic seat grid generation
+- Pricing tier support
+- Color-coded seat states
+- Booking confirmation workflow
+- Multi-seat booking support
+- Batch transaction isolation
+- Red seat rejection
+- Yellow seat rollback
+- Permanent booking commit
+- No ghost reservations
+
+---
+
+## Deployment
+
+Deployable on:
+- GitHub Pages
+- Netlify
+- Vercel
+- Firebase Hosting
+- Any static web host
+
+---
+
+## Status
+
+✅ Fully Functional  
+✅ Transaction Safe  
+✅ Persistent Storage Enabled  
+✅ Analytics & History Enabled  
+✅ Responsive Design  
+✅ Promptathon Ready 🚀🏆

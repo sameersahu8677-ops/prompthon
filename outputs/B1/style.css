@@ -436,3 +436,169 @@ textarea {
     color: #8b949e;
     font-style: italic;
 }
+
+/* =========================================================
+   15. TOOLBAR
+========================================================= */
+
+.toolbar {
+    max-width: var(--max-width);
+
+    margin: 1.5rem auto 0;
+
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+
+    padding: 1rem 1.25rem;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+
+    flex-wrap: wrap;
+}
+
+
+/* =========================================================
+   16. STATS GROUP
+========================================================= */
+
+.stats-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+
+    color: #8b949e;
+
+    font-size: 0.95rem;
+}
+
+#word-count,
+#character-count,
+#save-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+#save-status {
+    color: #3fb950;
+    font-weight: 500;
+}
+
+
+/* =========================================================
+   17. ACTIONS GROUP
+========================================================= */
+
+.actions-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+
+/* =========================================================
+   18. BASE BUTTON STYLES
+========================================================= */
+
+#copy-btn,
+#reset-btn,
+#export-btn {
+    padding: 0.75rem 1rem;
+
+    border-radius: 10px;
+    border: 1px solid #30363d;
+
+    background: #21262d;
+    color: #e6edf3;
+
+    font-size: 0.95rem;
+    font-weight: 500;
+
+    transition:
+        background-color var(--transition-speed),
+        border-color var(--transition-speed),
+        transform var(--transition-speed),
+        box-shadow var(--transition-speed);
+
+    user-select: none;
+}
+
+
+/* =========================================================
+   19. BUTTON HOVER STATES
+========================================================= */
+
+#copy-btn:hover,
+#reset-btn:hover {
+    background: #30363d;
+    border-color: #484f58;
+
+    transform: translateY(-1px);
+}
+
+#export-btn:hover {
+    background: #1f6feb;
+    border-color: #388bfd;
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   20. PRIMARY EXPORT BUTTON
+========================================================= */
+
+#export-btn {
+    background: #238636;
+    border-color: #2ea043;
+
+    color: #ffffff;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   21. ACTIVE STATES
+========================================================= */
+
+#copy-btn:active,
+#reset-btn:active,
+#export-btn:active {
+    transform: translateY(1px);
+}
+
+
+/* =========================================================
+   22. FOCUS STATES
+========================================================= */
+
+#copy-btn:focus-visible,
+#reset-btn:focus-visible,
+#export-btn:focus-visible {
+    outline: none;
+
+    box-shadow:
+        0 0 0 3px rgba(88, 166, 255, 0.35);
+}
+
+
+/* =========================================================
+   23. BUTTON DISABLED SUPPORT
+========================================================= */
+
+#copy-btn:disabled,
+#reset-btn:disabled,
+#export-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}

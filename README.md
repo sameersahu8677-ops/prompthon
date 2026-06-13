@@ -15,9 +15,10 @@ participant : Sameer.
 | A1 | Smart Bill Splitter & Expense Tracker | ✅ Completed | outputs/A1 |
 | A2 | FlashCard Study Buddy - Leitner Box Systenm | ✅ Completed | outputs/A2 |
 | A4 | Smart Budget & Pocket Money Manager | ✅ Completed | outputs/A4 |
+| A6 | Personal Portfolio Website With Interactive Components | ✅ Completed | outputs/A6 |
 | A3 | TBD | ⏳ Pending | outputs/A3 |
 | A5 | TBD | ⏳ Pending | outputs/A5 |
-| A6 | TBD | ⏳ Pending | outputs/A6 |
+
 | A7 | TBD | ⏳ Pending | outputs/A7 |
 | B1 | TBD | ⏳ Pending | outputs/B1 |
 | B2 | TBD | ⏳ Pending | outputs/B2 |

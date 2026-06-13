@@ -363,7 +363,7 @@ function validateCollegeEmail(
         return createValidationResult(
             false,
             "collegeEmail",
-            `Email must end with ${COLLEGE_DOMAIN}.`
+            `Email must end with ${COLLEGE_DOMAIN}`
         );
     }
 

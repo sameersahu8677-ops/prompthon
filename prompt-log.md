@@ -191,3 +191,62 @@
 | 39 |  Main | ChatGPT | Verify email validation fix and execute final end-to-end architecture, functionality, UX, and Promptathon readiness review. |
 
 **Total Prompts: 39**
+
+
+# Problem A3 (Gamified Habit Tracker & Daily Routine Planner)
+
+| # | Chat | Tool | Purpose |
+|---|------|------|---------|
+| 1 | Main Chat | ChatGPT | Analyzed A3 problem statement, identified requirements, edge cases, and judge expectations. |
+| 2 | Main Chat | ChatGPT | Designed complete architecture including habits, XP, levels, streaks, HP penalties, achievements, activity feed, and storage strategy. |
+| 3 | Main Chat | ChatGPT | Performed architecture audit and finalized system structure before implementation. |
+| 4 | Main Chat | ChatGPT | Created master prompt for project generation with modular HTML/CSS/JavaScript workflow. |
+| 5 | Main Chat | ChatGPT | Reviewed pre-requirements and finalized HTML generation strategy. |
+| 6 | Main Chat | ChatGPT | Generated index.html prompt and refined structure for dashboard, quests, achievements, activity feed, and modal system. |
+| 7 | Main Chat | ChatGPT | Selected final visual theme and UI direction. |
+| 8 | Main Chat | ChatGPT | Generated CSS architecture plan and divided styling into modular implementation phases. |
+| 9 | Main Chat | ChatGPT | Generated CSS Part 1 (design tokens, reset, layout foundations). |
+| 10 | Main Chat | ChatGPT | Audited CSS Part 1 and validated responsive foundation. |
+| 11 | Main Chat | ChatGPT | Generated CSS Part 2 (dashboard, stat cards, progress systems). |
+| 12 | Main Chat | ChatGPT | Audited CSS Part 2 and validated visual hierarchy. |
+| 13 | Main Chat | ChatGPT | Generated CSS Part 3 (habit cards, actions, interactions). |
+| 14 | Main Chat | ChatGPT | Audited CSS Part 3 and reviewed user experience. |
+| 15 | Main Chat | ChatGPT | Generated CSS Part 4 (activity feed, achievements, modal styles). |
+| 16 | Main Chat | ChatGPT | Audited CSS Part 4 and identified visual improvements. |
+| 17 | Main Chat | ChatGPT | Generated CSS Part 5 (animations, polish, responsiveness, accessibility enhancements). |
+| 18 | Main Chat | ChatGPT | Performed full CSS audit and reviewed final visual presentation. |
+| 19 | Main Chat | ChatGPT | Designed JavaScript architecture and divided implementation into modular parts. |
+| 20 | Main Chat | ChatGPT | Generated JavaScript Part 1 (core architecture, storage service, state management). |
+| 21 | Main Chat | ChatGPT | Audited Part 1 and validated persistence architecture. |
+| 22 | Main Chat | ChatGPT | Generated JavaScript Part 2 (habit management system). |
+| 23 | Main Chat | ChatGPT | Audited Part 2 and validated CRUD workflows. |
+| 24 | Main Chat | ChatGPT | Generated JavaScript Part 3 (XP engine and level progression system). |
+| 25 | Main Chat | ChatGPT | Audited Part 3 and validated XP calculations. |
+| 26 | Main Chat | ChatGPT | Generated JavaScript Part 4 (streak tracking and HP penalty/recovery system). |
+| 27 | Main Chat | ChatGPT | Audited Part 4 and validated challenge-rule compliance. |
+| 28 | Main Chat | ChatGPT | Generated JavaScript Part 5 (achievements and activity feed engine). |
+| 29 | Main Chat | ChatGPT | Audited Part 5 and validated achievement tracking. |
+| 30 | Main Chat | ChatGPT | Designed Part 6 architecture and separated rendering, UI systems, and integration layers. |
+| 31 | Main Chat | ChatGPT | Generated Part 6A (rendering engine, dashboard rendering, habits, achievements, activity feed). |
+| 32 | Main Chat | ChatGPT | Audited Part 6A and validated rendering responsibilities. |
+| 33 | Main Chat | ChatGPT | Generated Part 6B (toast system, modal system, form handling, validation UX). |
+| 34 | Main Chat | ChatGPT | Audited Part 6B and validated UI interactions. |
+| 35 | Main Chat | ChatGPT | Reviewed final HTML structure to ensure integration compatibility. |
+| 36 | Main Chat | ChatGPT | Generated Part 6C (integration layer, event delegation, startup flow, orchestration logic). |
+| 37 | Main Chat | ChatGPT | Audited Part 6C and identified integration fixes. |
+| 38 | Main Chat | ChatGPT | Fixed habit tracking start date issue by enabling immediate participation after creation. |
+| 39 | Main Chat | ChatGPT | Fixed achievement toast trigger workflow. |
+| 40 | Main Chat | ChatGPT | Improved activity feed styling integration. |
+| 41 | Main Chat | ChatGPT | Added persistence improvements for streak and HP updates. |
+| 42 | Main Chat | ChatGPT | Refactored delete logic to support true permanent deletion. |
+| 43 | Main Chat | ChatGPT | Audited overall project readiness and identified remaining risks. |
+| 44 | Main Chat | ChatGPT | Designed archived quest management enhancement. |
+| 45 | Main Chat | ChatGPT | Added archived quests section architecture including restore and permanent delete workflows. |
+| 46 | Main Chat | ChatGPT | Implemented archived quest rendering, restoration, event handling, and UI integration plan. |
+| 47 | Main Chat | ChatGPT | Enhanced archived quest styling with premium visual treatment, transitions, and responsive behavior. |
+| 48 | Main Chat | ChatGPT | Conducted final full-project audit of uploaded JavaScript implementation. |
+| 49 | Main Chat | ChatGPT | Identified and fixed activity feed empty-state rendering bug. |
+| 50 | Main Chat | ChatGPT | Identified and fixed HP recovery persistence issue. |
+| 51 | Main Chat | ChatGPT | Performed final Promptathon readiness review and submission assessment. |
+
+**Total Prompt Count :51**

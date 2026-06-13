@@ -17,7 +17,7 @@ participant : Sameer.
 | A4 | Smart Budget & Pocket Money Manager | ✅ Completed | outputs/A4 |
 | A6 | Personal Portfolio Website With Interactive Components | ✅ Completed | outputs/A6 |
 | A5 | College Fest Event Registration Dashboard | ✅ Completed | outputs/A5 |
-| A3 | TBD | ⏳ Pending | outputs/A3 |
+| A3 | Gamified Habit Tracker & Daily Routine Planner | ✅ Completed | outputs/A3 |
 | A7 | TBD | ⏳ Pending | outputs/A7 |
 | B1 | TBD | ⏳ Pending | outputs/B1 |
 | B2 | TBD | ⏳ Pending | outputs/B2 |
@@ -33,7 +33,7 @@ participant : Sameer.
 
 ## Problems Attempted
 
-### A1 - Smart Bill Splitter & Expense Tracker
+## A1 - Smart Bill Splitter & Expense Tracker
 
 A frontend-only expense splitting and tracking application built using:
 
@@ -595,3 +595,139 @@ script.js
 - Production-oriented frontend implementation
 
 ----------------------------------------------
+
+
+
+## A3 - Gamified Habit Tracker & Daily Routine Planner (QuestForge)
+
+QuestForge transforms everyday habits into an RPG-style progression system. Complete daily quests, earn XP, level up your character, maintain streaks, unlock achievements, and protect your HP through consistent habit completion.
+
+---
+
+## Features
+
+### Quest Management
+- Create custom daily quests
+- Edit existing quests
+- Archive quests
+- Restore archived quests
+- Permanently delete quests
+
+### RPG Progression System
+- Earn XP for completing quests
+- Automatic level progression
+- XP progress tracking
+- Character statistics dashboard
+
+### Streak & HP System
+- Automatic streak tracking
+- Longest streak tracking
+- HP penalty for missed habits
+- HP recovery after maintaining a 7-day streak
+- Fully automated rule enforcement
+
+### Achievement System
+- Unlock achievements based on progress
+- Achievement showcase section
+- Achievement notifications
+
+### Activity Feed
+- Tracks important actions
+- Quest completions
+- XP gains
+- Level ups
+- HP changes
+- Achievement unlocks
+
+### Data Persistence
+- Progress automatically saved
+- Local storage support
+- Progress remains after page refresh
+
+---
+
+## How To Use
+
+### 1. Create a Quest
+Click **"Add Quest"** and enter:
+- Quest name
+- Difficulty level
+
+### 2. Complete Quests
+Mark quests as completed using the checkbox.
+
+### 3. Earn Rewards
+Completing quests:
+- Grants XP
+- Increases progress
+- Helps level up
+
+### 4. Maintain Streaks
+Complete your daily quests consistently to:
+- Build streaks
+- Protect HP
+- Recover lost HP
+
+### 5. Manage Quests
+- Edit quests when needed
+- Archive inactive quests
+- Restore archived quests later
+- Permanently delete unwanted quests
+
+---
+
+## Streak & HP Rules
+
+### HP Penalty
+If any quest is missed for **two consecutive days**:
+- Current streak resets to 0
+- Lose 1 HP
+- HP never drops below 0
+
+### HP Recovery
+Maintaining an unbroken **7-day streak**:
+- Restores 1 HP
+- HP cannot exceed maximum HP
+
+---
+
+## Statistics Dashboard
+
+Track:
+- Current Level
+- Total XP
+- Current HP
+- Active Streak
+- Longest Streak
+- Daily Progress
+
+---
+
+## Technologies Used
+
+- HTML5
+- CSS3
+- Vanilla JavaScript
+- Local Storage
+
+---
+
+## Project Structure
+
+```text
+index.html
+style.css
+script.js
+```
+
+---
+
+## Notes
+
+- No account required
+- No backend required
+- Works entirely in the browser
+- Designed for non-technical users
+- Ready for deployment on any static hosting platform
+
+-----------------------------------------------------------

@@ -783,6 +783,18 @@ function handleRegistrationSubmit(
             return;
         }
 
+        if (typeof renderDashboard === "function") {
+            renderDashboard();
+        }
+
+        if (typeof renderParticipantTable === "function") {
+            renderParticipantTable();
+        }
+
+        if (typeof toggleEmptyState === "function") {
+            toggleEmptyState();
+        }
+
         showSuccessMessage(
             "Registration completed successfully."
         );
@@ -812,3 +824,211 @@ function handleRegistrationSubmit(
         setSubmissionState(false);
     }
 }
+
+/* ==================================================
+   1. DASHBOARD RENDERING
+================================================== */
+
+function renderDashboard() {
+    const totalRegistrations = registrations.length;
+
+    const eventCounts = EVENTS.reduce((counts, event) => {
+        counts[event.id] = registrations.filter(
+            (registration) =>
+                registration.eventId === event.id
+        ).length;
+
+        return counts;
+    }, {});
+
+    if (domElements.totalRegistrationsCount) {
+        domElements.totalRegistrationsCount.textContent =
+            totalRegistrations;
+    }
+
+    if (domElements.codingCompetitionCount) {
+        domElements.codingCompetitionCount.textContent =
+            eventCounts["coding-competition"] || 0;
+    }
+
+    if (domElements.sportsTournamentCount) {
+        domElements.sportsTournamentCount.textContent =
+            eventCounts["sports-tournament"] || 0;
+    }
+
+    if (domElements.musicPerformanceCount) {
+        domElements.musicPerformanceCount.textContent =
+            eventCounts["music-performance"] || 0;
+    }
+
+    if (domElements.artExhibitionCount) {
+        domElements.artExhibitionCount.textContent =
+            eventCounts["art-exhibition"] || 0;
+    }
+}
+
+/* ==================================================
+   2. PARTICIPANT TABLE RENDERING
+================================================== */
+
+function createTableCell(content) {
+    const tableCell = document.createElement("td");
+
+    tableCell.textContent = content;
+
+    return tableCell;
+}
+
+function createParticipantRow(registration) {
+    const tableRow = document.createElement("tr");
+
+    const registrationTime = new Date(
+        registration.registeredAt
+    ).toLocaleString();
+
+    tableRow.appendChild(
+        createTableCell(
+            registration.studentName
+        )
+    );
+
+    tableRow.appendChild(
+        createTableCell(
+            registration.studentId
+        )
+    );
+
+    tableRow.appendChild(
+        createTableCell(
+            registration.eventName
+        )
+    );
+
+    tableRow.appendChild(
+        createTableCell(
+            registration.slot
+        )
+    );
+
+    tableRow.appendChild(
+        createTableCell(
+            registrationTime
+        )
+    );
+
+    return tableRow;
+}
+
+function renderParticipantTable() {
+    if (
+        !domElements.participantsTableBody
+    ) {
+        return;
+    }
+
+    domElements.participantsTableBody.replaceChildren();
+
+    const sortedRegistrations =
+        [...registrations].sort(
+            (first, second) =>
+                new Date(
+                    second.registeredAt
+                ) -
+                new Date(
+                    first.registeredAt
+                )
+        );
+
+    sortedRegistrations.forEach(
+        (registration) => {
+            const participantRow =
+                createParticipantRow(
+                    registration
+                );
+
+            domElements.participantsTableBody.appendChild(
+                participantRow
+            );
+        }
+    );
+}
+
+/* ==================================================
+   3. EMPTY STATE MANAGEMENT
+================================================== */
+
+function toggleEmptyState() {
+    const hasRegistrations =
+        registrations.length > 0;
+
+    if (
+        domElements.participantsEmptyState
+    ) {
+        domElements.participantsEmptyState.style.display =
+            hasRegistrations
+                ? "none"
+                : "block";
+    }
+
+    const participantsTableContainer =
+        document.querySelector(
+            ".participants-table-container"
+        );
+
+    if (
+        participantsTableContainer
+    ) {
+        participantsTableContainer.style.display =
+            hasRegistrations
+                ? "block"
+                : "none";
+    }
+}
+
+/* ==================================================
+   4. EVENT LISTENERS
+================================================== */
+
+function attachEventListeners() {
+    if (
+        domElements.registrationForm
+    ) {
+        domElements.registrationForm.addEventListener(
+            "submit",
+            handleRegistrationSubmit
+        );
+    }
+}
+
+/* ==================================================
+   5. APPLICATION STARTUP
+================================================== */
+
+function initializeApp() {
+    const domIsValid =
+        validateDomReferences();
+
+    if (!domIsValid) {
+        console.error(
+            "Application initialization aborted because required DOM elements are missing."
+        );
+
+        return;
+    }
+
+    initializeApplicationState();
+
+    renderDashboard();
+
+    renderParticipantTable();
+
+    toggleEmptyState();
+
+    attachEventListeners();
+}
+
+/* ==================================================
+   6. APPLICATION AUTO START
+================================================== */
+
+initializeApp();

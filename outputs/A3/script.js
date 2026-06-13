@@ -287,3 +287,376 @@ function initializeApp() {
         "QuestForge initialized successfully."
     );
 }
+
+/* ==========================================
+   PART 2 - HABIT MANAGEMENT SYSTEM
+   ========================================== */
+
+/* ==========================================
+   HABIT HELPERS
+   ========================================== */
+
+function generateHabitId() {
+    return `habit_${Date.now()}_${Math.random()
+        .toString(36)
+        .substring(2, 8)}`;
+}
+
+function getXPRewardForDifficulty(difficulty) {
+    return XP_REWARDS[difficulty] || 0;
+}
+
+function findHabitById(habitId) {
+    return appState.habits.find(
+        habit => habit.id === habitId
+    );
+}
+
+function findHabitIndexById(habitId) {
+    return appState.habits.findIndex(
+        habit => habit.id === habitId
+    );
+}
+
+function isDuplicateHabitName(name, excludeHabitId = null) {
+    const normalizedName = name.trim().toLowerCase();
+
+    return appState.habits.some(habit => {
+        if (excludeHabitId && habit.id === excludeHabitId) {
+            return false;
+        }
+
+        return (
+            habit.name.trim().toLowerCase() === normalizedName
+        );
+    });
+}
+
+/* ==========================================
+   HABIT CREATION
+   ========================================== */
+
+function createHabit(name, difficulty) {
+
+    const trimmedName = name.trim();
+
+    if (!validateHabitName(trimmedName)) {
+        throw new Error(
+            "Habit name must be between 1 and 50 characters."
+        );
+    }
+
+    if (!validateDifficulty(difficulty)) {
+        throw new Error(
+            "Invalid habit difficulty."
+        );
+    }
+
+    if (isDuplicateHabitName(trimmedName)) {
+        throw new Error(
+            "Habit name already exists."
+        );
+    }
+
+    const habit = {
+        id: generateHabitId(),
+
+        name: trimmedName,
+
+        difficulty,
+
+        xpReward: getXPRewardForDifficulty(difficulty),
+
+        createdDate: getTodayDate(),
+
+        trackingStartDate: getTomorrowDate(),
+
+        isActive: true,
+
+        isArchived: false,
+
+        completionHistory: {},
+
+        missTracking: {
+            consecutiveMisses: 0,
+            penaltyApplied: false
+        }
+    };
+
+    appState.habits.push(habit);
+
+    StorageService.saveState(appState);
+
+    return habit;
+}
+
+/* ==========================================
+   HABIT UPDATE
+   ========================================== */
+
+function updateHabit(habitId, updates) {
+
+    const habit = findHabitById(habitId);
+
+    if (!habit) {
+        throw new Error("Habit not found.");
+    }
+
+    const updatedName = updates.name?.trim() ?? habit.name;
+    const updatedDifficulty =
+        updates.difficulty ?? habit.difficulty;
+
+    if (!validateHabitName(updatedName)) {
+        throw new Error("Invalid habit name.");
+    }
+
+    if (!validateDifficulty(updatedDifficulty)) {
+        throw new Error("Invalid difficulty.");
+    }
+
+    if (
+        isDuplicateHabitName(
+            updatedName,
+            habitId
+        )
+    ) {
+        throw new Error(
+            "Habit name already exists."
+        );
+    }
+
+    habit.name = updatedName;
+    habit.difficulty = updatedDifficulty;
+    habit.xpReward =
+        getXPRewardForDifficulty(updatedDifficulty);
+
+    StorageService.saveState(appState);
+
+    return habit;
+}
+
+/* ==========================================
+   HABIT ARCHIVE
+   ========================================== */
+
+function archiveHabit(habitId) {
+
+    const habit = findHabitById(habitId);
+
+    if (!habit) {
+        throw new Error("Habit not found.");
+    }
+
+    habit.isArchived = true;
+    habit.isActive = false;
+
+    StorageService.saveState(appState);
+
+    return true;
+}
+
+function restoreHabit(habitId) {
+
+    const habit = findHabitById(habitId);
+
+    if (!habit) {
+        throw new Error("Habit not found.");
+    }
+
+    habit.isArchived = false;
+    habit.isActive = true;
+
+    StorageService.saveState(appState);
+
+    return true;
+}
+
+/* ==========================================
+   HABIT DELETION
+   ========================================== */
+
+function deleteHabit(habitId) {
+
+    const habitIndex =
+        findHabitIndexById(habitId);
+
+    if (habitIndex === -1) {
+        throw new Error("Habit not found.");
+    }
+
+    const habit = appState.habits[habitIndex];
+
+    habit.isArchived = true;
+    habit.isActive = false;
+    habit.deleted = true;
+    habit.deletedDate = getTodayDate();
+
+    StorageService.saveState(appState);
+
+    return true;
+}
+
+/* ==========================================
+   COMPLETION HELPERS
+   ========================================== */
+
+function getHabitCompletionForDate(
+    habit,
+    date
+) {
+    return (
+        habit.completionHistory[date] || null
+    );
+}
+
+function isHabitCompletedOnDate(
+    habit,
+    date
+) {
+    const entry =
+        getHabitCompletionForDate(
+            habit,
+            date
+        );
+
+    return Boolean(
+        entry?.completed
+    );
+}
+
+/* ==========================================
+   DAILY COMPLETION
+   ========================================== */
+
+function toggleHabitCompletion(
+    habitId,
+    date = getTodayDate()
+) {
+
+    const habit = findHabitById(habitId);
+
+    if (!habit) {
+        throw new Error(
+            "Habit not found."
+        );
+    }
+
+    if (
+        !habit.isActive ||
+        habit.isArchived
+    ) {
+        throw new Error(
+            "Habit is not active."
+        );
+    }
+
+    const existingEntry =
+        habit.completionHistory[date];
+
+    if (
+        existingEntry &&
+        existingEntry.completed
+    ) {
+
+        habit.completionHistory[date] = {
+            ...existingEntry,
+            completed: false,
+            uncompletedAt:
+                new Date().toISOString()
+        };
+
+    } else {
+
+        habit.completionHistory[date] = {
+            completed: true,
+            completedAt:
+                new Date().toISOString(),
+            xpAwarded: false
+        };
+
+    }
+
+    StorageService.saveState(appState);
+
+    return (
+        habit.completionHistory[date]
+    );
+}
+
+/* ==========================================
+   DAILY HABIT HELPERS
+   ========================================== */
+
+function getTodaysHabits() {
+
+    const today = getTodayDate();
+
+    return appState.habits.filter(habit => {
+
+        if (
+            !habit.isActive ||
+            habit.isArchived
+        ) {
+            return false;
+        }
+
+        return (
+            habit.trackingStartDate <= today
+        );
+    });
+}
+
+function getCompletedToday() {
+
+    const today = getTodayDate();
+
+    return getTodaysHabits()
+        .filter(habit =>
+            isHabitCompletedOnDate(
+                habit,
+                today
+            )
+        )
+        .length;
+}
+
+function getTotalToday() {
+    return getTodaysHabits().length;
+}
+
+/* ==========================================
+   HABIT QUERY HELPERS
+   ========================================== */
+
+function getActiveHabits() {
+    return appState.habits.filter(
+        habit =>
+            habit.isActive &&
+            !habit.isArchived
+    );
+}
+
+function getArchivedHabits() {
+    return appState.habits.filter(
+        habit =>
+            habit.isArchived
+    );
+}
+
+function getHabitStatistics() {
+
+    const active =
+        getActiveHabits().length;
+
+    const archived =
+        getArchivedHabits().length;
+
+    const total =
+        appState.habits.length;
+
+    return {
+        total,
+        active,
+        archived
+    };
+}

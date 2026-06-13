@@ -167,21 +167,15 @@ a {
     overflow: hidden;
     padding: var(--space-3xl) var(--space-lg);
     background:
-        radial-gradient(
-            circle at top left,
+        radial-gradient(circle at top left,
             rgba(236, 72, 153, 0.14),
-            transparent 35%
-        ),
-        radial-gradient(
-            circle at top right,
+            transparent 35%),
+        radial-gradient(circle at top right,
             rgba(245, 158, 11, 0.14),
-            transparent 35%
-        ),
-        linear-gradient(
-            135deg,
+            transparent 35%),
+        linear-gradient(135deg,
             rgba(124, 58, 237, 0.08),
-            rgba(124, 58, 237, 0.03)
-        );
+            rgba(124, 58, 237, 0.03));
     border-bottom: 1px solid var(--color-border);
 }
 
@@ -257,4 +251,230 @@ a {
 .participants-panel {
     padding: var(--space-xl);
     background: var(--color-surface);
+}
+
+/* ==================================================
+   7. FORM COMPONENTS
+================================================== */
+
+.registration-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-field label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.form-field input,
+.form-field select {
+    width: 100%;
+    padding: 0.95rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.form-field input::placeholder {
+    color: var(--color-text-secondary);
+    opacity: 0.8;
+}
+
+.form-field input:hover,
+.form-field select:hover {
+    border-color: rgba(124, 58, 237, 0.45);
+}
+
+.form-field input:focus,
+.form-field select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
+}
+
+.form-field select {
+    cursor: pointer;
+}
+
+.field-validation-message {
+    min-height: 1rem;
+    font-size: 0.85rem;
+    color: #dc2626;
+    font-weight: 500;
+}
+
+.form-actions {
+    margin-top: var(--space-sm);
+}
+
+#submit-registration-button {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg,
+            var(--color-primary),
+            var(--color-secondary));
+    color: #ffffff;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast),
+        filter var(--transition-fast);
+}
+
+#submit-registration-button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    filter: brightness(1.03);
+}
+
+#submit-registration-button:active {
+    transform: translateY(0);
+}
+
+#submit-registration-button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+    filter: none;
+}
+
+/* ==================================================
+   8. FEEDBACK MESSAGES
+================================================== */
+
+.feedback-message {
+    display: none;
+    margin-bottom: var(--space-md);
+    padding: 1rem 1.1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.success-message {
+    background: #ecfdf5;
+    color: #047857;
+    border-color: #a7f3d0;
+}
+
+.error-message {
+    background: #fef2f2;
+    color: #b91c1c;
+    border-color: #fecaca;
+}
+
+/* ==================================================
+   9. STATISTICS CARDS
+================================================== */
+
+.statistics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: var(--space-lg);
+}
+
+.statistic-card {
+    position: relative;
+    overflow: hidden;
+    min-height: 165px;
+    padding: var(--space-lg);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition:
+        transform var(--transition-normal),
+        box-shadow var(--transition-normal);
+}
+
+.statistic-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    height: 6px;
+}
+
+.statistic-card:nth-child(1)::before {
+    background: linear-gradient(90deg,
+            var(--color-primary),
+            var(--color-secondary));
+}
+
+.statistic-card:nth-child(2)::before {
+    background: var(--color-primary);
+}
+
+.statistic-card:nth-child(3)::before {
+    background: var(--color-secondary);
+}
+
+.statistic-card:nth-child(4)::before {
+    background: var(--color-accent);
+}
+
+.statistic-card:nth-child(5)::before {
+    background: linear-gradient(90deg,
+            var(--color-secondary),
+            var(--color-accent));
+}
+
+.statistic-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.statistic-card h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+}
+
+.statistic-value {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    margin-top: var(--space-md);
+}
+
+#total-registrations-count {
+    color: var(--color-primary);
+}
+
+#coding-competition-count {
+    color: var(--color-primary);
+}
+
+#sports-tournament-count {
+    color: var(--color-secondary);
+}
+
+#music-performance-count {
+    color: var(--color-accent);
+}
+
+#art-exhibition-count {
+    color: #c026d3;
 }

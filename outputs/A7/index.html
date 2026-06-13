@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fitness & Health Tracker</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <header id="app-header">
+        <div class="header-content">
+            <h1>Fitness & Health Tracker</h1>
+            <p>Track your wellness, activity, nutrition, and progress in one place.</p>
+        </div>
+    </header>
+
+    <main id="app-main">
+
+        <!-- Date Selector -->
+        <section id="date-selector-section">
+            <h2>Select Date</h2>
+            <input type="date" id="selected-date" name="selected-date" aria-label="Select tracking date" />
+        </section>
+
+        <!-- Goal Settings -->
+        <section id="goal-settings-section">
+            <h2>Goal Settings</h2>
+
+            <form id="settings-form">
+                <div class="form-group">
+                    <label for="step-goal-input">Daily Step Goal</label>
+                    <input type="number" id="step-goal-input" name="stepGoal" min="1000" max="100000" required />
+                    <small>Set your target daily steps.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="calorie-goal-input">Daily Calorie Goal</label>
+                    <input type="number" id="calorie-goal-input" name="calorieGoal" min="500" max="10000" required />
+                    <small>Set your calorie target.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="water-goal-input">Daily Water Goal (Glasses)</label>
+                    <input type="number" id="water-goal-input" name="waterGoal" min="1" max="30" required />
+                    <small>Recommended: 8 glasses.</small>
+                </div>
+
+                <button type="submit">Save Goals</button>
+            </form>
+        </section>
+
+        <!-- Health Score -->
+        <section id="health-score-section">
+            <h2>Health Score</h2>
+
+            <div class="health-score-card">
+                <span id="health-score-value" aria-live="polite">--</span>
+                <span id="health-score-label" aria-live="polite">Not Available</span>
+            </div>
+        </section>
+
+        <!-- Quick Insight -->
+        <section id="quick-insight-section">
+            <h2>Quick Insight</h2>
+
+            <div id="quick-insight" aria-live="polite">
+                Start tracking today to receive personalized insights.
+            </div>
+        </section>
+
+        <!-- Dashboard -->
+        <section id="dashboard-section">
+            <h2>Today's Dashboard</h2>
+
+            <div class="dashboard-grid">
+
+                <!-- Activity Card -->
+                <article class="dashboard-card" id="activity-card">
+
+                    <div class="card-header">
+                        <h3>🚶 Activity</h3>
+                        <span class="status-badge" id="activity-status">Unknown</span>
+                    </div>
+
+                    <div class="card-body">
+                        <p>Steps: <span id="steps-value">0</span></p>
+                        <p>Active Minutes: <span id="active-minutes-value">0</span></p>
+                        <p>Distance: <span id="distance-value">0</span> km</p>
+                    </div>
+
+                    <div class="card-actions">
+                        <form id="activity-form">
+
+                            <label for="steps-input">Steps</label>
+                            <input type="number" id="steps-input" name="steps" min="0" max="100000" required />
+
+                            <label for="active-minutes-input">Active Minutes</label>
+                            <input type="number" id="active-minutes-input" name="activeMinutes" min="0" max="1440"
+                                required />
+
+                            <label for="distance-input">Distance (km)</label>
+                            <input type="number" id="distance-input" name="distance" min="0" max="100" step="0.1"
+                                required />
+
+                            <button type="submit">Update Activity</button>
+                        </form>
+                    </div>
+
+                </article>
+
+                <!-- Nutrition Card -->
+                <article class="dashboard-card" id="nutrition-card">
+
+                    <div class="card-header">
+                        <h3>🍎 Nutrition</h3>
+                        <span class="status-badge" id="nutrition-status">Unknown</span>
+                    </div>
+
+                    <div class="card-body">
+                        <p>Consumed: <span id="calories-consumed">0</span></p>
+                        <p>Goal: <span id="calories-goal">0</span></p>
+                        <p>Remaining: <span id="calories-remaining">0</span></p>
+
+                        <div id="meal-list">
+                            <div class="empty-state">
+                                No meals logged yet.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-actions">
+                        <form id="meal-form">
+
+                            <label for="meal-name-input">Meal Name</label>
+                            <input type="text" id="meal-name-input" name="mealName" required />
+
+                            <label for="meal-calories-input">Calories</label>
+                            <input type="number" id="meal-calories-input" name="mealCalories" min="0" max="10000"
+                                required />
+
+                            <button type="submit">Add Meal</button>
+                        </form>
+                    </div>
+
+                </article>
+
+                <!-- Water Card -->
+                <article class="dashboard-card" id="water-card">
+
+                    <div class="card-header">
+                        <h3>💧 Water</h3>
+                        <span class="status-badge" id="water-status">Unknown</span>
+                    </div>
+
+                    <div class="card-body">
+                        <p>
+                            <span id="water-value">0</span> /
+                            <span id="water-goal">8</span> Glasses
+                        </p>
+
+                        <div class="progress-placeholder">
+                            Water Progress Indicator
+                        </div>
+                    </div>
+
+                    <div class="card-actions">
+                        <form id="water-form">
+
+                            <label for="water-glasses-input">
+                                Glasses Consumed
+                            </label>
+
+                            <input type="number" id="water-glasses-input" name="waterGlasses" min="0" max="30"
+                                required />
+
+                            <button type="submit">Update Water</button>
+                        </form>
+                    </div>
+
+                </article>
+
+                <!-- Sleep Card -->
+                <article class="dashboard-card" id="sleep-card">
+
+                    <div class="card-header">
+                        <h3>😴 Sleep</h3>
+                        <span class="status-badge" id="sleep-status">Unknown</span>
+                    </div>
+
+                    <div class="card-body">
+                        <p>
+                            Sleep Hours:
+                            <span id="sleep-value">0</span>
+                        </p>
+
+                        <div id="sleep-warning" aria-live="polite"></div>
+                    </div>
+
+                    <div class="card-actions">
+                        <form id="sleep-form">
+
+                            <label for="sleep-hours-input">
+                                Hours Slept
+                            </label>
+
+                            <input type="number" id="sleep-hours-input" name="sleepHours" min="0" max="24" step="0.1"
+                                required />
+
+                            <button type="submit">Update Sleep</button>
+                        </form>
+                    </div>
+
+                </article>
+
+                <!-- Workout Card -->
+                <article class="dashboard-card" id="workout-card">
+
+                    <div class="card-header">
+                        <h3>🏋️ Workouts</h3>
+                        <span class="status-badge" id="workout-status">Unknown</span>
+                    </div>
+
+                    <div class="card-body">
+                        <p>Total Workouts: <span id="workout-count">0</span></p>
+                        <p>Total Minutes: <span id="workout-minutes">0</span></p>
+                        <p>Calories Burned: <span id="workout-calories">0</span></p>
+
+                        <div id="workout-list">
+                            <div class="empty-state">
+                                No workouts logged yet.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-actions">
+                        <form id="workout-form">
+
+                            <label for="workout-type-input">Workout Type</label>
+
+                            <select id="workout-type-input" name="workoutType" required>
+                                <option value="">Select Workout</option>
+                                <option>Running</option>
+                                <option>Walking</option>
+                                <option>Cycling</option>
+                                <option>Yoga</option>
+                                <option>Gym</option>
+                                <option>Swimming</option>
+                                <option>Other</option>
+                            </select>
+
+                            <label for="workout-duration-input">
+                                Duration (Minutes)
+                            </label>
+
+                            <input type="number" id="workout-duration-input" name="workoutDuration" min="1" max="600"
+                                required />
+
+                            <label for="workout-calories-input">
+                                Calories Burned
+                            </label>
+
+                            <input type="number" id="workout-calories-input" name="workoutCalories" min="0" max="5000"
+                                required />
+
+                            <button type="submit">Add Workout</button>
+                        </form>
+                    </div>
+
+                </article>
+
+            </div>
+        </section>
+
+        <!-- Weekly Trends -->
+        <section id="weekly-trends-section">
+            <h2>Weekly Trends</h2>
+
+            <div id="weekly-summary">
+                Weekly statistics will appear here.
+            </div>
+
+            <div id="charts-container">
+
+                <div id="steps-chart" class="chart-container">
+                    Steps Chart
+                </div>
+
+                <div id="sleep-chart" class="chart-container">
+                    Sleep Chart
+                </div>
+
+                <div id="calories-chart" class="chart-container">
+                    Calories Chart
+                </div>
+
+            </div>
+
+            <div class="empty-state">
+                Trend data will appear after logging activity.
+            </div>
+        </section>
+
+        <!-- Smart Alerts -->
+        <section id="smart-alerts-section">
+            <h2>Smart Health Alerts</h2>
+
+            <div id="alert-container" aria-live="polite">
+                <div class="empty-state">
+                    No health alerts at the moment.
+                </div>
+            </div>
+        </section>
+
+        <!-- Timeline -->
+        <section id="timeline-section">
+            <h2>Recent Activity Timeline</h2>
+
+            <div id="timeline-list">
+                <div class="empty-state">
+                    No recent activity available.
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Management -->
+        <section id="data-actions-section">
+            <h2>Data Management</h2>
+
+            <div class="data-actions">
+
+                <div class="action-card">
+                    <h3>Export Health Data</h3>
+                    <p>Download your health data as JSON.</p>
+                    <button id="export-data-btn" type="button">
+                        Export Data
+                    </button>
+                </div>
+
+                <div class="action-card">
+                    <h3>Reset All Data</h3>
+                    <p>
+                        Permanently remove all stored health records.
+                    </p>
+                    <button id="reset-data-btn" type="button">
+                        Reset Data
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer id="app-footer">
+        <p>Fitness & Health Tracker</p>
+        <p>Track. Improve. Stay Healthy.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

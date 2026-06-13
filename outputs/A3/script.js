@@ -376,7 +376,8 @@ function createHabit(name, difficulty) {
 
         createdDate: getTodayDate(),
 
-        trackingStartDate: getTomorrowDate(),
+        trackingStartDate:
+            getTodayDate(),
 
         isActive: true,
 
@@ -488,21 +489,22 @@ function deleteHabit(habitId) {
         findHabitIndexById(habitId);
 
     if (habitIndex === -1) {
-        throw new Error("Habit not found.");
+        throw new Error(
+            "Habit not found."
+        );
     }
 
-    const habit = appState.habits[habitIndex];
+    appState.habits.splice(
+        habitIndex,
+        1
+    );
 
-    habit.isArchived = true;
-    habit.isActive = false;
-    habit.deleted = true;
-    habit.deletedDate = getTodayDate();
-
-    StorageService.saveState(appState);
+    StorageService.saveState(
+        appState
+    );
 
     return true;
 }
-
 /* ==========================================
    COMPLETION HELPERS
    ========================================== */
@@ -1207,6 +1209,10 @@ function updateCurrentStreak() {
     appState.player.currentStreak =
         streak;
 
+    StorageService.saveState(
+        appState
+    );
+
     return streak;
 }
 
@@ -1227,6 +1233,9 @@ function updateLongestStreak() {
             current;
     }
 
+    StorageService.saveState(
+        appState
+    );
     return appState.player
         .longestStreak;
 }
@@ -1248,6 +1257,10 @@ function loseHP(
             oldHP - amount
         );
 
+    StorageService.saveState(
+        appState
+    );
+
     return {
         oldHP,
         newHP:
@@ -1267,7 +1280,9 @@ function restoreHP(
             HP_CONFIG.MAX_HP,
             oldHP + amount
         );
-
+    StorageService.saveState(
+        appState
+    );
     return {
         oldHP,
         newHP:
@@ -2313,9 +2328,25 @@ function createActivityHTML(
     activity
 ) {
 
+    let activityClass = "activity-success";
+
+    if (
+        activity.type === "xp" ||
+        activity.type === "level" ||
+        activity.type === "achievement"
+    ) {
+        activityClass = "activity-reward";
+    }
+
+    if (
+        activity.type === "hp"
+    ) {
+        activityClass = "activity-hp";
+    }
+
     return `
         <div
-            class="activity-item activity-${activity.type}"
+           class="activity-item ${activityClass}"
         >
 
             <div class="activity-content">
@@ -2357,8 +2388,8 @@ function renderActivityFeed() {
 
         DOM.activityFeed.innerHTML = `
             <div class="activity-empty">
-                No activity yet.
-            </div>
+                No activity yet.Your adventure has just begun.
+Complete a quest to generate activity.v>
         `;
 
         return;
@@ -3180,7 +3211,7 @@ function handleHabitToggle(
 
     updateLongestStreak();
 
-    checkAchievements();
+    processAchievementChanges();
 
     renderApp();
 }
@@ -3440,11 +3471,11 @@ function startApplication() {
 
     try {
 
+        initializeApp();
+
         cacheDOMElements();
 
         initializeUISystems();
-
-        initializeApp();
 
         runIntegratedDailyChecks();
 

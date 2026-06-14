@@ -346,3 +346,457 @@ const StorageService = {
         return seedData;
     }
 };
+
+
+/* =========================================================
+   PART 2A
+   BUSINESS LOGIC CORE
+   VALIDATION SERVICE
+   LOCK SERVICE
+   SCORING SERVICE
+========================================================= */
+
+
+/* =========================================================
+   VALIDATION SERVICE
+========================================================= */
+
+const ValidationService = {
+
+    validateName(name) {
+
+        const value =
+            String(name || "").trim();
+
+        if (!value) {
+
+            return {
+                success: false,
+                message: "Candidate name is required."
+            };
+        }
+
+        if (value.length < 2) {
+
+            return {
+                success: false,
+                message:
+                    "Candidate name must contain at least 2 characters."
+            };
+        }
+
+        return {
+            success: true,
+            message: "Valid candidate name."
+        };
+    },
+
+    validateRollNumber(
+        rollNumber,
+        ignoreCandidateId = null
+    ) {
+
+        const value =
+            String(rollNumber || "").trim();
+
+        if (!value) {
+
+            return {
+                success: false,
+                message: "Roll number is required."
+            };
+        }
+
+        const duplicate =
+            ATSStore.candidates.find(
+                candidate =>
+                    candidate.rollNumber === value &&
+                    candidate.id !== ignoreCandidateId
+            );
+
+        if (duplicate) {
+
+            return {
+                success: false,
+                message:
+                    "A candidate with this roll number already exists."
+            };
+        }
+
+        return {
+            success: true,
+            message: "Valid roll number."
+        };
+    },
+
+    validateRole(role) {
+
+        const value =
+            String(role || "").trim();
+
+        if (!value) {
+
+            return {
+                success: false,
+                message:
+                    "Candidate role is required."
+            };
+        }
+
+        return {
+            success: true,
+            message: "Valid role."
+        };
+    },
+
+    validateStage(stage) {
+
+        if (
+            !Utils.isValidStage(stage)
+        ) {
+
+            return {
+                success: false,
+                message: "Invalid stage."
+            };
+        }
+
+        return {
+            success: true,
+            message: "Valid stage."
+        };
+    },
+
+    validateScore(score) {
+
+        if (
+            score === "" ||
+            score === null ||
+            score === undefined
+        ) {
+
+            return {
+                success: false,
+                message:
+                    "Technical score is required."
+            };
+        }
+
+        const numericScore =
+            Number(score);
+
+        if (
+            Number.isNaN(numericScore)
+        ) {
+
+            return {
+                success: false,
+                message:
+                    "Score must be numeric."
+            };
+        }
+
+        if (
+            numericScore < 0 ||
+            numericScore > 100
+        ) {
+
+            return {
+                success: false,
+                message:
+                    "Score must be between 0 and 100."
+            };
+        }
+
+        return {
+            success: true,
+            message: "Valid score.",
+            data: numericScore
+        };
+    },
+
+    validateCandidatePayload(data) {
+
+        const nameResult =
+            this.validateName(data.name);
+
+        if (!nameResult.success) {
+            return nameResult;
+        }
+
+        const rollResult =
+            this.validateRollNumber(
+                data.rollNumber
+            );
+
+        if (!rollResult.success) {
+            return rollResult;
+        }
+
+        const roleResult =
+            this.validateRole(data.role);
+
+        if (!roleResult.success) {
+            return roleResult;
+        }
+
+        return {
+            success: true,
+            message:
+                "Candidate payload valid."
+        };
+    }
+};
+
+
+/* =========================================================
+   LOCK SERVICE
+========================================================= */
+
+const LockService = {
+
+    lockCandidate(
+        candidate,
+        reason = "Candidate Locked"
+    ) {
+
+        if (!candidate) {
+
+            return {
+                success: false,
+                message:
+                    "Candidate not found."
+            };
+        }
+
+        if (candidate.isLocked) {
+
+            return {
+                success: true,
+                message:
+                    "Candidate already locked.",
+                data: candidate
+            };
+        }
+
+        candidate.isLocked = true;
+
+        candidate.updatedAt =
+            Utils.createTimestamp();
+
+        HistoryService.addHistoryEntry(
+            candidate,
+            reason
+        );
+
+        return {
+            success: true,
+            message:
+                "Candidate locked successfully.",
+            data: candidate
+        };
+    },
+
+    isLocked(candidate) {
+
+        return Boolean(
+            candidate?.isLocked
+        );
+    },
+
+    enforceLock(candidate) {
+
+        if (!candidate) {
+
+            return {
+                success: false,
+                message:
+                    "Candidate not found."
+            };
+        }
+
+        if (candidate.isLocked) {
+
+            return {
+                success: false,
+                message:
+                    "Candidate is permanently locked."
+            };
+        }
+
+        return {
+            success: true,
+            message:
+                "Candidate is editable."
+        };
+    },
+
+    enforceRejectedInvariant(candidate) {
+
+        if (!candidate) {
+            return;
+        }
+
+        if (
+            candidate.stage ===
+            STAGES.REJECTED
+        ) {
+
+            candidate.isLocked = true;
+        }
+    }
+};
+
+
+/* =========================================================
+   SCORING SERVICE
+========================================================= */
+
+const ScoringService = {
+
+    validateScore(score) {
+
+        return ValidationService
+            .validateScore(score);
+    },
+
+    evaluateScore(score) {
+
+        const validation =
+            this.validateScore(score);
+
+        if (!validation.success) {
+            return validation;
+        }
+
+        const numericScore =
+            validation.data;
+
+        return {
+            success: true,
+            data: {
+                score: numericScore,
+                passed:
+                    numericScore >= 70
+            }
+        };
+    },
+
+    submitTechnicalScore(
+        candidate,
+        score
+    ) {
+
+        if (!candidate) {
+
+            return {
+                success: false,
+                message:
+                    "Candidate not found."
+            };
+        }
+
+        const lockCheck =
+            LockService.enforceLock(
+                candidate
+            );
+
+        if (!lockCheck.success) {
+            return lockCheck;
+        }
+
+        if (
+            candidate.stage !==
+            STAGES.INTERVIEWING
+        ) {
+
+            return {
+                success: false,
+                message:
+                    "Technical scores can only be submitted from Interviewing stage."
+            };
+        }
+
+        const evaluation =
+            this.evaluateScore(score);
+
+        if (!evaluation.success) {
+            return evaluation;
+        }
+
+        const {
+            score: finalScore,
+            passed
+        } = evaluation.data;
+
+        candidate.technicalScore =
+            finalScore;
+
+        candidate.updatedAt =
+            Utils.createTimestamp();
+
+        HistoryService.addHistoryEntry(
+            candidate,
+            `Technical Score Added: ${finalScore}`
+        );
+
+        /* =========================
+           PASS
+        ========================= */
+
+        if (passed) {
+
+            candidate.stage =
+                STAGES.TECHNICAL_TEST;
+
+            HistoryService.addHistoryEntry(
+                candidate,
+                "Moved To Technical Test"
+            );
+
+            return {
+                success: true,
+                message:
+                    "Candidate passed technical evaluation.",
+                data: {
+                    candidate,
+                    passed: true
+                }
+            };
+        }
+
+        /* =========================
+           FAIL
+           AUTO REJECT
+           AUTO LOCK
+        ========================= */
+
+        candidate.stage =
+            STAGES.REJECTED;
+
+        HistoryService.addHistoryEntry(
+            candidate,
+            `Auto Rejected (Score ${finalScore})`
+        );
+
+        LockService.lockCandidate(
+            candidate,
+            "Locked Due To Rejection"
+        );
+
+        LockService
+            .enforceRejectedInvariant(
+                candidate
+            );
+
+        return {
+            success: true,
+            message:
+                "Candidate automatically rejected.",
+            data: {
+                candidate,
+                passed: false
+            }
+        };
+    }
+};

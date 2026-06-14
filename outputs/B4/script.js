@@ -3237,3 +3237,260 @@ const CandidateActionController = {
             );
     }
 };
+
+/* =========================================================
+   PART 5
+   APPLICATION BOOTSTRAP
+   INITIALIZATION
+   FINAL WIRING
+========================================================= */
+
+
+/* =========================================================
+   APPLICATION
+========================================================= */
+
+const App = {
+
+    initialized: false,
+
+    /* =====================================
+       STORE HYDRATION
+    ===================================== */
+
+    hydrateStore() {
+
+        let candidates =
+            StorageService.loadCandidates();
+
+        if (
+            !Array.isArray(candidates) ||
+            candidates.length === 0
+        ) {
+
+            candidates =
+                StorageService.seedIfEmpty();
+        }
+
+        ATSStore.candidates =
+            candidates || [];
+
+        /* Enforce ATS invariants */
+
+        ATSStore.candidates
+            .forEach(candidate => {
+
+                LockService
+                    .enforceRejectedInvariant(
+                        candidate
+                    );
+            });
+    },
+
+    /* =====================================
+       MODAL EVENTS
+    ===================================== */
+
+    registerModalEvents() {
+
+        /* Close buttons */
+
+        document
+            .querySelectorAll(
+                "[data-close-modal]"
+            )
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        ModalManager
+                            .closeAllModals();
+                    }
+                );
+            });
+
+        /* Overlay click */
+
+        DOM.modalOverlay
+            ?.addEventListener(
+                "click",
+                () => {
+
+                    ModalManager
+                        .closeAllModals();
+                }
+            );
+
+        /* Prevent modal bubbling */
+
+        document
+            .querySelectorAll(
+                ".modal"
+            )
+            .forEach(modal => {
+
+                modal.addEventListener(
+                    "click",
+                    event => {
+
+                        event.stopPropagation();
+                    }
+                );
+            });
+
+        /* Escape key */
+
+        document
+            .addEventListener(
+                "keydown",
+                event => {
+
+                    if (
+                        event.key === "Escape"
+                    ) {
+
+                        ModalManager
+                            .closeAllModals();
+                    }
+                }
+            );
+    },
+
+    /* =====================================
+       CONTROLLERS
+    ===================================== */
+
+    registerControllers() {
+
+        SearchController.initialize();
+
+        FilterController.initialize();
+
+        SortController.initialize();
+
+        CandidateFormController.initialize();
+
+        CandidateActionController.initialize();
+    },
+
+    /* =====================================
+       PERSISTENCE
+    ===================================== */
+
+    registerPersistenceEvents() {
+
+        window.addEventListener(
+            "beforeunload",
+            () => {
+
+                StorageService
+                    .saveCandidates(
+                        ATSStore.candidates
+                    );
+            }
+        );
+    },
+
+    /* =====================================
+       STARTUP VALIDATION
+    ===================================== */
+
+    validateStartup() {
+
+        if (
+            !Array.isArray(
+                ATSStore.candidates
+            )
+        ) {
+
+            throw new Error(
+                "ATSStore candidates not initialized."
+            );
+        }
+
+        return true;
+    },
+
+    /* =====================================
+       INITIAL RENDER
+    ===================================== */
+
+    renderInitialUI() {
+
+        Renderer.renderAll();
+    },
+
+    /* =====================================
+       BOOTSTRAP
+    ===================================== */
+
+    initialize() {
+
+        if (
+            this.initialized
+        ) {
+            return;
+        }
+
+        try {
+
+            this.hydrateStore();
+
+            this.validateStartup();
+
+            this.registerControllers();
+
+            this.registerModalEvents();
+
+            this.registerPersistenceEvents();
+
+            this.renderInitialUI();
+
+            this.initialized = true;
+
+            if (
+                DOM.toastContainer
+            ) {
+
+                ToastManager.info(
+                    "ATS Tracker loaded successfully."
+                );
+            }
+
+            console.log(
+                "ATS Tracker initialized successfully."
+            );
+
+        } catch (error) {
+
+            console.error(
+                "ATS startup failed:",
+                error
+            );
+
+            if (
+                DOM.toastContainer
+            ) {
+
+                ToastManager.error(
+                    "Failed to initialize ATS Tracker."
+                );
+            }
+        }
+    }
+};
+
+
+/* =========================================================
+   APPLICATION STARTUP
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        App.initialize();
+    }
+);

@@ -1390,3 +1390,675 @@ const AnalyticsService = {
         };
     }
 };
+
+/* =========================================================
+   PART 3
+   RENDERING LAYER
+   DOM CACHE + RENDERER + DASHBOARD + KANBAN
+   + CARDS + TIMELINE + EMPTY STATES
+========================================================= */
+
+/* =========================================================
+   DOM REFERENCES
+========================================================= */
+
+const DOM = {
+
+    /* Dashboard */
+
+    totalCandidatesCount:
+        document.getElementById(
+            "totalCandidatesCount"
+        ),
+
+    appliedCount:
+        document.getElementById(
+            "appliedCount"
+        ),
+
+    interviewingCount:
+        document.getElementById(
+            "interviewingCount"
+        ),
+
+    technicalTestCount:
+        document.getElementById(
+            "technicalTestCount"
+        ),
+
+    offeredCount:
+        document.getElementById(
+            "offeredCount"
+        ),
+
+    rejectedCount:
+        document.getElementById(
+            "rejectedCount"
+        ),
+
+    averageScore:
+        document.getElementById(
+            "averageScore"
+        ),
+
+    offerRate:
+        document.getElementById(
+            "offerRate"
+        ),
+
+    rejectionRate:
+        document.getElementById(
+            "rejectionRate"
+        ),
+
+    /* Candidate Containers */
+
+    appliedCandidates:
+        document.getElementById(
+            "appliedCandidates"
+        ),
+
+    interviewingCandidates:
+        document.getElementById(
+            "interviewingCandidates"
+        ),
+
+    technicalCandidates:
+        document.getElementById(
+            "technicalCandidates"
+        ),
+
+    offeredCandidates:
+        document.getElementById(
+            "offeredCandidates"
+        ),
+
+    rejectedCandidates:
+        document.getElementById(
+            "rejectedCandidates"
+        ),
+
+    /* Empty States */
+
+    appliedEmptyState:
+        document.getElementById(
+            "appliedEmptyState"
+        ),
+
+    interviewingEmptyState:
+        document.getElementById(
+            "interviewingEmptyState"
+        ),
+
+    technicalEmptyState:
+        document.getElementById(
+            "technicalEmptyState"
+        ),
+
+    offeredEmptyState:
+        document.getElementById(
+            "offeredEmptyState"
+        ),
+
+    rejectedEmptyState:
+        document.getElementById(
+            "rejectedEmptyState"
+        ),
+
+    /* Templates */
+
+    candidateCardTemplate:
+        document.getElementById(
+            "candidateCardTemplate"
+        ),
+
+    activityItemTemplate:
+        document.getElementById(
+            "activityItemTemplate"
+        )
+};
+
+
+/* =========================================================
+   RENDERER CORE
+========================================================= */
+
+const Renderer = {
+
+    getVisibleCandidates() {
+
+        let candidates =
+            [...ATSStore.candidates];
+
+        /* Search */
+
+        if (
+            ATSStore.searchQuery
+        ) {
+
+            const query =
+                ATSStore.searchQuery
+                    .toLowerCase();
+
+            candidates =
+                candidates.filter(
+                    candidate => {
+
+                        return (
+                            candidate.name
+                                .toLowerCase()
+                                .includes(query) ||
+
+                            candidate.rollNumber
+                                .toLowerCase()
+                                .includes(query)
+                        );
+                    }
+                );
+        }
+
+        /* Role Filter */
+
+        if (
+            ATSStore.filters.role !==
+            "all"
+        ) {
+
+            candidates =
+                candidates.filter(
+                    candidate => {
+
+                        const normalizedRole =
+                            candidate.role
+                                .toLowerCase()
+                                .replaceAll(
+                                    " ",
+                                    "-"
+                                );
+
+                        return (
+                            normalizedRole ===
+                            ATSStore.filters.role
+                        );
+                    }
+                );
+        }
+
+        /* Stage Filter */
+
+        if (
+            ATSStore.filters.stage !==
+            "all"
+        ) {
+
+            candidates =
+                candidates.filter(
+                    candidate =>
+                        candidate.stage ===
+                        ATSStore.filters.stage
+                );
+        }
+
+        /* Sorting */
+
+        switch (
+        ATSStore.sortMode
+        ) {
+
+            case "oldest":
+
+                candidates.sort(
+                    (a, b) =>
+                        new Date(
+                            a.createdAt
+                        ) -
+                        new Date(
+                            b.createdAt
+                        )
+                );
+
+                break;
+
+            case "highest-score":
+
+                candidates.sort(
+                    (a, b) =>
+                        (b.technicalScore || 0) -
+                        (a.technicalScore || 0)
+                );
+
+                break;
+
+            default:
+
+                candidates.sort(
+                    (a, b) =>
+                        new Date(
+                            b.createdAt
+                        ) -
+                        new Date(
+                            a.createdAt
+                        )
+                );
+        }
+
+        return candidates;
+    },
+
+    renderAll() {
+
+        DashboardRenderer.render();
+
+        KanbanRenderer.render();
+
+        EmptyStateRenderer.render();
+    }
+};
+
+
+/* =========================================================
+   DASHBOARD RENDERER
+========================================================= */
+
+const DashboardRenderer = {
+
+    render() {
+
+        const metrics =
+            AnalyticsService
+                .getMetrics();
+
+        if (
+            !metrics.success
+        ) {
+            return;
+        }
+
+        const data =
+            metrics.data;
+
+        DOM.totalCandidatesCount.textContent =
+            data.totalCandidates;
+
+        DOM.appliedCount.textContent =
+            data.applied;
+
+        DOM.interviewingCount.textContent =
+            data.interviewing;
+
+        DOM.technicalTestCount.textContent =
+            data.technicalTest;
+
+        DOM.offeredCount.textContent =
+            data.offered;
+
+        DOM.rejectedCount.textContent =
+            data.rejected;
+
+        DOM.averageScore.textContent =
+            `${data.averageScore}%`;
+
+        DOM.offerRate.textContent =
+            `${data.offerRate}%`;
+
+        DOM.rejectionRate.textContent =
+            `${data.rejectionRate}%`;
+    }
+};
+
+
+/* =========================================================
+   CANDIDATE CARD RENDERER
+========================================================= */
+
+const CandidateCardRenderer = {
+
+    create(candidate) {
+
+        const fragment =
+            DOM.candidateCardTemplate
+                .content
+                .cloneNode(true);
+
+        const card =
+            fragment.querySelector(
+                ".candidate-card"
+            );
+
+        card.dataset.candidateId =
+            candidate.id;
+
+        /* Name */
+
+        fragment
+            .querySelector(
+                ".candidate-name"
+            )
+            .textContent =
+            candidate.name;
+
+        /* Roll */
+
+        fragment
+            .querySelector(
+                ".candidate-roll-number"
+            )
+            .textContent =
+            candidate.rollNumber;
+
+        /* Role */
+
+        fragment
+            .querySelector(
+                ".candidate-role"
+            )
+            .textContent =
+            candidate.role;
+
+        /* Stage */
+
+        const stageBadge =
+            fragment.querySelector(
+                ".candidate-stage-badge"
+            );
+
+        stageBadge.textContent =
+            candidate.stage;
+
+        stageBadge.classList.add(
+            `stage-${candidate.stage}`
+        );
+
+        /* Score */
+
+        const scoreElement =
+            fragment.querySelector(
+                ".candidate-score"
+            );
+
+        if (
+            typeof candidate.technicalScore ===
+            "number"
+        ) {
+
+            scoreElement
+                .classList
+                .remove("hidden");
+
+            fragment
+                .querySelector(
+                    ".score-value"
+                )
+                .textContent =
+                candidate.technicalScore;
+        }
+
+        /* Lock */
+
+        const lockBadge =
+            fragment.querySelector(
+                ".candidate-lock-badge"
+            );
+
+        if (
+            candidate.isLocked
+        ) {
+
+            card.classList.add(
+                "rejected-card"
+            );
+
+            lockBadge
+                .classList
+                .remove("hidden");
+        }
+
+        return fragment;
+    }
+};
+
+
+/* =========================================================
+   KANBAN RENDERER
+========================================================= */
+
+const KanbanRenderer = {
+
+    clearContainers() {
+
+        [
+            DOM.appliedCandidates,
+            DOM.interviewingCandidates,
+            DOM.technicalCandidates,
+            DOM.offeredCandidates,
+            DOM.rejectedCandidates
+        ]
+            .forEach(container => {
+
+                Array
+                    .from(
+                        container.children
+                    )
+                    .forEach(child => {
+
+                        if (
+                            !child.classList
+                                .contains(
+                                    "empty-state"
+                                )
+                        ) {
+
+                            child.remove();
+                        }
+                    });
+            });
+    },
+
+    render() {
+
+        this.clearContainers();
+
+        const candidates =
+            Renderer
+                .getVisibleCandidates();
+
+        candidates.forEach(
+            candidate => {
+
+                const card =
+                    CandidateCardRenderer
+                        .create(
+                            candidate
+                        );
+
+                switch (
+                candidate.stage
+                ) {
+
+                    case STAGES.APPLIED:
+
+                        DOM
+                            .appliedCandidates
+                            .appendChild(
+                                card
+                            );
+
+                        break;
+
+                    case STAGES.INTERVIEWING:
+
+                        DOM
+                            .interviewingCandidates
+                            .appendChild(
+                                card
+                            );
+
+                        break;
+
+                    case STAGES.TECHNICAL_TEST:
+
+                        DOM
+                            .technicalCandidates
+                            .appendChild(
+                                card
+                            );
+
+                        break;
+
+                    case STAGES.OFFERED:
+
+                        DOM
+                            .offeredCandidates
+                            .appendChild(
+                                card
+                            );
+
+                        break;
+
+                    case STAGES.REJECTED:
+
+                        DOM
+                            .rejectedCandidates
+                            .appendChild(
+                                card
+                            );
+
+                        break;
+                }
+            });
+    }
+};
+
+
+/* =========================================================
+   TIMELINE RENDERER
+========================================================= */
+
+const TimelineRenderer = {
+
+    render(
+        candidate,
+        container
+    ) {
+
+        if (
+            !candidate ||
+            !container
+        ) {
+            return;
+        }
+
+        container.innerHTML = "";
+
+        const history =
+            HistoryService
+                .getHistory(
+                    candidate
+                );
+
+        history
+            .slice()
+            .reverse()
+            .forEach(
+                item => {
+
+                    const fragment =
+                        DOM
+                            .activityItemTemplate
+                            .content
+                            .cloneNode(
+                                true
+                            );
+
+                    fragment
+                        .querySelector(
+                            ".timeline-action"
+                        )
+                        .textContent =
+                        item.action;
+
+                    fragment
+                        .querySelector(
+                            ".timeline-timestamp"
+                        )
+                        .textContent =
+                        Utils
+                            .formatDate(
+                                item.timestamp
+                            );
+
+                    container
+                        .appendChild(
+                            fragment
+                        );
+                }
+            );
+    }
+};
+
+
+/* =========================================================
+   EMPTY STATE RENDERER
+========================================================= */
+
+const EmptyStateRenderer = {
+
+    render() {
+
+        const stages = [
+
+            {
+                container:
+                    DOM.appliedCandidates,
+                empty:
+                    DOM.appliedEmptyState
+            },
+
+            {
+                container:
+                    DOM.interviewingCandidates,
+                empty:
+                    DOM.interviewingEmptyState
+            },
+
+            {
+                container:
+                    DOM.technicalCandidates,
+                empty:
+                    DOM.technicalEmptyState
+            },
+
+            {
+                container:
+                    DOM.offeredCandidates,
+                empty:
+                    DOM.offeredEmptyState
+            },
+
+            {
+                container:
+                    DOM.rejectedCandidates,
+                empty:
+                    DOM.rejectedEmptyState
+            }
+        ];
+
+        stages.forEach(
+            stage => {
+
+                const cardCount =
+                    stage.container
+                        .querySelectorAll(
+                            ".candidate-card"
+                        )
+                        .length;
+
+                stage.empty
+                    .classList.toggle(
+                        "hidden",
+                        cardCount > 0
+                    );
+            }
+        );
+    }
+};

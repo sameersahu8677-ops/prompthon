@@ -800,3 +800,593 @@ const ScoringService = {
         };
     }
 };
+
+/* =========================================================
+   PART 2B
+   CANDIDATE SERVICE
+   TRANSITION SERVICE
+   ANALYTICS SERVICE
+========================================================= */
+
+
+/* =========================================================
+   CANDIDATE SERVICE
+========================================================= */
+
+const CandidateService = {
+
+    createCandidate(data) {
+
+        const validation =
+            ValidationService.validateCandidatePayload(
+                data
+            );
+
+        if (!validation.success) {
+            return validation;
+        }
+
+        const candidate = {
+
+            id: Utils.generateId(),
+
+            name: data.name.trim(),
+
+            rollNumber:
+                data.rollNumber.trim(),
+
+            role: data.role.trim(),
+
+            stage: STAGES.APPLIED,
+
+            technicalScore: null,
+
+            isLocked: false,
+
+            createdAt:
+                Utils.createTimestamp(),
+
+            updatedAt:
+                Utils.createTimestamp(),
+
+            activityHistory: []
+        };
+
+        HistoryService.addHistoryEntry(
+            candidate,
+            "Candidate Created"
+        );
+
+        ATSStore.candidates.push(candidate);
+
+        return {
+            success: true,
+            message:
+                "Candidate created successfully.",
+            data: candidate
+        };
+    },
+
+    updateCandidate(
+        candidateId,
+        updates
+    ) {
+
+        const candidate =
+            this.getCandidate(candidateId);
+
+        if (!candidate) {
+
+            return {
+                success: false,
+                message:
+                    "Candidate not found."
+            };
+        }
+
+        const lockCheck =
+            LockService.enforceLock(
+                candidate
+            );
+
+        if (!lockCheck.success) {
+            return lockCheck;
+        }
+
+        if (
+            updates.name !== undefined
+        ) {
+
+            const validation =
+                ValidationService.validateName(
+                    updates.name
+                );
+
+            if (!validation.success) {
+                return validation;
+            }
+
+            candidate.name =
+                updates.name.trim();
+        }
+
+        if (
+            updates.rollNumber !==
+            undefined
+        ) {
+
+            const validation =
+                ValidationService.validateRollNumber(
+                    updates.rollNumber,
+                    candidate.id
+                );
+
+            if (!validation.success) {
+                return validation;
+            }
+
+            candidate.rollNumber =
+                updates.rollNumber.trim();
+        }
+
+        if (
+            updates.role !== undefined
+        ) {
+
+            const validation =
+                ValidationService.validateRole(
+                    updates.role
+                );
+
+            if (!validation.success) {
+                return validation;
+            }
+
+            candidate.role =
+                updates.role.trim();
+        }
+
+        candidate.updatedAt =
+            Utils.createTimestamp();
+
+        HistoryService.addHistoryEntry(
+            candidate,
+            "Candidate Updated"
+        );
+
+        return {
+            success: true,
+            message:
+                "Candidate updated successfully.",
+            data: candidate
+        };
+    },
+
+    deleteCandidate(
+        candidateId
+    ) {
+
+        const candidate =
+            this.getCandidate(candidateId);
+
+        if (!candidate) {
+
+            return {
+                success: false,
+                message:
+                    "Candidate not found."
+            };
+        }
+
+        const lockCheck =
+            LockService.enforceLock(
+                candidate
+            );
+
+        if (!lockCheck.success) {
+            return lockCheck;
+        }
+
+        ATSStore.candidates =
+            ATSStore.candidates.filter(
+                item =>
+                    item.id !==
+                    candidateId
+            );
+
+        return {
+            success: true,
+            message:
+                "Candidate deleted successfully."
+        };
+    },
+
+    getCandidate(
+        candidateId
+    ) {
+
+        return ATSStore.candidates.find(
+            candidate =>
+                candidate.id ===
+                candidateId
+        );
+    },
+
+    getAllCandidates() {
+
+        return ATSStore.candidates;
+    }
+};
+
+
+/* =========================================================
+   TRANSITION SERVICE
+========================================================= */
+
+const TransitionService = {
+
+    canTransition(
+        candidate,
+        targetStage
+    ) {
+
+        if (!candidate) {
+
+            return {
+                success: false,
+                message:
+                    "Candidate not found."
+            };
+        }
+
+        const lockCheck =
+            LockService.enforceLock(
+                candidate
+            );
+
+        if (!lockCheck.success) {
+            return lockCheck;
+        }
+
+        const currentStage =
+            candidate.stage;
+
+        /* =========================
+           APPLIED
+        ========================= */
+
+        if (
+            currentStage ===
+            STAGES.APPLIED &&
+            targetStage ===
+            STAGES.INTERVIEWING
+        ) {
+
+            return {
+                success: true
+            };
+        }
+
+        /* =========================
+           INTERVIEWING
+        ========================= */
+
+        if (
+            currentStage ===
+            STAGES.INTERVIEWING &&
+            targetStage ===
+            STAGES.APPLIED
+        ) {
+
+            return {
+                success: true
+            };
+        }
+
+        /*
+           IMPORTANT
+
+           Interviewing ->
+           Technical Test
+
+           NOT ALLOWED HERE
+
+           Must go through:
+
+           ScoringService
+           .submitTechnicalScore()
+        */
+
+        if (
+            currentStage ===
+            STAGES.INTERVIEWING &&
+            targetStage ===
+            STAGES.TECHNICAL_TEST
+        ) {
+
+            return {
+                success: false,
+                message:
+                    "Technical Test entry requires score submission."
+            };
+        }
+
+        /* =========================
+           TECHNICAL TEST
+        ========================= */
+
+        if (
+            currentStage ===
+            STAGES.TECHNICAL_TEST &&
+            targetStage ===
+            STAGES.OFFERED
+        ) {
+
+            return {
+                success: true
+            };
+        }
+
+        /* =========================
+           OFFERED
+        ========================= */
+
+        if (
+            currentStage ===
+            STAGES.OFFERED &&
+            targetStage ===
+            STAGES.TECHNICAL_TEST
+        ) {
+
+            return {
+                success: true
+            };
+        }
+
+        /* =========================
+           REJECTED
+        ========================= */
+
+        return {
+            success: false,
+            message:
+                "Invalid stage transition."
+        };
+    },
+
+    executeTransition(
+        candidate,
+        targetStage
+    ) {
+
+        const validation =
+            this.canTransition(
+                candidate,
+                targetStage
+            );
+
+        if (!validation.success) {
+            return validation;
+        }
+
+        candidate.stage =
+            targetStage;
+
+        candidate.updatedAt =
+            Utils.createTimestamp();
+
+        HistoryService.addHistoryEntry(
+            candidate,
+            `Moved To ${targetStage}`
+        );
+
+        return {
+            success: true,
+            message:
+                "Transition completed.",
+            data: candidate
+        };
+    },
+
+    moveForward(
+        candidate
+    ) {
+
+        if (!candidate) {
+
+            return {
+                success: false,
+                message:
+                    "Candidate not found."
+            };
+        }
+
+        const stageMap = {
+
+            [STAGES.APPLIED]:
+                STAGES.INTERVIEWING,
+
+            [STAGES.TECHNICAL_TEST]:
+                STAGES.OFFERED
+        };
+
+        const targetStage =
+            stageMap[
+            candidate.stage
+            ];
+
+        if (!targetStage) {
+
+            return {
+                success: false,
+                message:
+                    "Forward transition unavailable."
+            };
+        }
+
+        return this.executeTransition(
+            candidate,
+            targetStage
+        );
+    },
+
+    moveBackward(
+        candidate
+    ) {
+
+        if (!candidate) {
+
+            return {
+                success: false,
+                message:
+                    "Candidate not found."
+            };
+        }
+
+        const stageMap = {
+
+            [STAGES.INTERVIEWING]:
+                STAGES.APPLIED,
+
+            [STAGES.OFFERED]:
+                STAGES.TECHNICAL_TEST
+        };
+
+        const targetStage =
+            stageMap[
+            candidate.stage
+            ];
+
+        if (!targetStage) {
+
+            return {
+                success: false,
+                message:
+                    "Backward transition unavailable."
+            };
+        }
+
+        return this.executeTransition(
+            candidate,
+            targetStage
+        );
+    }
+};
+
+
+/* =========================================================
+   ANALYTICS SERVICE
+========================================================= */
+
+const AnalyticsService = {
+
+    getMetrics() {
+
+        const candidates =
+            ATSStore.candidates;
+
+        const totalCandidates =
+            candidates.length;
+
+        const applied =
+            candidates.filter(
+                c =>
+                    c.stage ===
+                    STAGES.APPLIED
+            ).length;
+
+        const interviewing =
+            candidates.filter(
+                c =>
+                    c.stage ===
+                    STAGES.INTERVIEWING
+            ).length;
+
+        const technicalTest =
+            candidates.filter(
+                c =>
+                    c.stage ===
+                    STAGES.TECHNICAL_TEST
+            ).length;
+
+        const offered =
+            candidates.filter(
+                c =>
+                    c.stage ===
+                    STAGES.OFFERED
+            ).length;
+
+        const rejected =
+            candidates.filter(
+                c =>
+                    c.stage ===
+                    STAGES.REJECTED
+            ).length;
+
+        const scoredCandidates =
+            candidates.filter(
+                c =>
+                    typeof c.technicalScore ===
+                    "number"
+            );
+
+        const averageScore =
+            scoredCandidates.length
+                ? (
+                    scoredCandidates.reduce(
+                        (
+                            total,
+                            candidate
+                        ) =>
+                            total +
+                            candidate.technicalScore,
+                        0
+                    ) /
+                    scoredCandidates.length
+                ).toFixed(1)
+                : "0.0";
+
+        const offerRate =
+            totalCandidates
+                ? (
+                    (offered /
+                        totalCandidates) *
+                    100
+                ).toFixed(1)
+                : "0.0";
+
+        const rejectionRate =
+            totalCandidates
+                ? (
+                    (rejected /
+                        totalCandidates) *
+                    100
+                ).toFixed(1)
+                : "0.0";
+
+        return {
+            success: true,
+
+            data: {
+
+                totalCandidates,
+
+                applied,
+
+                interviewing,
+
+                technicalTest,
+
+                offered,
+
+                rejected,
+
+                averageScore,
+
+                offerRate,
+
+                rejectionRate
+            }
+        };
+    }
+};

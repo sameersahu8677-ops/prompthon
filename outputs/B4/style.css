@@ -1855,3 +1855,6 @@ a {
     }
 }
 
+.stage-technical-test {
+    background: var(--stage-technical);
+}

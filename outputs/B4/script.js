@@ -2566,6 +2566,16 @@ CANDIDATE FORM CONTROLLER
 
 Object.assign(DOM, {
 
+    addCandidateBtn:
+        document.getElementById(
+            "addCandidateBtn"
+        ),
+
+    secondaryAddCandidateBtn:
+        document.getElementById(
+            "secondaryAddCandidateBtn"
+        ),
+
     searchInput:
         document.getElementById(
             "searchInput"
@@ -2608,8 +2618,13 @@ Object.assign(DOM, {
 
     customRole:
         document.getElementById(
-            "customRole"
-        )
+            "customRoleInput"
+        ),
+
+    customRoleContainer:
+        document.getElementById(
+            "customRoleContainer"
+        ),
 });
 
 
@@ -2751,6 +2766,31 @@ const SortController = {
 
 const CandidateFormController = {
 
+    initializeAddButtons() {
+
+        DOM.addCandidateBtn
+            ?.addEventListener(
+                "click",
+                () => {
+
+                    ModalManager.openModal(
+                        "candidate"
+                    );
+                }
+            );
+
+        DOM.secondaryAddCandidateBtn
+            ?.addEventListener(
+                "click",
+                () => {
+
+                    ModalManager.openModal(
+                        "candidate"
+                    );
+                }
+            );
+    },
+
     getRoleValue() {
 
         const selectedRole =
@@ -2774,7 +2814,7 @@ const CandidateFormController = {
         DOM.candidateForm
             ?.reset();
 
-        DOM.customRole
+        DOM.customRoleContainer
             ?.classList
             .add("hidden");
     },
@@ -2786,13 +2826,13 @@ const CandidateFormController = {
             "custom"
         ) {
 
-            DOM.customRole
+            DOM.customRoleContainer
                 ?.classList
                 .remove("hidden");
 
         } else {
 
-            DOM.customRole
+            DOM.customRoleContainer
                 ?.classList
                 .add("hidden");
         }
@@ -2852,6 +2892,8 @@ const CandidateFormController = {
     },
 
     initialize() {
+
+        this.initializeAddButtons();
 
         DOM.candidateRole
             ?.addEventListener(
@@ -3213,13 +3255,14 @@ const CandidateActionController = {
                     )
             );
 
-        DOM.scoreForm
+        document
+            .getElementById(
+                "submitTechnicalScoreBtn"
+            )
             ?.addEventListener(
-                "submit",
+                "click",
                 event =>
-                    this.submitScore(
-                        event
-                    )
+                    this.submitScore(event)
             );
 
         DOM.confirmOfferBtn

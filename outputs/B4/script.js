@@ -2549,3 +2549,321 @@ Renderer.renderAll =
 
         Renderer.updateKanbanCounts();
     };
+
+/* =========================================================
+PART 4B
+CONTROLLER HELPERS
+SEARCH CONTROLLER
+FILTER CONTROLLER
+SORT CONTROLLER
+CANDIDATE FORM CONTROLLER
+========================================================= */
+
+
+/* =========================================================
+   ADDITIONAL DOM REFERENCES
+========================================================= */
+
+Object.assign(DOM, {
+
+    searchInput:
+        document.getElementById(
+            "searchInput"
+        ),
+
+    roleFilter:
+        document.getElementById(
+            "roleFilter"
+        ),
+
+    stageFilter:
+        document.getElementById(
+            "stageFilter"
+        ),
+
+    sortCandidates:
+        document.getElementById(
+            "sortCandidates"
+        ),
+
+    candidateForm:
+        document.getElementById(
+            "candidateForm"
+        ),
+
+    candidateName:
+        document.getElementById(
+            "candidateName"
+        ),
+
+    candidateRollNumber:
+        document.getElementById(
+            "candidateRollNumber"
+        ),
+
+    candidateRole:
+        document.getElementById(
+            "candidateRole"
+        ),
+
+    customRole:
+        document.getElementById(
+            "customRole"
+        )
+});
+
+
+/* =========================================================
+   CONTROLLER HELPERS
+========================================================= */
+
+const ControllerHelpers = {
+
+    persistAndRender() {
+
+        StorageService.saveCandidates(
+            ATSStore.candidates
+        );
+
+        Renderer.renderAll();
+    },
+
+    showResultToast(result) {
+
+        if (!result) {
+            return;
+        }
+
+        if (result.success) {
+
+            ToastManager.success(
+                result.message
+            );
+
+        } else {
+
+            ToastManager.error(
+                result.message
+            );
+        }
+    }
+};
+
+
+/* =========================================================
+   SEARCH CONTROLLER
+========================================================= */
+
+const SearchController = {
+
+    handleInput(event) {
+
+        ATSStore.searchQuery =
+            event.target.value
+                .trim()
+                .toLowerCase();
+
+        Renderer.renderAll();
+    },
+
+    initialize() {
+
+        if (!DOM.searchInput) {
+            return;
+        }
+
+        DOM.searchInput
+            .addEventListener(
+                "input",
+                this.handleInput
+            );
+    }
+};
+
+
+/* =========================================================
+   FILTER CONTROLLER
+========================================================= */
+
+const FilterController = {
+
+    handleRoleFilter(event) {
+
+        ATSStore.filters.role =
+            event.target.value;
+
+        Renderer.renderAll();
+    },
+
+    handleStageFilter(event) {
+
+        ATSStore.filters.stage =
+            event.target.value;
+
+        Renderer.renderAll();
+    },
+
+    initialize() {
+
+        DOM.roleFilter
+            ?.addEventListener(
+                "change",
+                this.handleRoleFilter
+            );
+
+        DOM.stageFilter
+            ?.addEventListener(
+                "change",
+                this.handleStageFilter
+            );
+    }
+};
+
+
+/* =========================================================
+   SORT CONTROLLER
+========================================================= */
+
+const SortController = {
+
+    handleSort(event) {
+
+        ATSStore.sortMode =
+            event.target.value;
+
+        Renderer.renderAll();
+    },
+
+    initialize() {
+
+        DOM.sortCandidates
+            ?.addEventListener(
+                "change",
+                this.handleSort
+            );
+    }
+};
+
+
+/* =========================================================
+   CANDIDATE FORM CONTROLLER
+========================================================= */
+
+const CandidateFormController = {
+
+    getRoleValue() {
+
+        const selectedRole =
+            DOM.candidateRole?.value;
+
+        if (
+            selectedRole ===
+            "custom"
+        ) {
+
+            return DOM.customRole
+                ?.value
+                ?.trim();
+        }
+
+        return selectedRole;
+    },
+
+    resetForm() {
+
+        DOM.candidateForm
+            ?.reset();
+
+        DOM.customRole
+            ?.classList
+            .add("hidden");
+    },
+
+    toggleCustomRole() {
+
+        if (
+            DOM.candidateRole?.value ===
+            "custom"
+        ) {
+
+            DOM.customRole
+                ?.classList
+                .remove("hidden");
+
+        } else {
+
+            DOM.customRole
+                ?.classList
+                .add("hidden");
+        }
+    },
+
+    createPayload() {
+
+        return {
+
+            name:
+                DOM.candidateName
+                    ?.value
+                    ?.trim(),
+
+            rollNumber:
+                DOM.candidateRollNumber
+                    ?.value
+                    ?.trim(),
+
+            role:
+                this.getRoleValue()
+        };
+    },
+
+    handleSubmit(event) {
+
+        event.preventDefault();
+
+        const payload =
+            CandidateFormController
+                .createPayload();
+
+        const result =
+            CandidateService
+                .createCandidate(
+                    payload
+                );
+
+        ControllerHelpers
+            .showResultToast(
+                result
+            );
+
+        if (!result.success) {
+            return;
+        }
+
+        ControllerHelpers
+            .persistAndRender();
+
+        CandidateFormController
+            .resetForm();
+
+        ModalManager.closeModal(
+            "candidate"
+        );
+    },
+
+    initialize() {
+
+        DOM.candidateRole
+            ?.addEventListener(
+                "change",
+                () =>
+                    this.toggleCustomRole()
+            );
+
+        DOM.candidateForm
+            ?.addEventListener(
+                "submit",
+                this.handleSubmit
+            );
+    }
+};

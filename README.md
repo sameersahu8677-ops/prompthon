@@ -21,8 +21,9 @@ participant : Sameer.
 | A7 | Fitness And Health Tracker App  | ✅ Completed | outputs/A7 |
 | B1 | Real-Time Markdown Editor & Live Previewer | ✅ Completed | outputs/B1 |
 | B3 | Cinema Matrix Seat Reservation Engine | ✅ Completed | outputs/B3 |
+| B4 | Multi-Stage Student Recruitment Tracker | ✅ Completed | outputs/B4 |
 | B2 | TBD | ⏳ Pending | outputs/B2 |
-| B4 | TBD | ⏳ Pending | outputs/B4 |
+
 
 ### Status Legend
 
@@ -853,7 +854,6 @@ All data is stored locally in the browser using Local Storage. No external datab
 - Dynamic analytics and alerts
 - Persistent health records
 - Beginner-friendly interface
-- Promptathon-ready implementation
 
 ----------------------------------------
 
@@ -1050,4 +1050,151 @@ Deployable on:
 ✅ Persistent Storage Enabled  
 ✅ Analytics & History Enabled  
 ✅ Responsive Design  
-✅ Promptathon Ready 🚀🏆
+
+-----------------------------------------
+
+# B4 - Multi-Stage Student Recruitment Tracker
+
+A Kanban-based Applicant Tracking System (ATS) for managing student recruitment pipelines for clubs, societies, internships, and placement drives.
+
+---
+
+## Features
+
+### Candidate Management
+- Add, edit, delete, and view candidates
+- Unique roll number validation
+- Candidate activity history
+
+### Recruitment Pipeline
+- Applied
+- Interviewing
+- Technical Test
+- Offered
+- Rejected
+
+### Automated ATS Rules
+- Technical Test requires score entry (0–100)
+- Score below 70 → Auto Rejected
+- Rejected candidates are permanently locked
+- Offered stage requires confirmation
+
+---
+
+## Dashboard & Analytics
+
+- Total Candidates
+- Stage-wise Counts
+- Average Score
+- Offer Rate
+- Rejection Rate
+
+---
+
+## Search & Filtering
+
+- Search by name or roll number
+- Filter by role or stage
+- Sort by newest, oldest, or highest score
+
+---
+
+## Candidate Details
+
+- Candidate information
+- Technical score
+- Current stage
+- Activity timeline
+- Creation and update history
+
+---
+
+## Data Persistence
+
+Uses Local Storage to preserve:
+- Candidates
+- Scores
+- Pipeline progress
+- Activity history
+
+---
+
+## Architecture
+
+```text
+Store
+↓
+Services
+↓
+Renderers
+↓
+Controllers
+↓
+Bootstrap
+```
+
+### Core Services
+- ValidationService
+- CandidateService
+- ScoringService
+- TransitionService
+- LockService
+- AnalyticsService
+- StorageService
+- HistoryService
+
+---
+
+## ATS Workflow
+
+```text
+Applied
+↕
+Interviewing
+
+Interviewing
+↓ Score Submission
+
+Score ≥ 70
+↓
+Technical Test
+↓ Confirmation
+Offered
+
+Score < 70
+↓
+Rejected
+↓
+Locked Forever
+```
+
+---
+
+## Technologies
+
+- HTML5
+- CSS3
+- Vanilla JavaScript
+- Local Storage API
+
+---
+
+## Project Highlights
+
+- Real-world ATS workflow
+- Automated business rules
+- Modular architecture
+- Persistent state management
+- Analytics dashboard
+- Audit timeline
+- User-friendly interface
+
+---
+
+## Status
+
+✅ Functional ATS Workflow  
+✅ Automated Gate Logic  
+✅ Kanban Pipeline  
+✅ Analytics Dashboard  
+✅ Local Storage Persistence  

@@ -380,3 +380,56 @@
 | 40 | Main | ChatGPT | Inspect uploaded codebase, identify critical bugs, apply stabilization fixes, verify functionality, and perform final Promptathon readiness review |
 
 **Total Prompts: 40**
+
+## B4 - Multi-Stage Student Recruitment Tracker
+
+| # | Chat | Tool | Purpose |
+|---|------|------|---------|
+| 1 | Requirements Analysis | ChatGPT | Analyzed problem statement, ATS rules, user needs, judge expectations, deployment considerations |
+| 2 | Requirements Locking | ChatGPT | Finalized functional requirements, constraints, workflows, ATS business rules |
+| 3 | Architecture Design | ChatGPT | Defined Store → Services → Renderer → Controllers → Bootstrap architecture |
+| 4 | Master Prompt Setup | ChatGPT | Created master generation strategy and modular development workflow |
+| 5 | HTML Planning | ChatGPT | Designed page structure, sections, templates, modals, dashboard, kanban layout |
+| 6 | HTML Generation Setup | ChatGPT | Created HTML generation prompts and structure plan |
+| 7 | Index.html Part 1 | ChatGPT | Generated dashboard, filters, search, layout foundation |
+| 8 | Index.html Part 2 | ChatGPT | Generated kanban board and stage columns |
+| 9 | Index.html Part 3 | ChatGPT | Generated templates, modals, timeline, toast system |
+| 10 | HTML Audit | ChatGPT | Reviewed structure and prepared CSS phase |
+| 11 | Theme Selection | ChatGPT | Selected dark admin dashboard theme with non-blue palette |
+| 12 | CSS Planning | ChatGPT | Finalized design system, colors, spacing, component styling |
+| 13 | CSS Part 1 | ChatGPT | Generated global styles, variables, layout system |
+| 14 | CSS Part 2 | ChatGPT | Generated dashboard, cards, filters, controls styling |
+| 15 | CSS Part 3 | ChatGPT | Generated kanban board and candidate card styling |
+| 16 | CSS Part 4 | ChatGPT | Generated modals, timeline, toasts, animations, responsive enhancements |
+| 17 | CSS Audit | ChatGPT | Reviewed styling architecture and prepared JS phase |
+| 18 | JS Planning | ChatGPT | Finalized modular JS architecture and service separation |
+| 19 | JS Part 1 | ChatGPT | Generated Store, Constants, Utilities, Storage Service, History Service |
+| 20 | JS Architecture Review | ChatGPT | Identified ATS rule enforcement improvements |
+| 21 | JS Part 2A | ChatGPT | Generated Validation Service, Lock Service, Scoring Service |
+| 22 | JS Part 2A Audit | ChatGPT | Verified ATS automation rules and rejection locking |
+| 23 | JS Part 2B | ChatGPT | Generated Candidate Service, Transition Service, Analytics Service |
+| 24 | JS Part 2B Audit | ChatGPT | Reviewed CRUD, transitions, analytics coverage |
+| 25 | JS Part 3 | ChatGPT | Generated Renderer Layer, Dashboard Renderer, Kanban Renderer, Timeline Renderer |
+| 26 | JS Part 3 Audit | ChatGPT | Reviewed rendering architecture and missing badge counts |
+| 27 | JS Part 4A | ChatGPT | Generated Modal Manager, Toast Manager, Details Renderer, Count Renderer |
+| 28 | JS Part 4A Audit | ChatGPT | Reviewed UX systems and modal architecture |
+| 29 | JS Part 4B | ChatGPT | Generated Search, Filter, Sort, Candidate Form Controllers |
+| 30 | JS Part 4B Audit | ChatGPT | Reviewed controller separation and persistence flow |
+| 31 | JS Part 4C | ChatGPT | Generated Candidate Actions, Score Workflow, Offer Workflow, Delete Workflow |
+| 32 | JS Part 4C Audit | ChatGPT | Verified ATS transition enforcement and event delegation |
+| 33 | JS Part 5 | ChatGPT | Generated Bootstrap, Startup, Initialization, Persistence Wiring |
+| 34 | Full Project Audit | ChatGPT | Conducted end-to-end architecture and requirement validation |
+| 35 | Integration Audit | ChatGPT | Identified HTML/JS mismatches causing runtime issues |
+| 36 | Add Candidate Fix | ChatGPT | Connected Add Candidate buttons to modal system |
+| 37 | Score Workflow Fix | ChatGPT | Corrected technical score submission wiring |
+| 38 | Custom Role Fix | ChatGPT | Fixed custom role input and container references |
+| 39 | Kanban Board Fix | ChatGPT | Added missing kanbanBoard integration ID |
+| 40 | Modal Close Fix | ChatGPT | Added data-close-modal support and close wiring |
+| 41 | Stage Badge Fix | ChatGPT | Fixed technical-test badge styling mismatch |
+| 42 | Candidate Actions Fix | ChatGPT | Restored data-action attributes for View, Back, Next, Delete |
+| 43 | Details Modal Fix | ChatGPT | Diagnosed non-functional close button behavior |
+| 44 | Offer Modal Cleanup | ChatGPT | Removed unintended empty form element appearing as textarea |
+| 45 | Final Promptathon Audit | ChatGPT | Verified ATS compliance, UX, architecture, and submission readiness |
+| 46 | Prompt Markdown Generation | ChatGPT | Generated project prompt log markdown |
+
+**Total Prompt Count: 46**

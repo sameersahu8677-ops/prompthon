@@ -681,3 +681,630 @@ function deleteBook(bookId) {
     );
 
 }
+
+/* ===================================== */
+/* CHECKOUT DOM REFERENCES */
+/* ===================================== */
+
+const checkoutElements = {
+    form: document.getElementById("checkout-form"),
+    bookSelect: document.getElementById("checkout-book-select"),
+    studentId: document.getElementById("student-id"),
+    dueDate: document.getElementById("due-date")
+};
+
+const returnElements = {
+    searchInput: document.getElementById("return-search-input"),
+    searchButton: document.getElementById("search-loan-btn"),
+    processReturnButton: document.getElementById("process-return-btn"),
+
+    loanDetailsContent:
+        document.getElementById("loan-details-content"),
+
+    fineBreakdownContent:
+        document.getElementById("fine-breakdown-content")
+};
+
+/* ===================================== */
+/* CURRENTLY SELECTED LOAN */
+/* ===================================== */
+
+let selectedLoan = null;
+
+/* ===================================== */
+/* CHECKOUT DROPDOWN */
+/* ===================================== */
+
+function populateBookDropdown() {
+
+    if (!checkoutElements.bookSelect) {
+        return;
+    }
+
+    checkoutElements.bookSelect.innerHTML = `
+        <option value="">
+            Select Book
+        </option>
+    `;
+
+    state.books.forEach(book => {
+
+        const availableCopies =
+            book.totalCopies -
+            book.borrowedCopies;
+
+        if (availableCopies <= 0) {
+            return;
+        }
+
+        const option =
+            document.createElement("option");
+
+        option.value = book.id;
+
+        option.textContent = `
+${book.title}
+(Available: ${availableCopies})
+        `.trim();
+
+        checkoutElements.bookSelect
+            .appendChild(option);
+
+    });
+
+}
+
+/* ===================================== */
+/* CHECKOUT VALIDATION */
+/* ===================================== */
+
+function validateCheckout(data) {
+
+    if (!data.bookId) {
+
+        throw new Error(
+            "Please select a book."
+        );
+
+    }
+
+    if (!data.studentId?.trim()) {
+
+        throw new Error(
+            "Student ID is required."
+        );
+
+    }
+
+    if (!data.dueDate) {
+
+        throw new Error(
+            "Due date is required."
+        );
+
+    }
+
+    const book =
+        state.books.find(
+            b => b.id === data.bookId
+        );
+
+    if (!book) {
+
+        throw new Error(
+            "Book not found."
+        );
+
+    }
+
+    const available =
+        book.totalCopies -
+        book.borrowedCopies;
+
+    if (available <= 0) {
+
+        throw new Error(
+            "No copies available."
+        );
+
+    }
+
+}
+
+/* ===================================== */
+/* CHECKOUT BOOK */
+/* ===================================== */
+
+function checkoutBook(data) {
+
+    validateCheckout(data);
+
+    const book =
+        state.books.find(
+            b => b.id === data.bookId
+        );
+
+    book.borrowedCopies++;
+
+    const loan = {
+
+        loanId:
+            generateId("LOAN"),
+
+        bookId:
+            book.id,
+
+        bookTitle:
+            book.title,
+
+        studentId:
+            data.studentId.trim(),
+
+        borrowDate:
+            new Date().toISOString(),
+
+        dueDate:
+            data.dueDate
+
+    };
+
+    state.activeLoans.push(loan);
+
+    addLog(
+        "Book Issued",
+        `${book.title} → ${loan.studentId}`
+    );
+
+    saveData();
+
+    renderInventory();
+
+    if (
+        typeof renderDashboard ===
+        "function"
+    ) {
+        renderDashboard();
+    }
+
+    if (
+        typeof renderRecentLoans ===
+        "function"
+    ) {
+        renderRecentLoans();
+    }
+
+    populateBookDropdown();
+
+    showToast(
+        "Book issued successfully.",
+        "success"
+    );
+
+}
+
+/* ===================================== */
+/* CHECKOUT FORM SUBMIT */
+/* ===================================== */
+
+function handleCheckoutSubmit(event) {
+
+    event.preventDefault();
+
+    try {
+
+        checkoutBook({
+
+            bookId:
+                checkoutElements.bookSelect.value,
+
+            studentId:
+                checkoutElements.studentId.value,
+
+            dueDate:
+                checkoutElements.dueDate.value
+
+        });
+
+        checkoutElements.form.reset();
+
+    } catch (error) {
+
+        showToast(
+            error.message,
+            "error"
+        );
+
+    }
+
+}
+
+/* ===================================== */
+/* FINE ENGINE */
+/* ===================================== */
+
+function calculateFine(overdueDays) {
+
+    if (overdueDays <= 0) {
+
+        return {
+
+            overdueDays: 0,
+
+            firstTierDays: 0,
+            firstTierFine: 0,
+
+            secondTierDays: 0,
+            secondTierFine: 0,
+
+            totalFine: 0
+
+        };
+
+    }
+
+    const firstTierDays =
+        Math.min(overdueDays, 7);
+
+    const secondTierDays =
+        Math.max(
+            overdueDays - 7,
+            0
+        );
+
+    const firstTierFine =
+        firstTierDays * 1;
+
+    const secondTierFine =
+        secondTierDays * 2.5;
+
+    const totalFine =
+        firstTierFine +
+        secondTierFine;
+
+    return {
+
+        overdueDays,
+
+        firstTierDays,
+        firstTierFine,
+
+        secondTierDays,
+        secondTierFine,
+
+        totalFine
+
+    };
+
+}
+
+/* ===================================== */
+/* SEARCH LOANS */
+/* ===================================== */
+
+function searchLoans(query) {
+
+    const normalized =
+        query
+            .trim()
+            .toLowerCase();
+
+    return state.activeLoans.filter(
+        loan =>
+
+            loan.loanId
+                .toLowerCase()
+                .includes(normalized)
+
+            ||
+
+            loan.studentId
+                .toLowerCase()
+                .includes(normalized)
+    );
+
+}
+
+/* ===================================== */
+/* DISPLAY LOAN */
+/* ===================================== */
+
+function selectLoan(loan) {
+
+    selectedLoan = loan;
+
+    const today =
+        new Date();
+
+    const dueDate =
+        new Date(loan.dueDate);
+
+    const overdueDays =
+        Math.max(
+            Math.ceil(
+                (
+                    today -
+                    dueDate
+                ) /
+                (
+                    1000 *
+                    60 *
+                    60 *
+                    24
+                )
+            ),
+            0
+        );
+
+    const fine =
+        calculateFine(
+            overdueDays
+        );
+
+    if (
+        returnElements.loanDetailsContent
+    ) {
+
+        returnElements.loanDetailsContent.innerHTML = `
+            <p><strong>Loan ID:</strong> ${loan.loanId}</p>
+            <p><strong>Book:</strong> ${loan.bookTitle}</p>
+            <p><strong>Student:</strong> ${loan.studentId}</p>
+            <p><strong>Borrow Date:</strong> ${formatDate(loan.borrowDate)}</p>
+            <p><strong>Due Date:</strong> ${formatDate(loan.dueDate)}</p>
+        `;
+
+    }
+
+    if (
+        returnElements.fineBreakdownContent
+    ) {
+
+        returnElements.fineBreakdownContent.innerHTML = `
+            <p>Overdue Days: ${fine.overdueDays}</p>
+            <p>First Tier Days: ${fine.firstTierDays}</p>
+            <p>First Tier Fine: ₹${fine.firstTierFine.toFixed(2)}</p>
+            <p>Second Tier Days: ${fine.secondTierDays}</p>
+            <p>Second Tier Fine: ₹${fine.secondTierFine.toFixed(2)}</p>
+            <hr>
+            <p><strong>Total Fine: ₹${fine.totalFine.toFixed(2)}</strong></p>
+        `;
+
+    }
+
+}
+
+/* ===================================== */
+/* HANDLE SEARCH */
+/* ===================================== */
+
+function handleLoanSearch() {
+
+    const query =
+        returnElements.searchInput.value;
+
+    if (!query.trim()) {
+
+        showToast(
+            "Enter Loan ID or Student ID",
+            "warning"
+        );
+
+        return;
+
+    }
+
+    const matches =
+        searchLoans(query);
+
+    if (!matches.length) {
+
+        showToast(
+            "No active loans found.",
+            "warning"
+        );
+
+        return;
+
+    }
+
+    if (matches.length === 1) {
+
+        selectLoan(matches[0]);
+
+        showToast(
+            "Loan found.",
+            "success"
+        );
+
+        return;
+
+    }
+
+    const selectedId =
+        prompt(
+            matches.map(
+                loan =>
+                    `${loan.loanId} (${loan.studentId})`
+            ).join("\n\n") +
+            "\n\nEnter Loan ID:"
+        );
+
+    if (!selectedId) {
+        return;
+    }
+
+    const chosenLoan =
+        matches.find(
+            loan =>
+                loan.loanId === selectedId
+        );
+
+    if (!chosenLoan) {
+
+        showToast(
+            "Invalid Loan ID.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    selectLoan(chosenLoan);
+
+}
+
+/* ===================================== */
+/* RETURN BOOK */
+/* ===================================== */
+
+function returnBook() {
+
+    if (!selectedLoan) {
+
+        showToast(
+            "Select a loan first.",
+            "warning"
+        );
+
+        return;
+
+    }
+
+    const book =
+        state.books.find(
+            b =>
+                b.id ===
+                selectedLoan.bookId
+        );
+
+    if (!book) {
+
+        showToast(
+            "Book not found.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    const returnDate =
+        new Date();
+
+    const dueDate =
+        new Date(
+            selectedLoan.dueDate
+        );
+
+    const overdueDays =
+        Math.max(
+            Math.ceil(
+                (
+                    returnDate -
+                    dueDate
+                ) /
+                (
+                    1000 *
+                    60 *
+                    60 *
+                    24
+                )
+            ),
+            0
+        );
+
+    const fine =
+        calculateFine(
+            overdueDays
+        );
+
+    book.borrowedCopies =
+        Math.max(
+            book.borrowedCopies - 1,
+            0
+        );
+
+    state.activeLoans =
+        state.activeLoans.filter(
+            loan =>
+                loan.loanId !==
+                selectedLoan.loanId
+        );
+
+    state.loanHistory.push({
+
+        loanId:
+            selectedLoan.loanId,
+
+        bookId:
+            selectedLoan.bookId,
+
+        bookTitle:
+            selectedLoan.bookTitle,
+
+        studentId:
+            selectedLoan.studentId,
+
+        borrowDate:
+            selectedLoan.borrowDate,
+
+        dueDate:
+            selectedLoan.dueDate,
+
+        returnDate:
+            returnDate.toISOString(),
+
+        overdueDays,
+
+        fine:
+            fine.totalFine
+
+    });
+
+    addLog(
+        "Book Returned",
+        selectedLoan.bookTitle
+    );
+
+    saveData();
+
+    renderInventory();
+
+    if (
+        typeof renderDashboard ===
+        "function"
+    ) {
+        renderDashboard();
+    }
+
+    if (
+        typeof renderHistory ===
+        "function"
+    ) {
+        renderHistory();
+    }
+
+    if (
+        typeof renderRecentReturns ===
+        "function"
+    ) {
+        renderRecentReturns();
+    }
+
+    populateBookDropdown();
+
+    returnElements.loanDetailsContent.innerHTML =
+        "";
+
+    returnElements.fineBreakdownContent.innerHTML =
+        "";
+
+    selectedLoan = null;
+
+    showToast(
+        `Returned successfully. Fine: ₹${fine.totalFine.toFixed(2)}`,
+        "success"
+    );
+
+}
+

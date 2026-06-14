@@ -22,7 +22,7 @@ participant : Sameer.
 | B1 | Real-Time Markdown Editor & Live Previewer | ✅ Completed | outputs/B1 |
 | B3 | Cinema Matrix Seat Reservation Engine | ✅ Completed | outputs/B3 |
 | B4 | Multi-Stage Student Recruitment Tracker | ✅ Completed | outputs/B4 |
-| B2 | TBD | ⏳ Pending | outputs/B2 |
+| B2 | College Library Inventory & Late-Fee Calculator | ✅ Completed | outputs/B2 |
 
 
 ### Status Legend
@@ -1198,3 +1198,159 @@ Locked Forever
 ✅ Kanban Pipeline  
 ✅ Analytics Dashboard  
 ✅ Local Storage Persistence  
+
+-------------------------------------------
+
+
+# B2 - College Library Inventory & Late Fee Calculator
+
+A browser-based Library Management System built for Promptathon B2.
+
+Manage library inventory, issue books, process returns, track loans, and automatically calculate overdue fines.
+
+---
+
+## 🚀 Features
+
+### 📖 Inventory Management
+- Add, edit, and delete books
+- Search by Book ID, Title, or Author
+- Track:
+  - Total Copies
+  - Borrowed Copies
+  - Available Copies
+- Status indicators:
+  - Available
+  - Low Stock
+  - Out Of Stock
+
+### 🔄 Book Checkout
+- Issue books to students
+- Assign due dates
+- Automatic stock deduction
+- Prevent checkout when copies are unavailable
+
+### ↩️ Book Returns
+- Search active loans
+- Return borrowed books
+- Restore inventory automatically
+- Generate loan history records
+
+### 💰 Fine Calculation
+Fine Structure:
+
+| Overdue Days | Rate |
+|-------------|------|
+| 1 - 7 Days | ₹1/day |
+| 8+ Days | ₹2.50/day |
+
+Example:
+
+```text
+10 Days Overdue
+
+7 × ₹1
++
+3 × ₹2.50
+
+= ₹14.50
+```
+
+### 📊 Dashboard
+Displays:
+- Total Books
+- Available Books
+- Borrowed Books
+- Active Loans
+- Overdue Loans
+- Total Fine Collected
+
+### 📝 Loan History
+Tracks:
+- Loan ID
+- Book Details
+- Student ID
+- Borrow & Return Dates
+- Overdue Days
+- Fine Paid
+
+### 💾 Persistence
+Uses localStorage to preserve:
+- Books
+- Active Loans
+- Loan History
+- Activity Logs
+
+---
+
+## 🏗️ Project Structure
+
+```text
+project/
+│
+├── index.html
+├── style.css
+└── script.js
+```
+
+---
+
+## 🔒 Validation Rules
+
+### Books
+- Title required
+- Author required
+- Copies ≥ 1
+
+### Checkout
+- Book must exist
+- Copies must be available
+- Student ID required
+- Due date required
+
+### Returns
+- Loan must exist
+- Fine calculated automatically
+
+---
+
+## 🎨 Design
+
+Theme: **Calm Library Aesthetic**
+
+Colors:
+- Beige
+- Warm Brown
+- Cream White
+- Muted Gold
+
+Focused on simplicity, readability, and ease of use for non-technical users.
+
+---
+
+## 🎯 Promptathon B2 Coverage
+
+| Requirement | Status |
+|------------|---------|
+| Inventory Management | ✅ |
+| Checkout System | ✅ |
+| Return System | ✅ |
+| Fine Calculation | ✅ |
+| Loan History | ✅ |
+| Dashboard | ✅ |
+| Search | ✅ |
+| Persistence | ✅ |
+
+---
+
+## 🏆 Highlights
+
+- Fully browser-based
+- No database required
+- Persistent storage
+- Automatic fine calculation
+- Library-themed UI
+- Modular structure
+- Easy deployment
+
+------------------------------

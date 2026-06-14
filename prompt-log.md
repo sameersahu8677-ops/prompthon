@@ -430,6 +430,77 @@
 | 43 | Details Modal Fix | ChatGPT | Diagnosed non-functional close button behavior |
 | 44 | Offer Modal Cleanup | ChatGPT | Removed unintended empty form element appearing as textarea |
 | 45 | Final Promptathon Audit | ChatGPT | Verified ATS compliance, UX, architecture, and submission readiness |
-| 46 | Prompt Markdown Generation | ChatGPT | Generated project prompt log markdown |
 
-**Total Prompt Count: 46**
+
+**Total Prompt Count: 45**
+
+
+## B2 - College Library Inventory & Late Fee Calculator
+
+| # | Chat | Tool | Purpose |
+|---|------|------|---------|
+| 1 | User | ChatGPT | Analyze B2 problem statement, requirements, architecture, UI/UX, persistence, fine system, modular structure. |
+| 2 | ChatGPT | Analysis | Audited Promptathon judging perspective and identified inventory, checkout, return, fine and persistence modules. |
+| 3 | User | ChatGPT | Requested requirements, structure and architecture setup. |
+| 4 | ChatGPT | Planning | Created application architecture, data flow, module breakdown, storage strategy and UI hierarchy. |
+| 5 | User | ChatGPT | Requested audit and phase lock. |
+| 6 | ChatGPT | Audit | Reviewed architecture completeness and locked requirements phase. |
+| 7 | User | ChatGPT | Requested progression towards master prompt. |
+| 8 | ChatGPT | Planning | Produced master implementation strategy covering frontend, persistence, business logic and workflows. |
+| 9 | User | ChatGPT | Requested HTML setup generation plan. |
+| 10 | ChatGPT | Planning | Structured HTML into dashboard, inventory, checkout, returns and history sections. |
+| 11 | User | ChatGPT | Requested sequential generation workflow. |
+| 12 | ChatGPT | Planning | Reorganized generation into simpler copy-paste friendly parts. |
+| 13 | User | ChatGPT | Requested HTML Part 1. |
+| 14 | ChatGPT | Code Planning | Generated first HTML structure section. |
+| 15 | User | ChatGPT | Requested HTML Part 2. |
+| 16 | ChatGPT | Code Planning | Generated inventory, checkout and return layout. |
+| 17 | User | ChatGPT | Requested HTML Part 3. |
+| 18 | ChatGPT | Code Planning | Generated history section, modal system and remaining HTML. |
+| 19 | User | ChatGPT | Requested CSS planning. |
+| 20 | ChatGPT | Design | Proposed visual design system and styling structure. |
+| 21 | User | ChatGPT | Requested theme finalization. |
+| 22 | ChatGPT | Design | Finalized beige calm library theme. |
+| 23 | User | ChatGPT | Requested CSS generation. |
+| 24 | ChatGPT | Code Planning | Generated CSS structure in multiple parts. |
+| 25 | User | ChatGPT | Requested JavaScript setup. |
+| 26 | ChatGPT | Architecture | Designed JS modules and functionality mapping. |
+| 27 | User | ChatGPT | Requested audit before coding. |
+| 28 | ChatGPT | Audit | Identified risks, API requirements and functional dependencies. |
+| 29 | User | ChatGPT | Requested regenerated JS prompts. |
+| 30 | ChatGPT | Planning | Produced JS generation prompts for inventory, checkout, returns and dashboard modules. |
+| 31 | User | ChatGPT | Requested JS Part 1 generation. |
+| 32 | ChatGPT | Code Planning | Generated inventory, state and persistence logic. |
+| 33 | User | ChatGPT | Requested JS Part 2 generation. |
+| 34 | ChatGPT | Code Planning | Generated checkout, loans and fine calculation logic. |
+| 35 | User | ChatGPT | Requested JS Part 3 generation. |
+| 36 | ChatGPT | Code Planning | Generated dashboard, history, events and startup logic. |
+| 37 | User | ChatGPT | Reported that nothing was working. |
+| 38 | ChatGPT | Debugging | Diagnosed missing backend, incomplete JS and duplicate function issues. |
+| 39 | User | ChatGPT | Requested exact fixes. |
+| 40 | ChatGPT | Debugging | Identified duplicate blocks, missing startup handlers and broken API dependencies. |
+| 41 | User | ChatGPT | Requested API resolution. |
+| 42 | ChatGPT | Architecture | Proposed localStorage-first backend replacement strategy. |
+| 43 | User | ChatGPT | Reported Add Book not functioning. |
+| 44 | ChatGPT | Debugging | Diagnosed Add Book event and API service issues. |
+| 45 | User | ChatGPT | Requested complete functionality audit. |
+| 46 | ChatGPT | Audit | Found missing checkout, return, search and history workflows. |
+| 47 | User | ChatGPT | Requested full mistake discovery. |
+| 48 | ChatGPT | Audit | Produced comprehensive inventory, checkout, return, dashboard and persistence issue list. |
+| 49 | User | ChatGPT | Requested flawless prompt regeneration. |
+| 50 | ChatGPT | Planning | Rebuilt JS generation strategy into Part 1, Part 2 and Part 3 prompts. |
+| 51 | User | ChatGPT | Requested Part 1 code. |
+| 52 | ChatGPT | Code Planning | Generated inventory/state/storage implementation. |
+| 53 | User | ChatGPT | Requested Part 2 code. |
+| 54 | ChatGPT | Code Planning | Generated checkout, loan search, return and fine engine implementation. |
+| 55 | User | ChatGPT | Requested Part 3 code. |
+| 56 | ChatGPT | Code Planning | Generated dashboard, history, events and startup modules. |
+| 57 | User | ChatGPT | Reported new JS was worse than before. |
+| 58 | ChatGPT | Recovery Analysis | Determined overengineering and advised recovery instead of further rewrites. |
+| 59 | User | ChatGPT | Uploaded latest HTML, CSS and JS files for emergency review. |
+| 60 | ChatGPT | File Audit | Inspected uploaded project and identified unimplemented checkoutBook, returnBook and searchLoans functions. |
+| 61 | ChatGPT | Debugging | Provided surgical fixes for checkout workflow, loan search, return processing, inventory search, edit/delete handlers and history table mismatch. |
+
+
+**Total Prompt Count: 61**
+

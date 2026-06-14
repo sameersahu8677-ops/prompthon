@@ -127,16 +127,20 @@ const apiService = {
 
     async fetchLibraryData() {
 
-        return {
+        const data = JSON.parse(
+            localStorage.getItem("libraryData")
+        );
+
+        return data || {
             books: [],
             activeLoans: [],
             loanHistory: [],
             logs: []
         };
-
     },
 
     async refreshLibraryData() {
+
         const data = await this.fetchLibraryData();
 
         appState.books = data.books || [];
@@ -147,112 +151,84 @@ const apiService = {
         return data;
     },
 
+    async saveData() {
+
+        localStorage.setItem(
+            "libraryData",
+            JSON.stringify({
+                books: appState.books,
+                activeLoans: appState.activeLoans,
+                loanHistory: appState.loanHistory,
+                logs: appState.logs
+            })
+        );
+
+    },
+
     async createBook(bookData) {
-        const response = await fetch(`${API_BASE}/books`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(bookData)
-        });
 
-        if (!response.ok) {
-            throw new Error("Unable to create book.");
-        }
+        const book = {
+            id: generateId("BOOK"),
+            title: bookData.title,
+            author: bookData.author,
+            totalCopies: Number(bookData.totalCopies),
+            borrowedCopies: 0,
+            createdAt: new Date().toISOString()
+        };
 
-        return await response.json();
+        appState.books.push(book);
+
+        await this.saveData();
+
+        return book;
     },
 
     async updateBook(bookId, updatedData) {
-        const response = await fetch(
-            `${API_BASE}/books/${bookId}`,
-            {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(updatedData)
-            }
-        );
 
-        if (!response.ok) {
-            throw new Error("Unable to update book.");
+        const book =
+            appState.books.find(
+                b => b.id === bookId
+            );
+
+        if (!book) {
+            throw new Error("Book not found");
         }
 
-        return await response.json();
+        Object.assign(book, updatedData);
+
+        await this.saveData();
+
+        return book;
     },
 
     async deleteBook(bookId) {
-        const response = await fetch(
-            `${API_BASE}/books/${bookId}`,
-            {
-                method: "DELETE"
-            }
-        );
 
-        if (!response.ok) {
-            throw new Error("Unable to delete book.");
-        }
+        appState.books =
+            appState.books.filter(
+                b => b.id !== bookId
+            );
 
-        return await response.json();
+        await this.saveData();
+
+        return { success: true };
     },
 
-    async checkoutBook(checkoutData) {
-        const response = await fetch(
-            `${API_BASE}/checkout`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(checkoutData)
-            }
+    async checkoutBook() {
+        throw new Error(
+            "Checkout not implemented yet."
         );
-
-        if (!response.ok) {
-            throw new Error("Checkout failed.");
-        }
-
-        return await response.json();
     },
 
-    async returnBook(returnData) {
-        const response = await fetch(
-            `${API_BASE}/return`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(returnData)
-            }
+    async returnBook() {
+        throw new Error(
+            "Return not implemented yet."
         );
-
-        if (!response.ok) {
-            throw new Error("Return processing failed.");
-        }
-
-        return await response.json();
     },
 
-    async searchLoans(query) {
-        const response = await fetch(
-            `${API_BASE}/library`
-        );
-
-        if (!response.ok) {
-            throw new Error("Unable to search loans.");
-        }
-
-        const data = await response.json();
-
-        const loans = data.activeLoans || [];
-
-        return loans.filter(loan =>
-            loan.loanId.includes(query) ||
-            loan.studentId.includes(query)
-        );
+    async searchLoans() {
+        return [];
     }
+
 };
 
 /* ===================================== */
@@ -1196,7 +1172,6 @@ async function addBook(bookData) {
 
         await apiService.createBook(bookData);
 
-        await apiService.refreshLibraryData();
 
         addLog(
             "Book Added",
@@ -1769,6 +1744,28 @@ function renderHistory() {
 
 function registerEvents() {
 
+    inventoryElements.addBookBtn?.addEventListener("click", () => {
+
+        const title = prompt("Enter Book Title:");
+
+        if (!title) return;
+
+        const author = prompt("Enter Author Name:");
+
+        if (!author) return;
+
+        const totalCopies = prompt("Enter Total Copies:");
+
+        if (!totalCopies) return;
+
+        addBook({
+            title,
+            author,
+            totalCopies: Number(totalCopies)
+        });
+
+    });
+
     elements.navButtons.forEach(
         button => {
 
@@ -1828,19 +1825,3 @@ document.addEventListener(
     }
 );
 
-document.addEventListener(
-    "DOMContentLoaded",
-    async () => {
-
-        await initializeApplication();
-
-        renderInventory();
-        renderDashboard();
-        renderRecentLoans();
-        renderRecentReturns();
-        renderActivityTimeline();
-
-        registerEvents();
-
-    }
-);

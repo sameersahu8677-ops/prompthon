@@ -1204,7 +1204,7 @@ Locked Forever
 
 # B2 - College Library Inventory & Late Fee Calculator
 
-A browser-based Library Management System built for Promptathon B2.
+A browser-based Library Management System.
 
 Manage library inventory, issue books, process returns, track loans, and automatically calculate overdue fines.
 
@@ -1328,7 +1328,7 @@ Focused on simplicity, readability, and ease of use for non-technical users.
 
 ---
 
-## 🎯 Promptathon B2 Coverage
+## 🎯 B2 Coverage
 
 | Requirement | Status |
 |------------|---------|

@@ -1,186 +1,339 @@
 /* ===================================== */
-/* CONSTANTS */
-/* ===================================== */
-
-const STORAGE_KEY = "libraryData";
-const MAX_LOGS = 500;
-
-/* ===================================== */
-/* STATE */
-/* ===================================== */
-
-const state = {
-    books: [],
-    activeLoans: [],
-    loanHistory: [],
-    logs: []
-};
-
-/* ===================================== */
 /* DOM REFERENCES */
 /* ===================================== */
 
 const elements = {
-    inventoryTableBody:
-        document.getElementById("inventory-table-body"),
+    navButtons: document.querySelectorAll(".nav-btn"),
+    sections: document.querySelectorAll(".content-section"),
 
-    inventorySearch:
-        document.getElementById("inventory-search"),
+    currentPageTitle: document.getElementById("current-page-title"),
 
-    inventoryEmptyState:
-        document.getElementById("inventory-empty-state"),
+    toastContainer: document.getElementById("toast-container"),
+    globalAlertContainer: document.getElementById("global-alert-container"),
 
-    addBookBtn:
-        document.getElementById("add-book-btn"),
+    loadingOverlay: document.getElementById("loading-overlay"),
 
-    navButtons:
-        document.querySelectorAll(".nav-btn"),
+    modalOverlay: document.getElementById("modal-overlay"),
+    modalTitle: document.getElementById("modal-title"),
+    modalBody: document.getElementById("modal-body"),
+    modalFooter: document.getElementById("modal-footer"),
+    modalCloseBtn: document.getElementById("modal-close-btn"),
 
-    sections:
-        document.querySelectorAll(".content-section"),
-
-    currentPageTitle:
-        document.getElementById("current-page-title"),
-
-    toastContainer:
-        document.getElementById("toast-container")
+    currentDate: document.getElementById("current-date"),
+    systemStatus: document.getElementById("system-status")
 };
 
 /* ===================================== */
-/* STORAGE */
+/* GLOBAL STATE */
 /* ===================================== */
 
-function loadData() {
+const appState = {
+    books: [],
+    activeLoans: [],
+    loanHistory: [],
+    logs: [],
+    selectedLoan: null
+};
+
+/* ===================================== */
+/* API CONFIG */
+/* ===================================== */
+
+const API_BASE = "";
+
+/* ===================================== */
+/* UTILITY FUNCTIONS */
+/* ===================================== */
+
+function formatDate(dateValue) {
+    if (!dateValue) return "--";
+
+    const date = new Date(dateValue);
+
+    return date.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+    });
+}
+
+function generateId(prefix = "ID") {
+    return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+}
+
+function showLoading(message = "Loading...") {
+    const loadingMessage =
+        document.getElementById("loading-message");
+
+    if (loadingMessage) {
+        loadingMessage.textContent = message;
+    }
+
+    elements.loadingOverlay.classList.remove("hidden");
+}
+
+function hideLoading() {
+    elements.loadingOverlay.classList.add("hidden");
+}
+
+function showToast(message, type = "info") {
+    const toast = document.createElement("div");
+
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+
+    elements.toastContainer.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 3500);
+}
+
+function showAlert(message) {
+    const alertBox = document.createElement("div");
+
+    alertBox.className = "global-alert";
+    alertBox.textContent = message;
+
+    elements.globalAlertContainer.innerHTML = "";
+    elements.globalAlertContainer.appendChild(alertBox);
+
+    setTimeout(() => {
+        alertBox.remove();
+    }, 5000);
+}
+
+function openModal(title, bodyHTML, footerHTML = "") {
+    elements.modalTitle.textContent = title;
+
+    elements.modalBody.innerHTML = bodyHTML;
+    elements.modalFooter.innerHTML = footerHTML;
+
+    elements.modalOverlay.classList.remove("hidden");
+}
+
+function closeModal() {
+    elements.modalOverlay.classList.add("hidden");
+
+    elements.modalBody.innerHTML = "";
+    elements.modalFooter.innerHTML = "";
+}
+
+/* ===================================== */
+/* API SERVICE */
+/* ===================================== */
+
+const apiService = {
+
+    async fetchLibraryData() {
+
+        const data = JSON.parse(
+            localStorage.getItem("libraryData")
+        );
+
+        return data || {
+            books: [],
+            activeLoans: [],
+            loanHistory: [],
+            logs: []
+        };
+    },
+
+    async refreshLibraryData() {
+
+        const data = await this.fetchLibraryData();
+
+        appState.books = data.books || [];
+        appState.activeLoans = data.activeLoans || [];
+        appState.loanHistory = data.loanHistory || [];
+        appState.logs = data.logs || [];
+
+        return data;
+    },
+
+    async saveData() {
+
+        localStorage.setItem(
+            "libraryData",
+            JSON.stringify({
+                books: appState.books,
+                activeLoans: appState.activeLoans,
+                loanHistory: appState.loanHistory,
+                logs: appState.logs
+            })
+        );
+
+    },
+
+    async createBook(bookData) {
+
+        const book = {
+            id: generateId("BOOK"),
+            title: bookData.title,
+            author: bookData.author,
+            totalCopies: Number(bookData.totalCopies),
+            borrowedCopies: 0,
+            createdAt: new Date().toISOString()
+        };
+
+        appState.books.push(book);
+
+        await this.saveData();
+
+        return book;
+    },
+
+    async updateBook(bookId, updatedData) {
+
+        const book =
+            appState.books.find(
+                b => b.id === bookId
+            );
+
+        if (!book) {
+            throw new Error("Book not found");
+        }
+
+        Object.assign(book, updatedData);
+
+        await this.saveData();
+
+        return book;
+    },
+
+    async deleteBook(bookId) {
+
+        appState.books =
+            appState.books.filter(
+                b => b.id !== bookId
+            );
+
+        await this.saveData();
+
+        return { success: true };
+    },
+
+    async checkoutBook() {
+        throw new Error(
+            "Checkout not implemented yet."
+        );
+    },
+
+    async returnBook() {
+        throw new Error(
+            "Return not implemented yet."
+        );
+    },
+
+    async searchLoans() {
+        return [];
+    }
+
+};
+
+/* ===================================== */
+/* NAVIGATION SYSTEM */
+/* ===================================== */
+
+function switchSection(sectionName) {
+
+    elements.sections.forEach(section => {
+        section.classList.remove("active-section");
+        section.classList.add("hidden");
+    });
+
+    elements.navButtons.forEach(button => {
+        button.classList.remove("active");
+    });
+
+    const targetSection =
+        document.getElementById(
+            `${sectionName}-section`
+        );
+
+    const activeButton =
+        document.querySelector(
+            `[data-section="${sectionName}"]`
+        );
+
+    if (targetSection) {
+        targetSection.classList.remove("hidden");
+        targetSection.classList.add("active-section");
+    }
+
+    if (activeButton) {
+        activeButton.classList.add("active");
+    }
+
+    elements.currentPageTitle.textContent =
+        sectionName.charAt(0).toUpperCase() +
+        sectionName.slice(1);
+}
+
+/* ===================================== */
+/* INITIALIZATION */
+/* ===================================== */
+
+async function initializeApplication() {
 
     try {
 
-        const rawData =
-            localStorage.getItem(STORAGE_KEY);
+        showLoading("Loading Library Data...");
 
-        if (!rawData) {
-            return;
-        }
+        await apiService.refreshLibraryData();
 
-        const parsed =
-            JSON.parse(rawData);
+        elements.currentDate.textContent =
+            formatDate(new Date());
 
-        state.books =
-            parsed.books || [];
+        elements.systemStatus.textContent =
+            "🟢 Connected";
 
-        state.activeLoans =
-            parsed.activeLoans || [];
-
-        state.loanHistory =
-            parsed.loanHistory || [];
-
-        state.logs =
-            parsed.logs || [];
+        showToast(
+            "Library data loaded successfully.",
+            "success"
+        );
 
     } catch (error) {
 
-        console.error(
-            "Failed to load data:",
-            error
+        console.error(error);
+
+        elements.systemStatus.textContent =
+            "🔴 Offline";
+
+        showAlert(
+            "Unable to load library data."
         );
 
+    } finally {
+
+        hideLoading();
+
     }
 
-}
-
-function saveData() {
-
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(state)
-    );
 
 }
 
 /* ===================================== */
-/* UTILITIES */
+/* INVENTORY ELEMENTS */
 /* ===================================== */
 
-function generateId(prefix = "ID") {
+const inventoryElements = {
+    inventoryTableBody: document.getElementById("inventory-table-body"),
+    inventorySearch: document.getElementById("inventory-search"),
+    addBookBtn: document.getElementById("add-book-btn"),
+    inventoryEmptyState: document.getElementById("inventory-empty-state"),
 
-    return `${prefix}-${Date.now()}-${Math.floor(
-        Math.random() * 1000
-    )}`;
+    totalBooks: document.getElementById("total-books-value"),
+    availableBooks: document.getElementById("available-books-value"),
+    borrowedBooks: document.getElementById("borrowed-books-value"),
+    activeLoans: document.getElementById("active-loans-value"),
+    overdueLoans: document.getElementById("overdue-loans-value"),
+    totalFine: document.getElementById("total-fine-value"),
 
-}
-
-function formatDate(dateValue) {
-
-    if (!dateValue) {
-        return "--";
-    }
-
-    return new Date(dateValue)
-        .toLocaleDateString("en-IN", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric"
-        });
-
-}
-
-function showToast(
-    message,
-    type = "info"
-) {
-
-    if (!elements.toastContainer) {
-        alert(message);
-        return;
-    }
-
-    const toast =
-        document.createElement("div");
-
-    toast.className =
-        `toast toast-${type}`;
-
-    toast.textContent =
-        message;
-
-    elements.toastContainer
-        .appendChild(toast);
-
-    setTimeout(() => {
-
-        toast.remove();
-
-    }, 3000);
-
-}
-
-function addLog(
-    action,
-    description
-) {
-
-    state.logs.unshift({
-        action,
-        description,
-        timestamp:
-            new Date().toISOString()
-    });
-
-    if (
-        state.logs.length >
-        MAX_LOGS
-    ) {
-
-        state.logs =
-            state.logs.slice(
-                0,
-                MAX_LOGS
-            );
-
-    }
-
-    saveData();
-
-}
+    recentLoansContainer: document.getElementById("recent-loans-container"),
+    recentReturnsContainer: document.getElementById("recent-returns-container"),
+    activityTimelineContainer: document.getElementById("activity-timeline-container")
+};
 
 /* ===================================== */
 /* VALIDATION */
@@ -188,154 +341,105 @@ function addLog(
 
 function validateBook(bookData) {
 
-    const title =
-        bookData.title?.trim();
-
-    const author =
-        bookData.author?.trim();
-
-    const totalCopies =
-        Number(
-            bookData.totalCopies
-        );
+    const title = bookData.title?.trim();
+    const author = bookData.author?.trim();
+    const totalCopies = Number(bookData.totalCopies);
 
     if (!title) {
-
-        throw new Error(
-            "Book title is required."
-        );
-
+        throw new Error("Book title is required.");
     }
 
     if (!author) {
-
-        throw new Error(
-            "Author name is required."
-        );
-
+        throw new Error("Author name is required.");
     }
 
     if (
         Number.isNaN(totalCopies) ||
         totalCopies < 1
     ) {
-
         throw new Error(
-            "Copies must be at least 1."
+            "Total copies must be at least 1."
         );
-
     }
 
     return true;
-
 }
 
 /* ===================================== */
-/* STATUS */
+/* STATUS HELPERS */
 /* ===================================== */
 
 function getBookStatus(book) {
 
-    const availableCopies =
-        book.totalCopies -
-        book.borrowedCopies;
+    const available =
+        book.totalCopies - book.borrowedCopies;
 
-    if (
-        availableCopies <= 0
-    ) {
-
+    if (available <= 0) {
         return {
             label: "Out Of Stock",
-            className:
-                "status-out-of-stock"
+            className: "status-out-of-stock"
         };
-
     }
 
-    if (
-        availableCopies <= 2
-    ) {
-
+    if (available <= 2) {
         return {
             label: "Low Stock",
-            className:
-                "status-low-stock"
+            className: "status-low-stock"
         };
-
     }
 
     return {
         label: "Available",
-        className:
-            "status-available"
+        className: "status-available"
     };
-
 }
 
 /* ===================================== */
-/* INVENTORY */
+/* INVENTORY RENDERING */
 /* ===================================== */
 
-function renderInventory(
-    searchTerm = ""
-) {
+function renderInventory(searchTerm = "") {
 
-    if (
-        !elements.inventoryTableBody
-    ) {
+    if (!inventoryElements.inventoryTableBody) {
         return;
     }
 
-    const query =
-        searchTerm
-            .trim()
-            .toLowerCase();
+    const query = searchTerm
+        .toLowerCase()
+        .trim();
 
-    const books =
-        state.books.filter(
-            book => {
+    const filteredBooks =
+        appState.books.filter(book => {
 
-                return (
-                    String(book.id)
-                        .toLowerCase()
-                        .includes(query)
+            return (
+                book.title
+                    .toLowerCase()
+                    .includes(query) ||
 
-                    ||
+                book.author
+                    .toLowerCase()
+                    .includes(query) ||
 
-                    book.title
-                        .toLowerCase()
-                        .includes(query)
+                String(book.id)
+                    .toLowerCase()
+                    .includes(query)
+            );
+        });
 
-                    ||
+    inventoryElements.inventoryTableBody.innerHTML = "";
 
-                    book.author
-                        .toLowerCase()
-                        .includes(query)
-                );
+    if (filteredBooks.length === 0) {
 
-            }
-        );
-
-    elements.inventoryTableBody
-        .innerHTML = "";
-
-    if (!books.length) {
-
-        elements
-            .inventoryEmptyState
-            ?.classList
-            .remove("hidden");
+        inventoryElements.inventoryEmptyState
+            ?.classList.remove("hidden");
 
         return;
-
     }
 
-    elements
-        .inventoryEmptyState
-        ?.classList
-        .add("hidden");
+    inventoryElements.inventoryEmptyState
+        ?.classList.add("hidden");
 
-    books.forEach(book => {
+    filteredBooks.forEach(book => {
 
         const availableCopies =
             book.totalCopies -
@@ -345,9 +449,7 @@ function renderInventory(
             getBookStatus(book);
 
         const row =
-            document.createElement(
-                "tr"
-            );
+            document.createElement("tr");
 
         row.innerHTML = `
             <td>${book.id}</td>
@@ -376,8 +478,7 @@ function renderInventory(
             </td>
         `;
 
-        elements
-            .inventoryTableBody
+        inventoryElements.inventoryTableBody
             .appendChild(row);
 
     });
@@ -385,94 +486,220 @@ function renderInventory(
 }
 
 /* ===================================== */
-/* BOOK CRUD */
+/* DASHBOARD RENDERING */
 /* ===================================== */
 
-function addBook() {
+function renderDashboard() {
+
+    const totalBooks =
+        appState.books.reduce(
+            (sum, book) =>
+                sum + book.totalCopies,
+            0
+        );
+
+    const borrowedBooks =
+        appState.books.reduce(
+            (sum, book) =>
+                sum + book.borrowedCopies,
+            0
+        );
+
+    const availableBooks =
+        totalBooks - borrowedBooks;
+
+    const overdueLoans =
+        appState.activeLoans.filter(loan => {
+
+            return (
+                new Date() >
+                new Date(loan.dueDate)
+            );
+
+        }).length;
+
+    const totalFineCollected =
+        appState.loanHistory.reduce(
+            (sum, loan) =>
+                sum + Number(loan.fine || 0),
+            0
+        );
+
+    inventoryElements.totalBooks.textContent =
+        totalBooks;
+
+    inventoryElements.availableBooks.textContent =
+        availableBooks;
+
+    inventoryElements.borrowedBooks.textContent =
+        borrowedBooks;
+
+    inventoryElements.activeLoans.textContent =
+        appState.activeLoans.length;
+
+    inventoryElements.overdueLoans.textContent =
+        overdueLoans;
+
+    inventoryElements.totalFine.textContent =
+        `₹${totalFineCollected.toFixed(2)}`;
+
+}
+
+/* ===================================== */
+/* RECENT LOANS */
+/* ===================================== */
+
+function renderRecentLoans() {
+
+    if (!inventoryElements.recentLoansContainer) {
+        return;
+    }
+
+    const loans =
+        [...appState.activeLoans]
+            .slice(-5)
+            .reverse();
+
+    if (!loans.length) {
+
+        inventoryElements.recentLoansContainer.innerHTML = `
+            <div class="empty-state">
+                No recent loans available.
+            </div>
+        `;
+
+        return;
+    }
+
+    inventoryElements.recentLoansContainer.innerHTML =
+        loans.map(loan => `
+            <div class="activity-item">
+                <strong>${loan.loanId}</strong>
+                <br>
+                Student: ${loan.studentId}
+            </div>
+        `).join("");
+
+}
+
+/* ===================================== */
+/* RECENT RETURNS */
+/* ===================================== */
+
+function renderRecentReturns() {
+
+    if (!inventoryElements.recentReturnsContainer) {
+        return;
+    }
+
+    const returns =
+        [...appState.loanHistory]
+            .slice(-5)
+            .reverse();
+
+    if (!returns.length) {
+
+        inventoryElements.recentReturnsContainer.innerHTML = `
+            <div class="empty-state">
+                No recent returns available.
+            </div>
+        `;
+
+        return;
+    }
+
+    inventoryElements.recentReturnsContainer.innerHTML =
+        returns.map(item => `
+            <div class="activity-item">
+                <strong>${item.loanId}</strong>
+                <br>
+                Fine: ₹${item.fine}
+            </div>
+        `).join("");
+
+}
+
+/* ===================================== */
+/* ACTIVITY TIMELINE */
+/* ===================================== */
+
+function renderActivityTimeline() {
+
+    if (!inventoryElements.activityTimelineContainer) {
+        return;
+    }
+
+    const logs =
+        [...appState.logs]
+            .slice(-10)
+            .reverse();
+
+    if (!logs.length) {
+
+        inventoryElements.activityTimelineContainer.innerHTML = `
+            <div class="empty-state">
+                No recent activity available.
+            </div>
+        `;
+
+        return;
+    }
+
+    inventoryElements.activityTimelineContainer.innerHTML =
+        logs.map(log => `
+            <div class="activity-item">
+                <strong>${log.action}</strong>
+                <br>
+                <small>${log.timestamp}</small>
+            </div>
+        `).join("");
+
+}
+
+/* ===================================== */
+/* LOGGING */
+/* ===================================== */
+
+function addLog(action, description) {
+
+    const logEntry = {
+        timestamp: formatDate(new Date()),
+        action,
+        description
+    };
+
+    appState.logs.unshift(logEntry);
+
+    if (appState.logs.length > 500) {
+        appState.logs.length = 500;
+    }
+
+}
+
+/* ===================================== */
+/* BOOK MANAGEMENT */
+/* ===================================== */
+
+async function addBook(bookData) {
+
+    validateBook(bookData);
+
+    showLoading("Adding book...");
 
     try {
 
-        const title =
-            prompt(
-                "Book Title:"
-            );
+        await apiService.createBook(bookData);
 
-        if (!title) {
-            return;
-        }
-
-        const author =
-            prompt(
-                "Author:"
-            );
-
-        if (!author) {
-            return;
-        }
-
-        const totalCopies =
-            prompt(
-                "Total Copies:"
-            );
-
-        if (!totalCopies) {
-            return;
-        }
-
-        const book = {
-            id:
-                generateId(
-                    "BOOK"
-                ),
-
-            title:
-                title.trim(),
-
-            author:
-                author.trim(),
-
-            totalCopies:
-                Number(
-                    totalCopies
-                ),
-
-            borrowedCopies: 0,
-
-            createdAt:
-                new Date()
-                    .toISOString()
-        };
-
-        validateBook(book);
-
-        state.books.push(book);
+        await apiService.refreshLibraryData();
 
         addLog(
             "Book Added",
-            book.title
+            `${bookData.title} added`
         );
 
-        saveData();
-
         renderInventory();
-
-        if (
-            typeof renderDashboard ===
-            "function"
-        ) {
-
-            renderDashboard();
-
-        }
-
-        if (
-            typeof populateBookDropdown ===
-            "function"
-        ) {
-
-            populateBookDropdown();
-
-        }
+        renderDashboard();
+        renderActivityTimeline();
 
         showToast(
             "Book added successfully.",
@@ -481,148 +708,72 @@ function addBook() {
 
     } catch (error) {
 
+        console.error(error);
+
         showToast(
             error.message,
             "error"
         );
 
+    } finally {
+
+        hideLoading();
+
     }
 
 }
 
-function editBook(bookId) {
+async function editBook(
+    bookId,
+    updatedData
+) {
 
-    const book =
-        state.books.find(
-            b =>
-                b.id === bookId
-        );
+    validateBook(updatedData);
 
-    if (!book) {
-        return;
-    }
+    showLoading("Updating book...");
 
     try {
 
-        const title =
-            prompt(
-                "Book Title:",
-                book.title
-            );
-
-        if (!title) {
-            return;
-        }
-
-        const author =
-            prompt(
-                "Author:",
-                book.author
-            );
-
-        if (!author) {
-            return;
-        }
-
-        const totalCopies =
-            prompt(
-                "Total Copies:",
-                book.totalCopies
-            );
-
-        if (!totalCopies) {
-            return;
-        }
-
-        const updatedBook = {
-            ...book,
-
-            title:
-                title.trim(),
-
-            author:
-                author.trim(),
-
-            totalCopies:
-                Number(
-                    totalCopies
-                )
-        };
-
-        validateBook(
-            updatedBook
+        await apiService.updateBook(
+            bookId,
+            updatedData
         );
 
-        Object.assign(
-            book,
-            updatedBook
-        );
-
-        addLog(
-            "Book Updated",
-            book.title
-        );
-
-        saveData();
+        await apiService.refreshLibraryData();
 
         renderInventory();
-
-        if (
-            typeof renderDashboard ===
-            "function"
-        ) {
-
-            renderDashboard();
-
-        }
-
-        if (
-            typeof populateBookDropdown ===
-            "function"
-        ) {
-
-            populateBookDropdown();
-
-        }
+        renderDashboard();
 
         showToast(
-            "Book updated.",
+            "Book updated successfully.",
             "success"
         );
 
     } catch (error) {
 
+        console.error(error);
+
         showToast(
             error.message,
             "error"
         );
 
+    } finally {
+
+        hideLoading();
+
     }
 
 }
 
-function deleteBook(bookId) {
-
-    const book =
-        state.books.find(
-            b =>
-                b.id === bookId
-        );
-
-    if (!book) {
-        return;
-    }
+async function deleteBook(bookId) {
 
     const activeLoanExists =
-        state.activeLoans.some(
-            loan =>
-                loan.bookId ===
-                bookId
+        appState.activeLoans.some(
+            loan => loan.bookId === bookId
         );
 
-    if (
-        activeLoanExists
-    ) {
+    if (activeLoanExists) {
 
         showToast(
             "Cannot delete a book with active loans.",
@@ -630,296 +781,564 @@ function deleteBook(bookId) {
         );
 
         return;
-
     }
 
-    const confirmed =
-        confirm(
-            `Delete "${book.title}" ?`
-        );
-
-    if (!confirmed) {
-        return;
-    }
-
-    state.books =
-        state.books.filter(
-            b =>
-                b.id !== bookId
-        );
-
-    addLog(
-        "Book Deleted",
-        book.title
-    );
-
-    saveData();
-
-    renderInventory();
-
-    if (
-        typeof renderDashboard ===
-        "function"
-    ) {
-
-        renderDashboard();
-
-    }
-
-    if (
-        typeof populateBookDropdown ===
-        "function"
-    ) {
-
-        populateBookDropdown();
-
-    }
-
-    showToast(
-        "Book deleted.",
-        "success"
-    );
-
-}
-
-/* ===================================== */
-/* CHECKOUT DOM REFERENCES */
-/* ===================================== */
-
-const checkoutElements = {
-    form: document.getElementById("checkout-form"),
-    bookSelect: document.getElementById("checkout-book-select"),
-    studentId: document.getElementById("student-id"),
-    dueDate: document.getElementById("due-date")
-};
-
-const returnElements = {
-    searchInput: document.getElementById("return-search-input"),
-    searchButton: document.getElementById("search-loan-btn"),
-    processReturnButton: document.getElementById("process-return-btn"),
-
-    loanDetailsContent:
-        document.getElementById("loan-details-content"),
-
-    fineBreakdownContent:
-        document.getElementById("fine-breakdown-content")
-};
-
-/* ===================================== */
-/* CURRENTLY SELECTED LOAN */
-/* ===================================== */
-
-let selectedLoan = null;
-
-/* ===================================== */
-/* CHECKOUT DROPDOWN */
-/* ===================================== */
-
-function populateBookDropdown() {
-
-    if (!checkoutElements.bookSelect) {
-        return;
-    }
-
-    checkoutElements.bookSelect.innerHTML = `
-        <option value="">
-            Select Book
-        </option>
-    `;
-
-    state.books.forEach(book => {
-
-        const availableCopies =
-            book.totalCopies -
-            book.borrowedCopies;
-
-        if (availableCopies <= 0) {
-            return;
-        }
-
-        const option =
-            document.createElement("option");
-
-        option.value = book.id;
-
-        option.textContent = `
-${book.title}
-(Available: ${availableCopies})
-        `.trim();
-
-        checkoutElements.bookSelect
-            .appendChild(option);
-
-    });
-
-}
-
-/* ===================================== */
-/* CHECKOUT VALIDATION */
-/* ===================================== */
-
-function validateCheckout(data) {
-
-    if (!data.bookId) {
-
-        throw new Error(
-            "Please select a book."
-        );
-
-    }
-
-    if (!data.studentId?.trim()) {
-
-        throw new Error(
-            "Student ID is required."
-        );
-
-    }
-
-    if (!data.dueDate) {
-
-        throw new Error(
-            "Due date is required."
-        );
-
-    }
-
-    const book =
-        state.books.find(
-            b => b.id === data.bookId
-        );
-
-    if (!book) {
-
-        throw new Error(
-            "Book not found."
-        );
-
-    }
-
-    const available =
-        book.totalCopies -
-        book.borrowedCopies;
-
-    if (available <= 0) {
-
-        throw new Error(
-            "No copies available."
-        );
-
-    }
-
-}
-
-/* ===================================== */
-/* CHECKOUT BOOK */
-/* ===================================== */
-
-function checkoutBook(data) {
-
-    validateCheckout(data);
-
-    const book =
-        state.books.find(
-            b => b.id === data.bookId
-        );
-
-    book.borrowedCopies++;
-
-    const loan = {
-
-        loanId:
-            generateId("LOAN"),
-
-        bookId:
-            book.id,
-
-        bookTitle:
-            book.title,
-
-        studentId:
-            data.studentId.trim(),
-
-        borrowDate:
-            new Date().toISOString(),
-
-        dueDate:
-            data.dueDate
-
-    };
-
-    state.activeLoans.push(loan);
-
-    addLog(
-        "Book Issued",
-        `${book.title} → ${loan.studentId}`
-    );
-
-    saveData();
-
-    renderInventory();
-
-    if (
-        typeof renderDashboard ===
-        "function"
-    ) {
-        renderDashboard();
-    }
-
-    if (
-        typeof renderRecentLoans ===
-        "function"
-    ) {
-        renderRecentLoans();
-    }
-
-    populateBookDropdown();
-
-    showToast(
-        "Book issued successfully.",
-        "success"
-    );
-
-}
-
-/* ===================================== */
-/* CHECKOUT FORM SUBMIT */
-/* ===================================== */
-
-function handleCheckoutSubmit(event) {
-
-    event.preventDefault();
+    showLoading("Deleting book...");
 
     try {
 
-        checkoutBook({
+        await apiService.deleteBook(bookId);
 
-            bookId:
-                checkoutElements.bookSelect.value,
+        await apiService.refreshLibraryData();
 
-            studentId:
-                checkoutElements.studentId.value,
+        renderInventory();
+        renderDashboard();
 
-            dueDate:
-                checkoutElements.dueDate.value
-
-        });
-
-        checkoutElements.form.reset();
+        showToast(
+            "Book deleted successfully.",
+            "success"
+        );
 
     } catch (error) {
+
+        console.error(error);
 
         showToast(
             error.message,
             "error"
         );
 
+    } finally {
+
+        hideLoading();
+
+    }
+
+}
+
+
+/* ===================================== */
+/* VALIDATION */
+/* ===================================== */
+
+function validateBook(bookData) {
+
+    const title = bookData.title?.trim();
+    const author = bookData.author?.trim();
+    const totalCopies = Number(bookData.totalCopies);
+
+    if (!title) {
+        throw new Error("Book title is required.");
+    }
+
+    if (!author) {
+        throw new Error("Author name is required.");
+    }
+
+    if (
+        Number.isNaN(totalCopies) ||
+        totalCopies < 1
+    ) {
+        throw new Error(
+            "Total copies must be at least 1."
+        );
+    }
+
+    return true;
+}
+
+/* ===================================== */
+/* STATUS HELPERS */
+/* ===================================== */
+
+function getBookStatus(book) {
+
+    const available =
+        book.totalCopies - book.borrowedCopies;
+
+    if (available <= 0) {
+        return {
+            label: "Out Of Stock",
+            className: "status-out-of-stock"
+        };
+    }
+
+    if (available <= 2) {
+        return {
+            label: "Low Stock",
+            className: "status-low-stock"
+        };
+    }
+
+    return {
+        label: "Available",
+        className: "status-available"
+    };
+}
+
+/* ===================================== */
+/* INVENTORY RENDERING */
+/* ===================================== */
+
+function renderInventory(searchTerm = "") {
+
+    if (!inventoryElements.inventoryTableBody) {
+        return;
+    }
+
+    const query = searchTerm
+        .toLowerCase()
+        .trim();
+
+    const filteredBooks =
+        appState.books.filter(book => {
+
+            return (
+                book.title
+                    .toLowerCase()
+                    .includes(query) ||
+
+                book.author
+                    .toLowerCase()
+                    .includes(query) ||
+
+                String(book.id)
+                    .toLowerCase()
+                    .includes(query)
+            );
+        });
+
+    inventoryElements.inventoryTableBody.innerHTML = "";
+
+    if (filteredBooks.length === 0) {
+
+        inventoryElements.inventoryEmptyState
+            ?.classList.remove("hidden");
+
+        return;
+    }
+
+    inventoryElements.inventoryEmptyState
+        ?.classList.add("hidden");
+
+    filteredBooks.forEach(book => {
+
+        const availableCopies =
+            book.totalCopies -
+            book.borrowedCopies;
+
+        const status =
+            getBookStatus(book);
+
+        const row =
+            document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${book.id}</td>
+            <td>${book.title}</td>
+            <td>${book.author}</td>
+            <td>${book.totalCopies}</td>
+            <td>${book.borrowedCopies}</td>
+            <td>${availableCopies}</td>
+            <td>
+                <span class="${status.className}">
+                    ${status.label}
+                </span>
+            </td>
+            <td>
+                <button
+                    class="btn-secondary edit-book-btn"
+                    data-id="${book.id}">
+                    Edit
+                </button>
+
+                <button
+                    class="btn-danger delete-book-btn"
+                    data-id="${book.id}">
+                    Delete
+                </button>
+            </td>
+        `;
+
+        inventoryElements.inventoryTableBody
+            .appendChild(row);
+
+    });
+
+}
+
+/* ===================================== */
+/* DASHBOARD RENDERING */
+/* ===================================== */
+
+function renderDashboard() {
+
+    const totalBooks =
+        appState.books.reduce(
+            (sum, book) =>
+                sum + book.totalCopies,
+            0
+        );
+
+    const borrowedBooks =
+        appState.books.reduce(
+            (sum, book) =>
+                sum + book.borrowedCopies,
+            0
+        );
+
+    const availableBooks =
+        totalBooks - borrowedBooks;
+
+    const overdueLoans =
+        appState.activeLoans.filter(loan => {
+
+            return (
+                new Date() >
+                new Date(loan.dueDate)
+            );
+
+        }).length;
+
+    const totalFineCollected =
+        appState.loanHistory.reduce(
+            (sum, loan) =>
+                sum + Number(loan.fine || 0),
+            0
+        );
+
+    inventoryElements.totalBooks.textContent =
+        totalBooks;
+
+    inventoryElements.availableBooks.textContent =
+        availableBooks;
+
+    inventoryElements.borrowedBooks.textContent =
+        borrowedBooks;
+
+    inventoryElements.activeLoans.textContent =
+        appState.activeLoans.length;
+
+    inventoryElements.overdueLoans.textContent =
+        overdueLoans;
+
+    inventoryElements.totalFine.textContent =
+        `₹${totalFineCollected.toFixed(2)}`;
+
+}
+
+/* ===================================== */
+/* RECENT LOANS */
+/* ===================================== */
+
+function renderRecentLoans() {
+
+    if (!inventoryElements.recentLoansContainer) {
+        return;
+    }
+
+    const loans =
+        [...appState.activeLoans]
+            .slice(-5)
+            .reverse();
+
+    if (!loans.length) {
+
+        inventoryElements.recentLoansContainer.innerHTML = `
+            <div class="empty-state">
+                No recent loans available.
+            </div>
+        `;
+
+        return;
+    }
+
+    inventoryElements.recentLoansContainer.innerHTML =
+        loans.map(loan => `
+            <div class="activity-item">
+                <strong>${loan.loanId}</strong>
+                <br>
+                Student: ${loan.studentId}
+            </div>
+        `).join("");
+
+}
+
+/* ===================================== */
+/* RECENT RETURNS */
+/* ===================================== */
+
+function renderRecentReturns() {
+
+    if (!inventoryElements.recentReturnsContainer) {
+        return;
+    }
+
+    const returns =
+        [...appState.loanHistory]
+            .slice(-5)
+            .reverse();
+
+    if (!returns.length) {
+
+        inventoryElements.recentReturnsContainer.innerHTML = `
+            <div class="empty-state">
+                No recent returns available.
+            </div>
+        `;
+
+        return;
+    }
+
+    inventoryElements.recentReturnsContainer.innerHTML =
+        returns.map(item => `
+            <div class="activity-item">
+                <strong>${item.loanId}</strong>
+                <br>
+                Fine: ₹${item.fine}
+            </div>
+        `).join("");
+
+}
+
+/* ===================================== */
+/* ACTIVITY TIMELINE */
+/* ===================================== */
+
+function renderActivityTimeline() {
+
+    if (!inventoryElements.activityTimelineContainer) {
+        return;
+    }
+
+    const logs =
+        [...appState.logs]
+            .slice(-10)
+            .reverse();
+
+    if (!logs.length) {
+
+        inventoryElements.activityTimelineContainer.innerHTML = `
+            <div class="empty-state">
+                No recent activity available.
+            </div>
+        `;
+
+        return;
+    }
+
+    inventoryElements.activityTimelineContainer.innerHTML =
+        logs.map(log => `
+            <div class="activity-item">
+                <strong>${log.action}</strong>
+                <br>
+                <small>${log.timestamp}</small>
+            </div>
+        `).join("");
+
+}
+
+/* ===================================== */
+/* LOGGING */
+/* ===================================== */
+
+function addLog(action, description) {
+
+    const logEntry = {
+        timestamp: formatDate(new Date()),
+        action,
+        description
+    };
+
+    appState.logs.unshift(logEntry);
+
+    if (appState.logs.length > 500) {
+        appState.logs.length = 500;
     }
 
 }
 
 /* ===================================== */
-/* FINE ENGINE */
+/* BOOK MANAGEMENT */
+/* ===================================== */
+
+async function addBook(bookData) {
+
+    validateBook(bookData);
+
+    showLoading("Adding book...");
+
+    try {
+
+        await apiService.createBook(bookData);
+
+
+        addLog(
+            "Book Added",
+            `${bookData.title} added`
+        );
+
+        renderInventory();
+        renderDashboard();
+        renderActivityTimeline();
+
+        showToast(
+            "Book added successfully.",
+            "success"
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        showToast(
+            error.message,
+            "error"
+        );
+
+    } finally {
+
+        hideLoading();
+
+    }
+
+}
+
+async function editBook(
+    bookId,
+    updatedData
+) {
+
+    validateBook(updatedData);
+
+    showLoading("Updating book...");
+
+    try {
+
+        await apiService.updateBook(
+            bookId,
+            updatedData
+        );
+
+        await apiService.refreshLibraryData();
+
+        renderInventory();
+        renderDashboard();
+
+        showToast(
+            "Book updated successfully.",
+            "success"
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        showToast(
+            error.message,
+            "error"
+        );
+
+    } finally {
+
+        hideLoading();
+
+    }
+
+}
+
+async function deleteBook(bookId) {
+
+    const activeLoanExists =
+        appState.activeLoans.some(
+            loan => loan.bookId === bookId
+        );
+
+    if (activeLoanExists) {
+
+        showToast(
+            "Cannot delete a book with active loans.",
+            "warning"
+        );
+
+        return;
+    }
+
+    showLoading("Deleting book...");
+
+    try {
+
+        await apiService.deleteBook(bookId);
+
+        await apiService.refreshLibraryData();
+
+        renderInventory();
+        renderDashboard();
+
+        showToast(
+            "Book deleted successfully.",
+            "success"
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        showToast(
+            error.message,
+            "error"
+        );
+
+    } finally {
+
+        hideLoading();
+
+    }
+
+}
+
+/* ===================================== */
+/* RETURNS ELEMENTS */
+/* ===================================== */
+
+const returnElements = {
+    searchInput: document.getElementById(
+        "return-search-input"
+    ),
+
+    searchButton: document.getElementById(
+        "search-loan-btn"
+    ),
+
+    processReturnButton:
+        document.getElementById(
+            "process-return-btn"
+        ),
+
+    loanDetailsContent:
+        document.getElementById(
+            "loan-details-content"
+        ),
+
+    fineBreakdownContent:
+        document.getElementById(
+            "fine-breakdown-content"
+        )
+};
+
+/* ===================================== */
+/* HISTORY ELEMENTS */
+/* ===================================== */
+
+const historyElements = {
+    tableBody:
+        document.getElementById(
+            "history-table-body"
+        )
+};
+
+/* ===================================== */
+/* FINE SERVICE */
 /* ===================================== */
 
 function calculateFine(overdueDays) {
@@ -927,7 +1346,6 @@ function calculateFine(overdueDays) {
     if (overdueDays <= 0) {
 
         return {
-
             overdueDays: 0,
 
             firstTierDays: 0,
@@ -937,19 +1355,14 @@ function calculateFine(overdueDays) {
             secondTierFine: 0,
 
             totalFine: 0
-
         };
-
     }
 
     const firstTierDays =
         Math.min(overdueDays, 7);
 
     const secondTierDays =
-        Math.max(
-            overdueDays - 7,
-            0
-        );
+        Math.max(overdueDays - 7, 0);
 
     const firstTierFine =
         firstTierDays * 1;
@@ -962,7 +1375,6 @@ function calculateFine(overdueDays) {
         secondTierFine;
 
     return {
-
         overdueDays,
 
         firstTierDays,
@@ -972,45 +1384,218 @@ function calculateFine(overdueDays) {
         secondTierFine,
 
         totalFine
-
     };
-
 }
 
 /* ===================================== */
-/* SEARCH LOANS */
+/* CHECKOUT VALIDATION */
 /* ===================================== */
 
-function searchLoans(query) {
+function validateCheckout(data) {
 
-    const normalized =
-        query
-            .trim()
-            .toLowerCase();
+    if (!data.bookId) {
+        throw new Error(
+            "Please select a book."
+        );
+    }
 
-    return state.activeLoans.filter(
-        loan =>
+    if (!data.studentId?.trim()) {
+        throw new Error(
+            "Student ID is required."
+        );
+    }
 
-            loan.loanId
-                .toLowerCase()
-                .includes(normalized)
+    if (!data.dueDate) {
+        throw new Error(
+            "Due date is required."
+        );
+    }
 
-            ||
+    const selectedBook =
+        appState.books.find(
+            book => book.id === data.bookId
+        );
 
-            loan.studentId
-                .toLowerCase()
-                .includes(normalized)
+    if (!selectedBook) {
+        throw new Error(
+            "Selected book does not exist."
+        );
+    }
+
+    const available =
+        selectedBook.totalCopies -
+        selectedBook.borrowedCopies;
+
+    if (available <= 0) {
+        throw new Error(
+            "No copies available."
+        );
+    }
+
+    return true;
+}
+
+/* ===================================== */
+/* CHECKOUT */
+/* ===================================== */
+
+async function processCheckout(
+    checkoutData
+) {
+
+    validateCheckout(checkoutData);
+
+    showLoading(
+        "Issuing book..."
     );
 
+    try {
+
+        await apiService.checkoutBook(
+            checkoutData
+        );
+
+        await apiService.refreshLibraryData();
+
+        renderInventory();
+        renderDashboard();
+        renderRecentLoans();
+
+        showToast(
+            "Book issued successfully.",
+            "success"
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        showToast(
+            error.message,
+            "error"
+        );
+
+    } finally {
+
+        hideLoading();
+
+    }
+
 }
 
 /* ===================================== */
-/* DISPLAY LOAN */
+/* LOAN SEARCH */
+/* ===================================== */
+
+async function searchLoans() {
+
+    const query =
+        returnElements.searchInput.value
+            .trim();
+
+    if (!query) {
+
+        showToast(
+            "Enter Loan ID or Student ID.",
+            "warning"
+        );
+
+        return;
+    }
+
+    try {
+
+        const matches =
+            await apiService.searchLoans(
+                query
+            );
+
+        if (!matches.length) {
+
+            showToast(
+                "No matching loans found.",
+                "warning"
+            );
+
+            return;
+        }
+
+        if (matches.length === 1) {
+
+            selectLoan(matches[0]);
+
+            return;
+        }
+
+        openModal(
+            "Select Loan",
+            matches.map(loan => `
+                <button
+                    class="btn-primary select-loan-btn"
+                    data-loan-id="${loan.loanId}"
+                    style="
+                        display:block;
+                        width:100%;
+                        margin-bottom:10px;
+                    ">
+                    ${loan.loanId}
+                    - ${loan.studentId}
+                </button>
+            `).join("")
+        );
+
+        setTimeout(() => {
+
+            document
+                .querySelectorAll(
+                    ".select-loan-btn"
+                )
+                .forEach(button => {
+
+                    button.addEventListener(
+                        "click",
+                        () => {
+
+                            const loan =
+                                matches.find(
+                                    item =>
+                                        item.loanId ===
+                                        button.dataset.loanId
+                                );
+
+                            if (loan) {
+                                selectLoan(loan);
+                                closeModal();
+                            }
+
+                        }
+                    );
+
+                });
+
+        }, 0);
+
+    } catch (error) {
+
+        console.error(error);
+
+        showToast(
+            error.message,
+            "error"
+        );
+
+    }
+
+}
+
+/* ===================================== */
+/* LOAN SELECTION */
 /* ===================================== */
 
 function selectLoan(loan) {
 
-    selectedLoan = loan;
+    appState.selectedLoan =
+        loan;
 
     const today =
         new Date();
@@ -1025,12 +1610,7 @@ function selectLoan(loan) {
                     today -
                     dueDate
                 ) /
-                (
-                    1000 *
-                    60 *
-                    60 *
-                    24
-                )
+                (1000 * 60 * 60 * 24)
             ),
             0
         );
@@ -1040,116 +1620,25 @@ function selectLoan(loan) {
             overdueDays
         );
 
-    if (
-        returnElements.loanDetailsContent
-    ) {
-
-        returnElements.loanDetailsContent.innerHTML = `
+    returnElements.loanDetailsContent
+        .innerHTML = `
             <p><strong>Loan ID:</strong> ${loan.loanId}</p>
-            <p><strong>Book:</strong> ${loan.bookTitle}</p>
-            <p><strong>Student:</strong> ${loan.studentId}</p>
+            <p><strong>Book ID:</strong> ${loan.bookId}</p>
+            <p><strong>Student ID:</strong> ${loan.studentId}</p>
             <p><strong>Borrow Date:</strong> ${formatDate(loan.borrowDate)}</p>
             <p><strong>Due Date:</strong> ${formatDate(loan.dueDate)}</p>
+            <p><strong>Overdue Days:</strong> ${overdueDays}</p>
         `;
 
-    }
-
-    if (
-        returnElements.fineBreakdownContent
-    ) {
-
-        returnElements.fineBreakdownContent.innerHTML = `
+    returnElements.fineBreakdownContent
+        .innerHTML = `
             <p>Overdue Days: ${fine.overdueDays}</p>
             <p>First Tier Days: ${fine.firstTierDays}</p>
             <p>First Tier Fine: ₹${fine.firstTierFine.toFixed(2)}</p>
             <p>Second Tier Days: ${fine.secondTierDays}</p>
             <p>Second Tier Fine: ₹${fine.secondTierFine.toFixed(2)}</p>
-            <hr>
             <p><strong>Total Fine: ₹${fine.totalFine.toFixed(2)}</strong></p>
         `;
-
-    }
-
-}
-
-/* ===================================== */
-/* HANDLE SEARCH */
-/* ===================================== */
-
-function handleLoanSearch() {
-
-    const query =
-        returnElements.searchInput.value;
-
-    if (!query.trim()) {
-
-        showToast(
-            "Enter Loan ID or Student ID",
-            "warning"
-        );
-
-        return;
-
-    }
-
-    const matches =
-        searchLoans(query);
-
-    if (!matches.length) {
-
-        showToast(
-            "No active loans found.",
-            "warning"
-        );
-
-        return;
-
-    }
-
-    if (matches.length === 1) {
-
-        selectLoan(matches[0]);
-
-        showToast(
-            "Loan found.",
-            "success"
-        );
-
-        return;
-
-    }
-
-    const selectedId =
-        prompt(
-            matches.map(
-                loan =>
-                    `${loan.loanId} (${loan.studentId})`
-            ).join("\n\n") +
-            "\n\nEnter Loan ID:"
-        );
-
-    if (!selectedId) {
-        return;
-    }
-
-    const chosenLoan =
-        matches.find(
-            loan =>
-                loan.loanId === selectedId
-        );
-
-    if (!chosenLoan) {
-
-        showToast(
-            "Invalid Loan ID.",
-            "error"
-        );
-
-        return;
-
-    }
-
-    selectLoan(chosenLoan);
 
 }
 
@@ -1157,9 +1646,9 @@ function handleLoanSearch() {
 /* RETURN BOOK */
 /* ===================================== */
 
-function returnBook() {
+async function processReturn() {
 
-    if (!selectedLoan) {
+    if (!appState.selectedLoan) {
 
         showToast(
             "Select a loan first.",
@@ -1167,144 +1656,172 @@ function returnBook() {
         );
 
         return;
-
     }
 
-    const book =
-        state.books.find(
-            b =>
-                b.id ===
-                selectedLoan.bookId
-        );
+    showLoading(
+        "Processing return..."
+    );
 
-    if (!book) {
+    try {
+
+        await apiService.returnBook({
+            loanId:
+                appState.selectedLoan.loanId
+        });
+
+        await apiService.refreshLibraryData();
+
+        renderInventory();
+        renderDashboard();
+        renderHistory();
+        renderRecentReturns();
+
+        appState.selectedLoan =
+            null;
 
         showToast(
-            "Book not found.",
+            "Book returned successfully.",
+            "success"
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        showToast(
+            error.message,
             "error"
         );
 
-        return;
+    } finally {
+
+        hideLoading();
 
     }
 
-    const returnDate =
-        new Date();
+}
 
-    const dueDate =
-        new Date(
-            selectedLoan.dueDate
-        );
+/* ===================================== */
+/* HISTORY */
+/* ===================================== */
 
-    const overdueDays =
-        Math.max(
-            Math.ceil(
-                (
-                    returnDate -
-                    dueDate
-                ) /
-                (
-                    1000 *
-                    60 *
-                    60 *
-                    24
-                )
-            ),
-            0
-        );
+function renderHistory() {
 
-    const fine =
-        calculateFine(
-            overdueDays
-        );
+    if (!historyElements.tableBody) {
+        return;
+    }
 
-    book.borrowedCopies =
-        Math.max(
-            book.borrowedCopies - 1,
-            0
-        );
+    historyElements.tableBody.innerHTML =
+        "";
 
-    state.activeLoans =
-        state.activeLoans.filter(
-            loan =>
-                loan.loanId !==
-                selectedLoan.loanId
-        );
+    appState.loanHistory.forEach(
+        record => {
 
-    state.loanHistory.push({
+            const row =
+                document.createElement("tr");
 
-        loanId:
-            selectedLoan.loanId,
+            row.innerHTML = `
+                <td>${record.loanId}</td>
+                <td>${record.bookId}</td>
+                <td>${record.bookTitle || "-"}</td>
+                <td>${record.studentId}</td>
+                <td>${formatDate(record.borrowDate)}</td>
+                <td>${formatDate(record.returnDate)}</td>
+                <td>${record.overdueDays}</td>
+                <td>₹${Number(record.fine).toFixed(2)}</td>
+            `;
 
-        bookId:
-            selectedLoan.bookId,
+            historyElements.tableBody
+                .appendChild(row);
 
-        bookTitle:
-            selectedLoan.bookTitle,
+        });
 
-        studentId:
-            selectedLoan.studentId,
+}
 
-        borrowDate:
-            selectedLoan.borrowDate,
+/* ===================================== */
+/* EVENT REGISTRATION */
+/* ===================================== */
 
-        dueDate:
-            selectedLoan.dueDate,
+function registerEvents() {
 
-        returnDate:
-            returnDate.toISOString(),
+    inventoryElements.addBookBtn?.addEventListener("click", () => {
 
-        overdueDays,
+        const title = prompt("Enter Book Title:");
 
-        fine:
-            fine.totalFine
+        if (!title) return;
+
+        const author = prompt("Enter Author Name:");
+
+        if (!author) return;
+
+        const totalCopies = prompt("Enter Total Copies:");
+
+        if (!totalCopies) return;
+
+        addBook({
+            title,
+            author,
+            totalCopies: Number(totalCopies)
+        });
 
     });
 
-    addLog(
-        "Book Returned",
-        selectedLoan.bookTitle
+    elements.navButtons.forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    switchSection(
+                        button.dataset.section
+                    );
+
+                }
+            );
+
+        }
     );
 
-    saveData();
+    elements.modalCloseBtn
+        ?.addEventListener(
+            "click",
+            closeModal
+        );
 
-    renderInventory();
+    returnElements.searchButton
+        ?.addEventListener(
+            "click",
+            searchLoans
+        );
 
-    if (
-        typeof renderDashboard ===
-        "function"
-    ) {
-        renderDashboard();
-    }
-
-    if (
-        typeof renderHistory ===
-        "function"
-    ) {
-        renderHistory();
-    }
-
-    if (
-        typeof renderRecentReturns ===
-        "function"
-    ) {
-        renderRecentReturns();
-    }
-
-    populateBookDropdown();
-
-    returnElements.loanDetailsContent.innerHTML =
-        "";
-
-    returnElements.fineBreakdownContent.innerHTML =
-        "";
-
-    selectedLoan = null;
-
-    showToast(
-        `Returned successfully. Fine: ₹${fine.totalFine.toFixed(2)}`,
-        "success"
-    );
+    returnElements.processReturnButton
+        ?.addEventListener(
+            "click",
+            processReturn
+        );
 
 }
+
+/* ===================================== */
+/* FINAL STARTUP */
+/* ===================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async () => {
+
+        await initializeApplication();
+
+        renderInventory();
+        renderDashboard();
+        renderRecentLoans();
+        renderRecentReturns();
+        renderActivityTimeline();
+        renderHistory();
+
+        registerEvents();
+
+    }
+);
 

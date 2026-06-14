@@ -1,0 +1,279 @@
+/* ===================================== */
+/* ROOT VARIABLES */
+/* ===================================== */
+
+:root {
+    --bg-color: #F7F3EC;
+    --surface-color: #FFFDF9;
+
+    --sidebar-color: #6B4F3A;
+
+    --primary-color: #A67C52;
+    --primary-hover: #8B6844;
+
+    --border-color: #D8CCBE;
+
+    --text-color: #3F3124;
+    --text-muted: #7A6A5A;
+
+    --success-color: #5B8A72;
+    --warning-color: #D9A441;
+    --danger-color: #B35C44;
+
+    --shadow-sm: 0 2px 8px rgba(63, 49, 36, 0.08);
+    --shadow-md: 0 6px 18px rgba(63, 49, 36, 0.12);
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+
+    --transition: 0.25s ease;
+}
+
+/* ===================================== */
+/* RESET */
+/* ===================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: "Segoe UI", sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    line-height: 1.5;
+}
+
+/* ===================================== */
+/* GLOBAL ELEMENTS */
+/* ===================================== */
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    background: none;
+}
+
+input,
+select {
+    outline: none;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+/* ===================================== */
+/* APP LAYOUT */
+/* ===================================== */
+
+#app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+#main-layout {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+#content-area {
+    flex: 1;
+    padding: 24px;
+}
+
+/* ===================================== */
+/* SIDEBAR */
+/* ===================================== */
+
+#sidebar {
+    width: 260px;
+    background: var(--sidebar-color);
+    color: #ffffff;
+
+    display: flex;
+    flex-direction: column;
+
+    position: sticky;
+    top: 0;
+
+    height: 100vh;
+}
+
+#sidebar-header {
+    padding: 24px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+#library-logo {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+#app-name {
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+#sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    gap: 8px;
+}
+
+.nav-btn {
+    width: 100%;
+    text-align: left;
+
+    padding: 12px 16px;
+
+    color: rgba(255, 255, 255, 0.9);
+
+    border-radius: var(--radius-sm);
+
+    transition: var(--transition);
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.10);
+    color: #ffffff;
+}
+
+.nav-btn.active {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+#sidebar-footer {
+    margin-top: auto;
+    padding: 18px;
+    text-align: center;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+
+    color: rgba(255, 255, 255, 0.75);
+}
+
+/* ===================================== */
+/* HEADER */
+/* ===================================== */
+
+#main-header {
+    background: var(--surface-color);
+
+    border-bottom: 1px solid var(--border-color);
+
+    padding: 18px 24px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    box-shadow: var(--shadow-sm);
+}
+
+#current-page-title {
+    font-size: 1.6rem;
+    font-weight: 600;
+}
+
+#header-right {
+    display: flex;
+    gap: 24px;
+}
+
+.header-info-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.header-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+#current-date,
+#system-status {
+    font-weight: 600;
+}
+
+/* ===================================== */
+/* UTILITY CLASSES */
+/* ===================================== */
+
+.hidden {
+    display: none !important;
+}
+
+.content-section {
+    display: none;
+}
+
+.active-section {
+    display: block;
+}
+
+.empty-state {
+    text-align: center;
+
+    padding: 40px 20px;
+
+    color: var(--text-muted);
+
+    background: var(--surface-color);
+
+    border: 1px dashed var(--border-color);
+
+    border-radius: var(--radius-md);
+}
+
+/* ===================================== */
+/* GLOBAL CONTAINERS */
+/* ===================================== */
+
+#global-alert-container,
+#toast-container {
+    position: fixed;
+    z-index: 1000;
+}
+
+#page-message-container {
+    margin-bottom: 20px;
+}

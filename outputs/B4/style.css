@@ -402,3 +402,400 @@ a {
 #rejectionRate {
     color: var(--color-primary);
 }
+
+/* =========================================================
+   PART 2
+   CONTROLS + ACTIONS + KANBAN BOARD + COLUMNS
+========================================================= */
+
+
+/* =========================================================
+   CONTROLS SECTION
+========================================================= */
+
+.controls-section {
+    width: 100%;
+}
+
+.controls-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit,
+            minmax(220px, 1fr));
+
+    gap: var(--space-lg);
+}
+
+.control-group {
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.control-group label {
+
+    font-size: 0.9rem;
+    font-weight: 600;
+
+    color: var(--color-text-secondary);
+}
+
+.control-input,
+.control-select {
+
+    width: 100%;
+
+    min-height: 48px;
+
+    padding:
+        0.85rem 1rem;
+
+    background: var(--color-card);
+
+    color: var(--color-text-primary);
+
+    border: 1px solid var(--color-border);
+
+    border-radius: var(--radius-sm);
+
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background var(--transition-fast);
+}
+
+.control-select {
+    cursor: pointer;
+}
+
+.control-input::placeholder {
+    color: var(--color-text-secondary);
+}
+
+.control-input:focus,
+.control-select:focus {
+
+    border-color: var(--color-primary);
+
+    box-shadow:
+        0 0 0 3px rgba(20, 184, 166, 0.18);
+
+    background: var(--color-card-hover);
+}
+
+
+/* =========================================================
+   ACTION SECTION
+========================================================= */
+
+.actions-section {
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+
+    border-radius: var(--radius-lg);
+
+    padding: var(--space-xl);
+}
+
+.actions-container {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: var(--space-lg);
+
+    flex-wrap: wrap;
+}
+
+.actions-info {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 0.5rem;
+}
+
+.actions-info h2 {
+
+    color: var(--color-text-primary);
+
+    font-size: 1.25rem;
+}
+
+.actions-description {
+
+    max-width: 700px;
+
+    color: var(--color-text-secondary);
+}
+
+
+/* =========================================================
+   KANBAN SECTION
+========================================================= */
+
+.kanban-section {
+    width: 100%;
+}
+
+
+/* =========================================================
+   KANBAN BOARD
+========================================================= */
+
+.kanban-board {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, minmax(280px, 1fr));
+
+    gap: var(--space-lg);
+
+    align-items: start;
+}
+
+
+/* =========================================================
+   KANBAN COLUMN BASE
+========================================================= */
+
+.kanban-column {
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+
+    border-top: 4px solid var(--color-primary);
+
+    border-radius: var(--radius-lg);
+
+    min-height: 650px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    transition:
+        transform var(--transition-fast),
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+
+    overflow: hidden;
+}
+
+.kanban-column:hover {
+
+    transform: translateY(-3px);
+
+    box-shadow: var(--shadow-md);
+}
+
+
+/* =========================================================
+   STAGE COLOR SYSTEM
+========================================================= */
+
+.kanban-column[data-stage="applied"] {
+    border-top-color: var(--stage-applied);
+}
+
+.kanban-column[data-stage="interviewing"] {
+    border-top-color: var(--stage-interviewing);
+}
+
+.kanban-column[data-stage="technical-test"] {
+    border-top-color: var(--stage-technical);
+}
+
+.kanban-column[data-stage="offered"] {
+    border-top-color: var(--stage-offered);
+}
+
+.kanban-column[data-stage="rejected"] {
+    border-top-color: var(--stage-rejected);
+}
+
+
+/* =========================================================
+   COLUMN HEADERS
+========================================================= */
+
+.column-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: var(--space-md);
+
+    padding: 1rem 1.1rem;
+
+    border-bottom: 1px solid var(--color-border);
+}
+
+.column-title {
+
+    font-size: 1rem;
+
+    font-weight: 700;
+
+    color: var(--color-text-primary);
+}
+
+
+/* =========================================================
+   COUNT BADGES
+========================================================= */
+
+.column-count-badge {
+
+    min-width: 34px;
+
+    height: 34px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 0 0.7rem;
+
+    border-radius: var(--radius-pill);
+
+    font-size: 0.85rem;
+
+    font-weight: 700;
+
+    color: #ffffff;
+
+    background: var(--color-primary);
+}
+
+.kanban-column[data-stage="applied"] .column-count-badge {
+    background: var(--stage-applied);
+}
+
+.kanban-column[data-stage="interviewing"] .column-count-badge {
+    background: var(--stage-interviewing);
+}
+
+.kanban-column[data-stage="technical-test"] .column-count-badge {
+    background: var(--stage-technical);
+}
+
+.kanban-column[data-stage="offered"] .column-count-badge {
+    background: var(--stage-offered);
+}
+
+.kanban-column[data-stage="rejected"] .column-count-badge {
+    background: var(--stage-rejected);
+}
+
+
+/* =========================================================
+   CANDIDATE LIST
+========================================================= */
+
+.candidate-list {
+
+    flex: 1;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: var(--space-md);
+
+    padding: var(--space-md);
+
+    overflow-y: auto;
+}
+
+
+/* =========================================================
+   EMPTY STATES
+========================================================= */
+
+.empty-state {
+
+    flex: 1;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+
+    min-height: 200px;
+
+    padding: var(--space-lg);
+
+    color: var(--color-text-secondary);
+
+    font-size: 0.92rem;
+
+    border: 1px dashed var(--color-border);
+
+    border-radius: var(--radius-md);
+
+    background:
+        linear-gradient(180deg,
+            rgba(255, 255, 255, 0.01),
+            rgba(255, 255, 255, 0.02));
+}
+
+
+/* =========================================================
+   REJECTED COLUMN
+========================================================= */
+
+.rejected-column {
+
+    background:
+        linear-gradient(180deg,
+            rgba(239, 68, 68, 0.05),
+            rgba(239, 68, 68, 0.02));
+}
+
+.rejected-column .column-title {
+    color: #ffb4b4;
+}
+
+
+/* =========================================================
+   KANBAN SCROLLBAR
+========================================================= */
+
+.candidate-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.candidate-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.candidate-list::-webkit-scrollbar-thumb {
+
+    background: var(--color-border);
+
+    border-radius: var(--radius-pill);
+}
+
+.candidate-list::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary);
+}

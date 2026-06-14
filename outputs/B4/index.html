@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Stage Student Recruitment Tracker</title>
+
+    <meta name="description"
+        content="Applicant Tracking System for campus clubs, recruitment teams, and placement cells">
+
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+
+    <!-- ========================================================= -->
+    <!-- APP CONTAINER -->
+    <!-- ========================================================= -->
+
+    <div class="app-container">
+
+        <!-- ===================================================== -->
+        <!-- HEADER -->
+        <!-- ===================================================== -->
+
+        <header class="app-header">
+
+            <div class="header-content">
+
+                <div class="header-branding">
+                    <h1 class="app-title">
+                        Student Recruitment Tracker
+                    </h1>
+
+                    <p class="app-subtitle">
+                        Applicant Tracking System for Campus Recruitment Workflows
+                    </p>
+                </div>
+
+                <div class="header-actions">
+                    <button id="addCandidateBtn" class="btn btn-primary add-candidate-btn" type="button"
+                        aria-label="Add Candidate">
+                        Add Candidate
+                    </button>
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- ===================================================== -->
+        <!-- MAIN -->
+        <!-- ===================================================== -->
+
+        <main class="main-content">
+
+            <!-- ================================================= -->
+            <!-- ANALYTICS DASHBOARD -->
+            <!-- ================================================= -->
+
+            <section class="analytics-section" aria-labelledby="analyticsHeading">
+
+                <div class="section-header">
+                    <h2 id="analyticsHeading">
+                        Recruitment Analytics
+                    </h2>
+                </div>
+
+                <div class="analytics-grid">
+
+                    <!-- Total Candidates -->
+
+                    <article class="dashboard-card">
+                        <div class="dashboard-card-label">
+                            Total Candidates
+                        </div>
+
+                        <div id="totalCandidatesCount" class="dashboard-card-value">
+                            0
+                        </div>
+                    </article>
+
+                    <!-- Applied -->
+
+                    <article class="dashboard-card">
+                        <div class="dashboard-card-label">
+                            Applied
+                        </div>
+
+                        <div id="appliedCount" class="dashboard-card-value">
+                            0
+                        </div>
+                    </article>
+
+                    <!-- Interviewing -->
+
+                    <article class="dashboard-card">
+                        <div class="dashboard-card-label">
+                            Interviewing
+                        </div>
+
+                        <div id="interviewingCount" class="dashboard-card-value">
+                            0
+                        </div>
+                    </article>
+
+                    <!-- Technical Test -->
+
+                    <article class="dashboard-card">
+                        <div class="dashboard-card-label">
+                            Technical Test
+                        </div>
+
+                        <div id="technicalTestCount" class="dashboard-card-value">
+                            0
+                        </div>
+                    </article>
+
+                    <!-- Offered -->
+
+                    <article class="dashboard-card">
+                        <div class="dashboard-card-label">
+                            Offered
+                        </div>
+
+                        <div id="offeredCount" class="dashboard-card-value">
+                            0
+                        </div>
+                    </article>
+
+                    <!-- Rejected -->
+
+                    <article class="dashboard-card">
+                        <div class="dashboard-card-label">
+                            Rejected
+                        </div>
+
+                        <div id="rejectedCount" class="dashboard-card-value">
+                            0
+                        </div>
+                    </article>
+
+                    <!-- Average Score -->
+
+                    <article class="dashboard-card">
+                        <div class="dashboard-card-label">
+                            Average Score
+                        </div>
+
+                        <div id="averageScore" class="dashboard-card-value">
+                            0%
+                        </div>
+                    </article>
+
+                    <!-- Offer Rate -->
+
+                    <article class="dashboard-card">
+                        <div class="dashboard-card-label">
+                            Offer Rate
+                        </div>
+
+                        <div id="offerRate" class="dashboard-card-value">
+                            0%
+                        </div>
+                    </article>
+
+                    <!-- Rejection Rate -->
+
+                    <article class="dashboard-card">
+                        <div class="dashboard-card-label">
+                            Rejection Rate
+                        </div>
+
+                        <div id="rejectionRate" class="dashboard-card-value">
+                            0%
+                        </div>
+                    </article>
+
+                </div>
+
+            </section>
+
+            <!-- ================================================= -->
+            <!-- SEARCH FILTER SORT -->
+            <!-- ================================================= -->
+
+            <section class="controls-section" aria-labelledby="controlsHeading">
+
+                <div class="section-header">
+                    <h2 id="controlsHeading">
+                        Search, Filter & Sort
+                    </h2>
+                </div>
+
+                <div class="controls-grid">
+
+                    <!-- Search -->
+
+                    <div class="control-group">
+
+                        <label for="searchInput">
+                            Search Candidate
+                        </label>
+
+                        <input type="search" id="searchInput" name="searchInput" class="control-input"
+                            placeholder="Search by name or roll number">
+                    </div>
+
+                    <!-- Role Filter -->
+
+                    <div class="control-group">
+
+                        <label for="roleFilter">
+                            Filter By Role
+                        </label>
+
+                        <select id="roleFilter" name="roleFilter" class="control-select">
+
+                            <option value="all">
+                                All Roles
+                            </option>
+
+                            <option value="frontend-developer">
+                                Frontend Developer
+                            </option>
+
+                            <option value="backend-developer">
+                                Backend Developer
+                            </option>
+
+                            <option value="full-stack-developer">
+                                Full Stack Developer
+                            </option>
+
+                            <option value="ui-ux-designer">
+                                UI/UX Designer
+                            </option>
+
+                            <option value="marketing">
+                                Marketing
+                            </option>
+
+                            <option value="content-writer">
+                                Content Writer
+                            </option>
+
+                            <option value="club-coordinator">
+                                Club Coordinator
+                            </option>
+
+                            <option value="event-manager">
+                                Event Manager
+                            </option>
+
+                            <option value="other">
+                                Other
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <!-- Stage Filter -->
+
+                    <div class="control-group">
+
+                        <label for="stageFilter">
+                            Filter By Stage
+                        </label>
+
+                        <select id="stageFilter" name="stageFilter" class="control-select">
+
+                            <option value="all">
+                                All Stages
+                            </option>
+
+                            <option value="applied">
+                                Applied
+                            </option>
+
+                            <option value="interviewing">
+                                Interviewing
+                            </option>
+
+                            <option value="technical-test">
+                                Technical Test
+                            </option>
+
+                            <option value="offered">
+                                Offered
+                            </option>
+
+                            <option value="rejected">
+                                Rejected
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <!-- Sort -->
+
+                    <div class="control-group">
+
+                        <label for="sortCandidates">
+                            Sort Candidates
+                        </label>
+
+                        <select id="sortCandidates" name="sortCandidates" class="control-select">
+
+                            <option value="newest">
+                                Newest First
+                            </option>
+
+                            <option value="oldest">
+                                Oldest First
+                            </option>
+
+                            <option value="highest-score">
+                                Highest Score
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- ================================================= -->
+            <!-- PRIMARY ACTION AREA -->
+            <!-- ================================================= -->
+
+            <section class="actions-section" aria-labelledby="actionsHeading">
+
+                <div class="actions-container">
+
+                    <div class="actions-info">
+                        <h2 id="actionsHeading">
+                            Candidate Pipeline Management
+                        </h2>
+
+                        <p class="actions-description">
+                            Manage applicants through the recruitment process,
+                            enforce workflow rules, and monitor candidate progress.
+                        </p>
+                    </div>
+
+                    <div class="actions-buttons">
+                        <button id="secondaryAddCandidateBtn" class="btn btn-primary" type="button">
+                            Add New Candidate
+                        </button>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- ================================================= -->
+            <!-- KANBAN BOARD -->
+            <!-- ================================================= -->
+
+            <section class="kanban-section" aria-labelledby="kanbanHeading">
+
+                <div class="section-header">
+                    <h2 id="kanbanHeading">
+                        Recruitment Pipeline
+                    </h2>
+                </div>
+
+                <div class="kanban-board">
+
+                    <!-- ========================================= -->
+                    <!-- APPLIED -->
+                    <!-- ========================================= -->
+
+                    <section class="kanban-column" data-stage="applied" aria-labelledby="appliedStageHeading">
+
+                        <header class="column-header">
+
+                            <h3 id="appliedStageHeading" class="column-title">
+                                Applied
+                            </h3>
+
+                            <span id="appliedBadgeCount" class="column-count-badge">
+                                0
+                            </span>
+
+                        </header>
+
+                        <div id="appliedCandidates" class="candidate-list">
+
+                            <div id="appliedEmptyState" class="empty-state">
+
+                                No candidates currently in Applied stage.
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <!-- ========================================= -->
+                    <!-- INTERVIEWING -->
+                    <!-- ========================================= -->
+
+                    <section class="kanban-column" data-stage="interviewing" aria-labelledby="interviewingStageHeading">
+
+                        <header class="column-header">
+
+                            <h3 id="interviewingStageHeading" class="column-title">
+                                Interviewing
+                            </h3>
+
+                            <span id="interviewingBadgeCount" class="column-count-badge">
+                                0
+                            </span>
+
+                        </header>
+
+                        <div id="interviewingCandidates" class="candidate-list">
+
+                            <div id="interviewingEmptyState" class="empty-state">
+
+                                No candidates currently in Interviewing stage.
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <!-- ========================================= -->
+                    <!-- TECHNICAL TEST -->
+                    <!-- ========================================= -->
+
+                    <section class="kanban-column" data-stage="technical-test" aria-labelledby="technicalStageHeading">
+
+                        <header class="column-header">
+
+                            <h3 id="technicalStageHeading" class="column-title">
+                                Technical Test
+                            </h3>
+
+                            <span id="technicalBadgeCount" class="column-count-badge">
+                                0
+                            </span>
+
+                        </header>
+
+                        <div id="technicalCandidates" class="candidate-list">
+
+                            <div id="technicalEmptyState" class="empty-state">
+
+                                No candidates currently in Technical Test stage.
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <!-- ========================================= -->
+                    <!-- OFFERED -->
+                    <!-- ========================================= -->
+
+                    <section class="kanban-column" data-stage="offered" aria-labelledby="offeredStageHeading">
+
+                        <header class="column-header">
+
+                            <h3 id="offeredStageHeading" class="column-title">
+                                Offered
+                            </h3>
+
+                            <span id="offeredBadgeCount" class="column-count-badge">
+                                0
+                            </span>
+
+                        </header>
+
+                        <div id="offeredCandidates" class="candidate-list">
+
+                            <div id="offeredEmptyState" class="empty-state">
+
+                                No candidates currently in Offered stage.
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <!-- ========================================= -->
+                    <!-- REJECTED -->
+                    <!-- ========================================= -->
+
+                    <section class="kanban-column rejected-column" data-stage="rejected"
+                        aria-labelledby="rejectedStageHeading">
+
+                        <header class="column-header">
+
+                            <h3 id="rejectedStageHeading" class="column-title">
+                                Rejected
+                            </h3>
+
+                            <span id="rejectedBadgeCount" class="column-count-badge">
+                                0
+                            </span>
+
+                        </header>
+
+                        <div id="rejectedCandidates" class="candidate-list">
+
+                            <div id="rejectedEmptyState" class="empty-state">
+
+                                No candidates currently in Rejected stage.
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+            </section>
+
+        </main>
+
+        <!-- ===================================================== -->
+        <!-- SHARED MODAL OVERLAY -->
+        <!-- ===================================================== -->
+
+        <div id="modalOverlay" class="modal-overlay hidden" aria-hidden="true">
+
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- ADD / EDIT CANDIDATE MODAL -->
+        <!-- ===================================================== -->
+
+        <div id="candidateModal" class="modal hidden" role="dialog" aria-modal="true"
+            aria-labelledby="candidateModalTitle">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h2 id="candidateModalTitle">
+                        Add Candidate
+                    </h2>
+
+                    <button id="closeCandidateModal" class="modal-close-btn" type="button"
+                        aria-label="Close Candidate Modal">
+
+                        ×
+
+                    </button>
+
+                </div>
+
+                <form id="candidateForm" class="candidate-form">
+
+                    <div class="form-group">
+
+                        <label for="candidateName">
+                            Student Name
+                        </label>
+
+                        <input type="text" id="candidateName" name="candidateName" required>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="candidateRollNumber">
+                            Roll Number
+                        </label>
+
+                        <input type="text" id="candidateRollNumber" name="candidateRollNumber" required>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="candidateRole">
+                            Applying Role
+                        </label>
+
+                        <select id="candidateRole" name="candidateRole" required>
+
+                            <option value="">
+                                Select Role
+                            </option>
+
+                            <option value="Frontend Developer">
+                                Frontend Developer
+                            </option>
+
+                            <option value="Backend Developer">
+                                Backend Developer
+                            </option>
+
+                            <option value="Full Stack Developer">
+                                Full Stack Developer
+                            </option>
+
+                            <option value="UI/UX Designer">
+                                UI/UX Designer
+                            </option>
+
+                            <option value="Marketing">
+                                Marketing
+                            </option>
+
+                            <option value="Content Writer">
+                                Content Writer
+                            </option>
+
+                            <option value="Club Coordinator">
+                                Club Coordinator
+                            </option>
+
+                            <option value="Event Manager">
+                                Event Manager
+                            </option>
+
+                            <option value="Other">
+                                Other
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div id="customRoleContainer" class="form-group hidden">
+
+                        <label for="customRoleInput">
+                            Custom Role
+                        </label>
+
+                        <input type="text" id="customRoleInput" name="customRoleInput">
+
+                    </div>
+
+                    <div id="candidateFormError" class="form-error-message">
+
+                    </div>
+
+                    <div class="modal-actions">
+
+                        <button type="button" id="cancelCandidateBtn" class="btn btn-secondary">
+
+                            Cancel
+
+                        </button>
+
+                        <button type="submit" id="saveCandidateBtn" class="btn btn-primary">
+
+                            Save Candidate
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- TECHNICAL SCORE MODAL -->
+        <!-- ===================================================== -->
+
+        <div id="technicalScoreModal" class="modal hidden" role="dialog" aria-modal="true"
+            aria-labelledby="technicalScoreModalTitle">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h2 id="technicalScoreModalTitle">
+                        Technical Assessment Score
+                    </h2>
+
+                    <button type="button" id="closeTechnicalScoreModal" class="modal-close-btn"
+                        aria-label="Close Technical Score Modal">
+
+                        ×
+
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <div id="technicalScoreCandidateInfo" class="candidate-summary">
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="technicalScoreInput">
+                            Technical Score (0 - 100)
+                        </label>
+
+                        <input type="number" id="technicalScoreInput" name="technicalScoreInput" min="0" max="100"
+                            step="1" required>
+
+                    </div>
+
+                    <div id="technicalScoreError" class="form-error-message">
+
+                    </div>
+
+                    <div class="modal-actions">
+
+                        <button type="button" id="cancelTechnicalScoreBtn" class="btn btn-secondary">
+
+                            Cancel
+
+                        </button>
+
+                        <button type="button" id="submitTechnicalScoreBtn" class="btn btn-primary">
+
+                            Submit Score
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- OFFER CONFIRMATION MODAL -->
+        <!-- ===================================================== -->
+
+        <div id="offerConfirmationModal" class="modal hidden" role="dialog" aria-modal="true"
+            aria-labelledby="offerConfirmationTitle">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h2 id="offerConfirmationTitle">
+                        Confirm Offer
+                    </h2>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <p class="confirmation-message">
+                        Are you sure you want to move this candidate to the
+                        Offered stage?
+                    </p>
+
+                    <div id="offerCandidateSummary" class="candidate-summary">
+
+                    </div>
+
+                    <div class="modal-actions">
+
+                        <button type="button" id="cancelOfferBtn" class="btn btn-secondary">
+
+                            Cancel
+
+                        </button>
+
+                        <button type="button" id="confirmOfferBtn" class="btn btn-primary">
+
+                            Confirm Offer
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- DELETE CONFIRMATION MODAL -->
+        <!-- ===================================================== -->
+
+        <div id="deleteConfirmationModal" class="modal hidden" role="dialog" aria-modal="true"
+            aria-labelledby="deleteConfirmationTitle">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h2 id="deleteConfirmationTitle">
+                        Delete Candidate
+                    </h2>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <p class="warning-message">
+                        This action cannot be undone. Are you sure you want
+                        to delete this candidate?
+                    </p>
+
+                    <div id="deleteCandidateSummary" class="candidate-summary">
+
+                    </div>
+
+                    <div class="modal-actions">
+
+                        <button type="button" id="cancelDeleteBtn" class="btn btn-secondary">
+
+                            Cancel
+
+                        </button>
+
+                        <button type="button" id="confirmDeleteBtn" class="btn btn-danger">
+
+                            Delete Candidate
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- CANDIDATE DETAILS MODAL -->
+        <!-- ===================================================== -->
+
+        <div id="candidateDetailsModal" class="modal hidden" role="dialog" aria-modal="true"
+            aria-labelledby="candidateDetailsTitle">
+
+            <div class="modal-content modal-large">
+
+                <div class="modal-header">
+
+                    <h2 id="candidateDetailsTitle">
+                        Candidate Details
+                    </h2>
+
+                    <button type="button" id="closeDetailsModal" class="modal-close-btn"
+                        aria-label="Close Candidate Details">
+
+                        ×
+
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="candidate-details-grid">
+
+                        <div class="detail-item">
+                            <span class="detail-label">Name</span>
+                            <span id="detailsName" class="detail-value"></span>
+                        </div>
+
+                        <div class="detail-item">
+                            <span class="detail-label">Roll Number</span>
+                            <span id="detailsRollNumber" class="detail-value"></span>
+                        </div>
+
+                        <div class="detail-item">
+                            <span class="detail-label">Role</span>
+                            <span id="detailsRole" class="detail-value"></span>
+                        </div>
+
+                        <div class="detail-item">
+                            <span class="detail-label">Current Stage</span>
+                            <span id="detailsStage" class="detail-value"></span>
+                        </div>
+
+                        <div class="detail-item">
+                            <span class="detail-label">Technical Score</span>
+                            <span id="detailsScore" class="detail-value"></span>
+                        </div>
+
+                        <div class="detail-item">
+                            <span class="detail-label">Created</span>
+                            <span id="detailsCreatedAt" class="detail-value"></span>
+                        </div>
+
+                        <div class="detail-item">
+                            <span class="detail-label">Last Updated</span>
+                            <span id="detailsUpdatedAt" class="detail-value"></span>
+                        </div>
+
+                    </div>
+
+                    <section class="activity-history-section">
+
+                        <h3>
+                            Activity Timeline
+                        </h3>
+
+                        <div id="activityTimeline" class="activity-timeline">
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- TOAST CONTAINER -->
+        <!-- ===================================================== -->
+
+        <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true">
+
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- TEMPLATES -->
+        <!-- ===================================================== -->
+
+        <template id="candidateCardTemplate">
+
+            <article class="candidate-card" data-candidate-id="">
+
+                <div class="candidate-card-header">
+
+                    <h4 class="candidate-name">
+                        Candidate Name
+                    </h4>
+
+                    <span class="candidate-stage-badge">
+                        Applied
+                    </span>
+
+                </div>
+
+                <div class="candidate-card-body">
+
+                    <p class="candidate-roll-number">
+                        Roll Number
+                    </p>
+
+                    <p class="candidate-role">
+                        Role
+                    </p>
+
+                    <p class="candidate-score hidden">
+                        Score: <span class="score-value"></span>
+                    </p>
+
+                    <span class="candidate-lock-badge hidden">
+                        🔒 Locked
+                    </span>
+
+                </div>
+
+                <div class="candidate-card-actions">
+
+                    <button type="button" class="btn-action move-backward-btn" title="Move Backward">
+
+                        ←
+
+                    </button>
+
+                    <button type="button" class="btn-action move-forward-btn" title="Move Forward">
+
+                        →
+
+                    </button>
+
+                    <button type="button" class="btn-action view-details-btn">
+
+                        View
+
+                    </button>
+
+                    <button type="button" class="btn-action delete-candidate-btn">
+
+                        Delete
+
+                    </button>
+
+                </div>
+
+            </article>
+
+        </template>
+
+        <template id="activityItemTemplate">
+
+            <div class="timeline-item">
+
+                <div class="timeline-marker"></div>
+
+                <div class="timeline-content">
+
+                    <div class="timeline-action">
+                        Activity
+                    </div>
+
+                    <div class="timeline-timestamp">
+                        Timestamp
+                    </div>
+
+                </div>
+
+            </div>
+
+        </template>
+
+        <template id="toastTemplate">
+
+            <div class="toast">
+
+                <div class="toast-message">
+                    Notification Message
+                </div>
+
+            </div>
+
+        </template>
+
+    </div>
+
+</body>
+
+</html>

@@ -277,3 +277,350 @@ img {
 #page-message-container {
     margin-bottom: 20px;
 }
+
+/* ===================================== */
+/* SECTION HEADERS */
+/* ===================================== */
+
+.section-header {
+    margin-bottom: 24px;
+}
+
+.section-header h2 {
+    font-size: 1.75rem;
+    color: var(--text-color);
+}
+
+/* ===================================== */
+/* DASHBOARD */
+/* ===================================== */
+
+#dashboard-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+
+    margin-bottom: 28px;
+}
+
+.stat-card {
+    background: var(--surface-color);
+
+    border: 1px solid var(--border-color);
+
+    border-radius: var(--radius-md);
+
+    padding: 20px;
+
+    box-shadow: var(--shadow-sm);
+
+    transition:
+        transform var(--transition),
+        box-shadow var(--transition);
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.stat-card h3 {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.stat-card p {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+#dashboard-panels {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.dashboard-panel {
+    background: var(--surface-color);
+
+    border: 1px solid var(--border-color);
+
+    border-radius: var(--radius-md);
+
+    overflow: hidden;
+
+    box-shadow: var(--shadow-sm);
+}
+
+.panel-header {
+    padding: 16px 20px;
+
+    border-bottom: 1px solid var(--border-color);
+
+    background: rgba(166, 124, 82, 0.05);
+}
+
+.panel-header h3 {
+    font-size: 1rem;
+}
+
+.panel-content {
+    padding: 20px;
+    min-height: 220px;
+}
+
+/* ===================================== */
+/* TOOLBARS */
+/* ===================================== */
+
+.inventory-toolbar,
+#history-filters,
+#return-search-area {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+
+    margin-bottom: 20px;
+}
+
+/* ===================================== */
+/* FORMS */
+/* ===================================== */
+
+#checkout-form {
+    max-width: 700px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+/* ===================================== */
+/* INPUTS & SELECTS */
+/* ===================================== */
+
+input,
+select {
+    width: 100%;
+
+    padding: 12px 14px;
+
+    background: var(--surface-color);
+
+    border: 1px solid var(--border-color);
+
+    border-radius: var(--radius-sm);
+
+    color: var(--text-color);
+
+    transition:
+        border-color var(--transition),
+        box-shadow var(--transition);
+}
+
+input:focus,
+select:focus {
+    border-color: var(--primary-color);
+
+    box-shadow:
+        0 0 0 3px rgba(166, 124, 82, 0.15);
+}
+
+/* ===================================== */
+/* BUTTONS */
+/* ===================================== */
+
+button {
+    transition:
+        background var(--transition),
+        transform var(--transition),
+        opacity var(--transition);
+}
+
+button:hover {
+    transform: translateY(-1px);
+}
+
+#add-book-btn,
+#issue-book-btn,
+#search-loan-btn,
+#process-return-btn,
+#confirmation-confirm-btn {
+    background: var(--primary-color);
+    color: white;
+
+    padding: 12px 18px;
+
+    border-radius: var(--radius-sm);
+
+    font-weight: 600;
+}
+
+#add-book-btn:hover,
+#issue-book-btn:hover,
+#search-loan-btn:hover,
+#process-return-btn:hover,
+#confirmation-confirm-btn:hover {
+    background: var(--primary-hover);
+}
+
+#confirmation-cancel-btn {
+    background: #ece5dc;
+    color: var(--text-color);
+
+    padding: 12px 18px;
+
+    border-radius: var(--radius-sm);
+}
+
+/* ===================================== */
+/* INFO CARDS */
+/* ===================================== */
+
+.info-card {
+    background: var(--surface-color);
+
+    border: 1px solid var(--border-color);
+
+    border-radius: var(--radius-md);
+
+    padding: 20px;
+
+    margin-bottom: 20px;
+
+    box-shadow: var(--shadow-sm);
+}
+
+.info-card h3 {
+    margin-bottom: 14px;
+}
+
+.info-card p {
+    margin-bottom: 8px;
+}
+
+/* ===================================== */
+/* TABLES */
+/* ===================================== */
+
+.table-container {
+    overflow-x: auto;
+
+    background: var(--surface-color);
+
+    border: 1px solid var(--border-color);
+
+    border-radius: var(--radius-md);
+
+    box-shadow: var(--shadow-sm);
+}
+
+#inventory-table,
+#history-table {
+    min-width: 900px;
+}
+
+#inventory-table thead,
+#history-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+#inventory-table th,
+#history-table th {
+    background: #efe7dc;
+
+    color: var(--text-color);
+
+    text-align: left;
+
+    padding: 14px;
+
+    border-bottom: 1px solid var(--border-color);
+
+    font-weight: 600;
+}
+
+#inventory-table td,
+#history-table td {
+    padding: 14px;
+
+    border-bottom: 1px solid var(--border-color);
+}
+
+#inventory-table tbody tr,
+#history-table tbody tr {
+    transition: background var(--transition);
+}
+
+#inventory-table tbody tr:hover,
+#history-table tbody tr:hover {
+    background: rgba(166, 124, 82, 0.06);
+}
+
+/* ===================================== */
+/* STATUS BADGES */
+/* ===================================== */
+
+.available,
+.status-available {
+    background: rgba(91, 138, 114, 0.15);
+    color: var(--success-color);
+
+    padding: 6px 10px;
+
+    border-radius: 999px;
+
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.low-stock,
+.status-low-stock {
+    background: rgba(217, 164, 65, 0.15);
+    color: var(--warning-color);
+
+    padding: 6px 10px;
+
+    border-radius: 999px;
+
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.out-of-stock,
+.status-out-of-stock {
+    background: rgba(179, 92, 68, 0.15);
+    color: var(--danger-color);
+
+    padding: 6px 10px;
+
+    border-radius: 999px;
+
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* ===================================== */
+/* FINE BREAKDOWN */
+/* ===================================== */
+
+#fine-breakdown-card {
+    border-left: 5px solid var(--danger-color);
+
+    background: rgba(179, 92, 68, 0.05);
+}

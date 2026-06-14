@@ -39,7 +39,7 @@ const appState = {
 /* API CONFIG */
 /* ===================================== */
 
-const API_BASE = "/api";
+const API_BASE = "";
 
 /* ===================================== */
 /* UTILITY FUNCTIONS */
@@ -126,13 +126,14 @@ function closeModal() {
 const apiService = {
 
     async fetchLibraryData() {
-        const response = await fetch(`${API_BASE}/library`);
 
-        if (!response.ok) {
-            throw new Error("Failed to load library data.");
-        }
+        return {
+            books: [],
+            activeLoans: [],
+            loanHistory: [],
+            logs: []
+        };
 
-        return await response.json();
     },
 
     async refreshLibraryData() {
@@ -839,27 +840,6 @@ async function deleteBook(bookId) {
 
 }
 
-/* ===================================== */
-/* INVENTORY ELEMENTS */
-/* ===================================== */
-
-const inventoryElements = {
-    inventoryTableBody: document.getElementById("inventory-table-body"),
-    inventorySearch: document.getElementById("inventory-search"),
-    addBookBtn: document.getElementById("add-book-btn"),
-    inventoryEmptyState: document.getElementById("inventory-empty-state"),
-
-    totalBooks: document.getElementById("total-books-value"),
-    availableBooks: document.getElementById("available-books-value"),
-    borrowedBooks: document.getElementById("borrowed-books-value"),
-    activeLoans: document.getElementById("active-loans-value"),
-    overdueLoans: document.getElementById("overdue-loans-value"),
-    totalFine: document.getElementById("total-fine-value"),
-
-    recentLoansContainer: document.getElementById("recent-loans-container"),
-    recentReturnsContainer: document.getElementById("recent-returns-container"),
-    activityTimelineContainer: document.getElementById("activity-timeline-container")
-};
 
 /* ===================================== */
 /* VALIDATION */
@@ -1341,3 +1321,526 @@ async function deleteBook(bookId) {
     }
 
 }
+
+/* ===================================== */
+/* RETURNS ELEMENTS */
+/* ===================================== */
+
+const returnElements = {
+    searchInput: document.getElementById(
+        "return-search-input"
+    ),
+
+    searchButton: document.getElementById(
+        "search-loan-btn"
+    ),
+
+    processReturnButton:
+        document.getElementById(
+            "process-return-btn"
+        ),
+
+    loanDetailsContent:
+        document.getElementById(
+            "loan-details-content"
+        ),
+
+    fineBreakdownContent:
+        document.getElementById(
+            "fine-breakdown-content"
+        )
+};
+
+/* ===================================== */
+/* HISTORY ELEMENTS */
+/* ===================================== */
+
+const historyElements = {
+    tableBody:
+        document.getElementById(
+            "history-table-body"
+        )
+};
+
+/* ===================================== */
+/* FINE SERVICE */
+/* ===================================== */
+
+function calculateFine(overdueDays) {
+
+    if (overdueDays <= 0) {
+
+        return {
+            overdueDays: 0,
+
+            firstTierDays: 0,
+            firstTierFine: 0,
+
+            secondTierDays: 0,
+            secondTierFine: 0,
+
+            totalFine: 0
+        };
+    }
+
+    const firstTierDays =
+        Math.min(overdueDays, 7);
+
+    const secondTierDays =
+        Math.max(overdueDays - 7, 0);
+
+    const firstTierFine =
+        firstTierDays * 1;
+
+    const secondTierFine =
+        secondTierDays * 2.5;
+
+    const totalFine =
+        firstTierFine +
+        secondTierFine;
+
+    return {
+        overdueDays,
+
+        firstTierDays,
+        firstTierFine,
+
+        secondTierDays,
+        secondTierFine,
+
+        totalFine
+    };
+}
+
+/* ===================================== */
+/* CHECKOUT VALIDATION */
+/* ===================================== */
+
+function validateCheckout(data) {
+
+    if (!data.bookId) {
+        throw new Error(
+            "Please select a book."
+        );
+    }
+
+    if (!data.studentId?.trim()) {
+        throw new Error(
+            "Student ID is required."
+        );
+    }
+
+    if (!data.dueDate) {
+        throw new Error(
+            "Due date is required."
+        );
+    }
+
+    const selectedBook =
+        appState.books.find(
+            book => book.id === data.bookId
+        );
+
+    if (!selectedBook) {
+        throw new Error(
+            "Selected book does not exist."
+        );
+    }
+
+    const available =
+        selectedBook.totalCopies -
+        selectedBook.borrowedCopies;
+
+    if (available <= 0) {
+        throw new Error(
+            "No copies available."
+        );
+    }
+
+    return true;
+}
+
+/* ===================================== */
+/* CHECKOUT */
+/* ===================================== */
+
+async function processCheckout(
+    checkoutData
+) {
+
+    validateCheckout(checkoutData);
+
+    showLoading(
+        "Issuing book..."
+    );
+
+    try {
+
+        await apiService.checkoutBook(
+            checkoutData
+        );
+
+        await apiService.refreshLibraryData();
+
+        renderInventory();
+        renderDashboard();
+        renderRecentLoans();
+
+        showToast(
+            "Book issued successfully.",
+            "success"
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        showToast(
+            error.message,
+            "error"
+        );
+
+    } finally {
+
+        hideLoading();
+
+    }
+
+}
+
+/* ===================================== */
+/* LOAN SEARCH */
+/* ===================================== */
+
+async function searchLoans() {
+
+    const query =
+        returnElements.searchInput.value
+            .trim();
+
+    if (!query) {
+
+        showToast(
+            "Enter Loan ID or Student ID.",
+            "warning"
+        );
+
+        return;
+    }
+
+    try {
+
+        const matches =
+            await apiService.searchLoans(
+                query
+            );
+
+        if (!matches.length) {
+
+            showToast(
+                "No matching loans found.",
+                "warning"
+            );
+
+            return;
+        }
+
+        if (matches.length === 1) {
+
+            selectLoan(matches[0]);
+
+            return;
+        }
+
+        openModal(
+            "Select Loan",
+            matches.map(loan => `
+                <button
+                    class="btn-primary select-loan-btn"
+                    data-loan-id="${loan.loanId}"
+                    style="
+                        display:block;
+                        width:100%;
+                        margin-bottom:10px;
+                    ">
+                    ${loan.loanId}
+                    - ${loan.studentId}
+                </button>
+            `).join("")
+        );
+
+        setTimeout(() => {
+
+            document
+                .querySelectorAll(
+                    ".select-loan-btn"
+                )
+                .forEach(button => {
+
+                    button.addEventListener(
+                        "click",
+                        () => {
+
+                            const loan =
+                                matches.find(
+                                    item =>
+                                        item.loanId ===
+                                        button.dataset.loanId
+                                );
+
+                            if (loan) {
+                                selectLoan(loan);
+                                closeModal();
+                            }
+
+                        }
+                    );
+
+                });
+
+        }, 0);
+
+    } catch (error) {
+
+        console.error(error);
+
+        showToast(
+            error.message,
+            "error"
+        );
+
+    }
+
+}
+
+/* ===================================== */
+/* LOAN SELECTION */
+/* ===================================== */
+
+function selectLoan(loan) {
+
+    appState.selectedLoan =
+        loan;
+
+    const today =
+        new Date();
+
+    const dueDate =
+        new Date(loan.dueDate);
+
+    const overdueDays =
+        Math.max(
+            Math.ceil(
+                (
+                    today -
+                    dueDate
+                ) /
+                (1000 * 60 * 60 * 24)
+            ),
+            0
+        );
+
+    const fine =
+        calculateFine(
+            overdueDays
+        );
+
+    returnElements.loanDetailsContent
+        .innerHTML = `
+            <p><strong>Loan ID:</strong> ${loan.loanId}</p>
+            <p><strong>Book ID:</strong> ${loan.bookId}</p>
+            <p><strong>Student ID:</strong> ${loan.studentId}</p>
+            <p><strong>Borrow Date:</strong> ${formatDate(loan.borrowDate)}</p>
+            <p><strong>Due Date:</strong> ${formatDate(loan.dueDate)}</p>
+            <p><strong>Overdue Days:</strong> ${overdueDays}</p>
+        `;
+
+    returnElements.fineBreakdownContent
+        .innerHTML = `
+            <p>Overdue Days: ${fine.overdueDays}</p>
+            <p>First Tier Days: ${fine.firstTierDays}</p>
+            <p>First Tier Fine: ₹${fine.firstTierFine.toFixed(2)}</p>
+            <p>Second Tier Days: ${fine.secondTierDays}</p>
+            <p>Second Tier Fine: ₹${fine.secondTierFine.toFixed(2)}</p>
+            <p><strong>Total Fine: ₹${fine.totalFine.toFixed(2)}</strong></p>
+        `;
+
+}
+
+/* ===================================== */
+/* RETURN BOOK */
+/* ===================================== */
+
+async function processReturn() {
+
+    if (!appState.selectedLoan) {
+
+        showToast(
+            "Select a loan first.",
+            "warning"
+        );
+
+        return;
+    }
+
+    showLoading(
+        "Processing return..."
+    );
+
+    try {
+
+        await apiService.returnBook({
+            loanId:
+                appState.selectedLoan.loanId
+        });
+
+        await apiService.refreshLibraryData();
+
+        renderInventory();
+        renderDashboard();
+        renderHistory();
+        renderRecentReturns();
+
+        appState.selectedLoan =
+            null;
+
+        showToast(
+            "Book returned successfully.",
+            "success"
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        showToast(
+            error.message,
+            "error"
+        );
+
+    } finally {
+
+        hideLoading();
+
+    }
+
+}
+
+/* ===================================== */
+/* HISTORY */
+/* ===================================== */
+
+function renderHistory() {
+
+    if (!historyElements.tableBody) {
+        return;
+    }
+
+    historyElements.tableBody.innerHTML =
+        "";
+
+    appState.loanHistory.forEach(
+        record => {
+
+            const row =
+                document.createElement("tr");
+
+            row.innerHTML = `
+                <td>${record.loanId}</td>
+                <td>${record.bookId}</td>
+                <td>${record.bookTitle || "-"}</td>
+                <td>${record.studentId}</td>
+                <td>${formatDate(record.borrowDate)}</td>
+                <td>${formatDate(record.returnDate)}</td>
+                <td>${record.overdueDays}</td>
+                <td>₹${Number(record.fine).toFixed(2)}</td>
+            `;
+
+            historyElements.tableBody
+                .appendChild(row);
+
+        });
+
+}
+
+/* ===================================== */
+/* EVENT REGISTRATION */
+/* ===================================== */
+
+function registerEvents() {
+
+    elements.navButtons.forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    switchSection(
+                        button.dataset.section
+                    );
+
+                }
+            );
+
+        }
+    );
+
+    elements.modalCloseBtn
+        ?.addEventListener(
+            "click",
+            closeModal
+        );
+
+    returnElements.searchButton
+        ?.addEventListener(
+            "click",
+            searchLoans
+        );
+
+    returnElements.processReturnButton
+        ?.addEventListener(
+            "click",
+            processReturn
+        );
+
+}
+
+/* ===================================== */
+/* FINAL STARTUP */
+/* ===================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async () => {
+
+        await initializeApplication();
+
+        renderInventory();
+        renderDashboard();
+        renderRecentLoans();
+        renderRecentReturns();
+        renderActivityTimeline();
+        renderHistory();
+
+        registerEvents();
+
+    }
+);
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async () => {
+
+        await initializeApplication();
+
+        renderInventory();
+        renderDashboard();
+        renderRecentLoans();
+        renderRecentReturns();
+        renderActivityTimeline();
+
+        registerEvents();
+
+    }
+);

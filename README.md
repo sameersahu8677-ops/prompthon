@@ -1,4 +1,4 @@
-# prompthon-2026
+# Prompthon-2026
 
 Team : Wreck
 participant : Sameer.

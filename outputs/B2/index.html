@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Library Manager</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Global Alert Container -->
+    <div id="global-alert-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="hidden">
+        <div class="loading-content">
+            <div id="loading-spinner"></div>
+            <p id="loading-message">Loading...</p>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
+
+    <div id="app-container">
+
+        <!-- Sidebar -->
+        <aside id="sidebar">
+
+            <div id="sidebar-header">
+                <div id="library-logo">📚</div>
+                <h1 id="app-name">College Library Manager</h1>
+            </div>
+
+            <nav id="sidebar-nav">
+
+                <button id="nav-dashboard" class="nav-btn active" data-section="dashboard" type="button">
+                    Dashboard
+                </button>
+
+                <button id="nav-inventory" class="nav-btn" data-section="inventory" type="button">
+                    Inventory
+                </button>
+
+                <button id="nav-checkout" class="nav-btn" data-section="checkout" type="button">
+                    Checkout
+                </button>
+
+                <button id="nav-returns" class="nav-btn" data-section="returns" type="button">
+                    Returns
+                </button>
+
+                <button id="nav-history" class="nav-btn" data-section="history" type="button">
+                    History
+                </button>
+
+            </nav>
+
+            <div id="sidebar-footer">
+                <small>Library Inventory System</small>
+            </div>
+
+        </aside>
+
+        <!-- Main Layout -->
+        <div id="main-layout">
+
+            <!-- Header -->
+            <header id="main-header">
+
+                <div id="header-left">
+                    <h2 id="current-page-title">
+                        Dashboard
+                    </h2>
+                </div>
+
+                <div id="header-right">
+
+                    <div class="header-info-group">
+                        <span class="header-label">Date</span>
+                        <span id="current-date">--</span>
+                    </div>
+
+                    <div class="header-info-group">
+                        <span class="header-label">Status</span>
+                        <span id="system-status">Checking...</span>
+                    </div>
+
+                </div>
+
+            </header>
+
+            <main id="content-area">
+
+                <div id="page-message-container"></div>
+
+                <!-- ================================================= -->
+                <!-- DASHBOARD SECTION -->
+                <!-- ================================================= -->
+
+                <section id="dashboard-section" class="content-section active-section">
+
+                    <div class="section-header">
+                        <h2>Dashboard Overview</h2>
+                    </div>
+
+                    <!-- Statistics Cards -->
+                    <div id="dashboard-stats-grid">
+
+                        <article class="stat-card">
+                            <h3>Total Books</h3>
+                            <p id="total-books-value">0</p>
+                        </article>
+
+                        <article class="stat-card">
+                            <h3>Available Books</h3>
+                            <p id="available-books-value">0</p>
+                        </article>
+
+                        <article class="stat-card">
+                            <h3>Borrowed Books</h3>
+                            <p id="borrowed-books-value">0</p>
+                        </article>
+
+                        <article class="stat-card">
+                            <h3>Active Loans</h3>
+                            <p id="active-loans-value">0</p>
+                        </article>
+
+                        <article class="stat-card">
+                            <h3>Overdue Loans</h3>
+                            <p id="overdue-loans-value">0</p>
+                        </article>
+
+                        <article class="stat-card">
+                            <h3>Total Fine Collected</h3>
+                            <p id="total-fine-value">₹0.00</p>
+                        </article>
+
+                    </div>
+
+                    <!-- Dashboard Panels -->
+                    <div id="dashboard-panels">
+
+                        <section id="recent-loans-panel" class="dashboard-panel">
+
+                            <div class="panel-header">
+                                <h3>Recent Loans</h3>
+                            </div>
+
+                            <div id="recent-loans-container" class="panel-content">
+
+                                <div class="empty-state">
+                                    No recent loans available.
+                                </div>
+
+                            </div>
+
+                        </section>
+
+                        <section id="recent-returns-panel" class="dashboard-panel">
+
+                            <div class="panel-header">
+                                <h3>Recent Returns</h3>
+                            </div>
+
+                            <div id="recent-returns-container" class="panel-content">
+
+                                <div class="empty-state">
+                                    No recent returns available.
+                                </div>
+
+                            </div>
+
+                        </section>
+
+                        <section id="activity-timeline-panel" class="dashboard-panel">
+
+                            <div class="panel-header">
+                                <h3>Activity Timeline</h3>
+                            </div>
+
+                            <div id="activity-timeline-container" class="panel-content">
+
+                                <div class="empty-state">
+                                    No recent activity available.
+                                </div>
+
+                            </div>
+
+                        </section>
+
+                    </div>
+
+                </section>
+
+                <!-- ================================================= -->
+                <!-- INVENTORY SECTION -->
+                <!-- ================================================= -->
+
+                <section id="inventory-section" class="content-section hidden">
+
+                    <div class="section-header">
+                        <h2>Inventory Management</h2>
+                    </div>
+
+                    <div class="inventory-toolbar">
+
+                        <div class="search-group">
+                            <label for="inventory-search">
+                                Search Books
+                            </label>
+
+                            <input type="text" id="inventory-search" placeholder="Search by title or author">
+                        </div>
+
+                        <button id="add-book-btn" type="button">
+
+                            + Add Book
+
+                        </button>
+
+                    </div>
+
+                    <div class="table-container">
+
+                        <table id="inventory-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>Total Copies</th>
+                                    <th>Borrowed Copies</th>
+                                    <th>Available Copies</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="inventory-table-body">
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                    <div id="inventory-empty-state" class="empty-state">
+
+                        No books available.
+                        Add your first book to begin.
+
+                    </div>
+
+                </section>
+
+                <!-- ================================================= -->
+                <!-- CHECKOUT SECTION -->
+                <!-- ================================================= -->
+
+                <section id="checkout-section" class="content-section hidden">
+
+                    <div class="section-header">
+                        <h2>Book Checkout</h2>
+                    </div>
+
+                    <form id="checkout-form" autocomplete="off">
+
+                        <div class="form-group">
+
+                            <label for="checkout-book-select">
+                                Select Book
+                            </label>
+
+                            <select id="checkout-book-select">
+
+                                <option value="">
+                                    Select a Book
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <div id="checkout-book-preview" class="info-card">
+
+                            <p>
+                                Select a book to view details.
+                            </p>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="student-id">
+                                Student ID
+                            </label>
+
+                            <input type="text" id="student-id" placeholder="Enter Student ID">
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="due-date">
+                                Return Due Date
+                            </label>
+
+                            <input type="date" id="due-date">
+
+                        </div>
+
+                        <button id="issue-book-btn" type="submit">
+
+                            Issue Book
+
+                        </button>
+
+                    </form>
+
+                    <div id="checkout-result-container">
+                    </div>
+
+                </section>
+
+                <!-- ================================================= -->
+                <!-- RETURNS SECTION -->
+                <!-- ================================================= -->
+
+                <section id="returns-section" class="content-section hidden">
+
+                    <div class="section-header">
+                        <h2>Book Returns</h2>
+                    </div>
+
+                    <div id="return-search-area">
+
+                        <div class="form-group">
+
+                            <label for="return-search-input">
+                                Loan ID or Student ID
+                            </label>
+
+                            <input type="text" id="return-search-input" placeholder="Enter Loan ID or Student ID">
+
+                        </div>
+
+                        <button id="search-loan-btn" type="button">
+
+                            Search Loan
+
+                        </button>
+
+                    </div>
+
+                    <div id="loan-details-card" class="info-card">
+
+                        <h3>Loan Details</h3>
+
+                        <div id="loan-details-content">
+
+                            <p>Book Title: --</p>
+                            <p>Student ID: --</p>
+                            <p>Borrow Date: --</p>
+                            <p>Due Date: --</p>
+                            <p>Overdue Days: --</p>
+
+                        </div>
+
+                    </div>
+
+                    <div id="fine-breakdown-card" class="info-card">
+
+                        <h3>Fine Breakdown</h3>
+
+                        <div id="fine-breakdown-content">
+
+                            <p>First 7 Days Fine: ₹0.00</p>
+                            <p>Remaining Days Fine: ₹0.00</p>
+                            <p>Total Fine: ₹0.00</p>
+
+                        </div>
+
+                    </div>
+
+                    <button id="process-return-btn" type="button">
+
+                        Process Return
+
+                    </button>
+
+                </section>
+
+                <!-- ================================================= -->
+                <!-- HISTORY SECTION -->
+                <!-- ================================================= -->
+
+                <section id="history-section" class="content-section hidden">
+
+                    <div class="section-header">
+                        <h2>Loan History</h2>
+                    </div>
+
+                    <div id="history-filters">
+
+                        <div class="form-group">
+
+                            <label for="history-student-filter">
+                                Student ID
+                            </label>
+
+                            <input type="text" id="history-student-filter" placeholder="Filter by Student ID">
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="history-book-filter">
+                                Book
+                            </label>
+
+                            <input type="text" id="history-book-filter" placeholder="Filter by Book">
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="history-date-filter">
+                                Date
+                            </label>
+
+                            <input type="date" id="history-date-filter">
+
+                        </div>
+
+                    </div>
+
+                    <div class="table-container">
+
+                        <table id="history-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Book</th>
+                                    <th>Student</th>
+                                    <th>Borrow Date</th>
+                                    <th>Return Date</th>
+                                    <th>Overdue Days</th>
+                                    <th>Fine</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="history-table-body">
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                    <div id="history-empty-state" class="empty-state">
+
+                        No loan history available.
+
+                    </div>
+
+                </section>
+
+            </main>
+
+        </div>
+
+    </div>
+
+    <!-- ================================================= -->
+    <!-- REUSABLE MODAL -->
+    <!-- ================================================= -->
+
+    <div id="modal-overlay" class="hidden">
+
+        <div id="modal-container" role="dialog" aria-modal="true">
+
+            <div id="modal-header">
+
+                <h2 id="modal-title">
+                    Modal Title
+                </h2>
+
+                <button id="modal-close-btn" type="button">
+
+                    &times;
+
+                </button>
+
+            </div>
+
+            <div id="modal-body">
+                <!-- Dynamic Content -->
+            </div>
+
+            <div id="modal-footer">
+                <!-- Dynamic Actions -->
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ================================================= -->
+    <!-- CONFIRMATION DIALOG -->
+    <!-- ================================================= -->
+
+    <div id="confirmation-overlay" class="hidden">
+
+        <div id="confirmation-dialog" role="alertdialog" aria-modal="true">
+
+            <h3 id="confirmation-title">
+                Confirm Action
+            </h3>
+
+            <p id="confirmation-message">
+                Are you sure you want to continue?
+            </p>
+
+            <div id="confirmation-actions">
+
+                <button id="confirmation-cancel-btn" type="button">
+
+                    Cancel
+
+                </button>
+
+                <button id="confirmation-confirm-btn" type="button">
+
+                    Confirm
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>

@@ -2867,3 +2867,373 @@ const CandidateFormController = {
             );
     }
 };
+
+/* =========================================================
+   PART 4C
+   CANDIDATE ACTION CONTROLLER
+   DETAILS + DELETE + TRANSITIONS + SCORE WORKFLOW
+========================================================= */
+
+
+/* =========================================================
+   ADDITIONAL DOM REFERENCES
+========================================================= */
+
+Object.assign(DOM, {
+
+    kanbanBoard:
+        document.getElementById(
+            "kanbanBoard"
+        ),
+
+    scoreForm:
+        document.getElementById(
+            "scoreForm"
+        ),
+
+    technicalScoreInput:
+        document.getElementById(
+            "technicalScoreInput"
+        ),
+
+    confirmOfferBtn:
+        document.getElementById(
+            "confirmOfferBtn"
+        ),
+
+    confirmDeleteBtn:
+        document.getElementById(
+            "confirmDeleteBtn"
+        )
+});
+
+
+/* =========================================================
+   CANDIDATE ACTION CONTROLLER
+========================================================= */
+
+const CandidateActionController = {
+
+    pendingCandidateId: null,
+
+    getCandidateFromButton(button) {
+
+        const card =
+            button.closest(
+                ".candidate-card"
+            );
+
+        if (!card) {
+            return null;
+        }
+
+        return CandidateService.getCandidate(
+            card.dataset.candidateId
+        );
+    },
+
+    /* =========================
+       DETAILS
+    ========================= */
+
+    openDetails(candidate) {
+
+        ATSStore.selectedCandidateId =
+            candidate.id;
+
+        DetailsModalRenderer.render(
+            candidate
+        );
+
+        ModalManager.openModal(
+            "details"
+        );
+    },
+
+    /* =========================
+       DELETE
+    ========================= */
+
+    requestDelete(candidate) {
+
+        this.pendingCandidateId =
+            candidate.id;
+
+        ModalManager.openModal(
+            "delete"
+        );
+    },
+
+    confirmDelete() {
+
+        const result =
+            CandidateService.deleteCandidate(
+                this.pendingCandidateId
+            );
+
+        ControllerHelpers.showResultToast(
+            result
+        );
+
+        if (!result.success) {
+            return;
+        }
+
+        ControllerHelpers.persistAndRender();
+
+        ModalManager.closeModal(
+            "delete"
+        );
+
+        this.pendingCandidateId =
+            null;
+    },
+
+    /* =========================
+       FORWARD
+    ========================= */
+
+    moveForward(candidate) {
+
+        /* Interviewing requires score */
+
+        if (
+            candidate.stage ===
+            STAGES.INTERVIEWING
+        ) {
+
+            this.pendingCandidateId =
+                candidate.id;
+
+            ModalManager.openModal(
+                "score"
+            );
+
+            return;
+        }
+
+        /* Technical Test -> Offered */
+
+        if (
+            candidate.stage ===
+            STAGES.TECHNICAL_TEST
+        ) {
+
+            this.pendingCandidateId =
+                candidate.id;
+
+            ModalManager.openModal(
+                "offer"
+            );
+
+            return;
+        }
+
+        const result =
+            TransitionService.moveForward(
+                candidate
+            );
+
+        ControllerHelpers.showResultToast(
+            result
+        );
+
+        if (!result.success) {
+            return;
+        }
+
+        ControllerHelpers.persistAndRender();
+    },
+
+    /* =========================
+       BACKWARD
+    ========================= */
+
+    moveBackward(candidate) {
+
+        const result =
+            TransitionService.moveBackward(
+                candidate
+            );
+
+        ControllerHelpers.showResultToast(
+            result
+        );
+
+        if (!result.success) {
+            return;
+        }
+
+        ControllerHelpers.persistAndRender();
+    },
+
+    /* =========================
+       SCORE SUBMISSION
+    ========================= */
+
+    submitScore(event) {
+
+        event.preventDefault();
+
+        const candidate =
+            CandidateService.getCandidate(
+                CandidateActionController
+                    .pendingCandidateId
+            );
+
+        const score =
+            DOM.technicalScoreInput
+                ?.value;
+
+        const result =
+            ScoringService
+                .submitTechnicalScore(
+                    candidate,
+                    score
+                );
+
+        ControllerHelpers.showResultToast(
+            result
+        );
+
+        if (!result.success) {
+            return;
+        }
+
+        ControllerHelpers.persistAndRender();
+
+        ModalManager.closeModal(
+            "score"
+        );
+
+        DOM.scoreForm?.reset();
+
+        CandidateActionController
+            .pendingCandidateId = null;
+    },
+
+    /* =========================
+       OFFER CONFIRMATION
+    ========================= */
+
+    confirmOffer() {
+
+        const candidate =
+            CandidateService.getCandidate(
+                this.pendingCandidateId
+            );
+
+        const result =
+            TransitionService.executeTransition(
+                candidate,
+                STAGES.OFFERED
+            );
+
+        ControllerHelpers.showResultToast(
+            result
+        );
+
+        if (!result.success) {
+            return;
+        }
+
+        ControllerHelpers.persistAndRender();
+
+        ModalManager.closeModal(
+            "offer"
+        );
+
+        this.pendingCandidateId =
+            null;
+    },
+
+    /* =========================
+       EVENT DELEGATION
+    ========================= */
+
+    handleKanbanClick(event) {
+
+        const button =
+            event.target.closest(
+                "[data-action]"
+            );
+
+        if (!button) {
+            return;
+        }
+
+        const candidate =
+            this.getCandidateFromButton(
+                button
+            );
+
+        if (!candidate) {
+            return;
+        }
+
+        const action =
+            button.dataset.action;
+
+        switch (action) {
+
+            case "view":
+                this.openDetails(
+                    candidate
+                );
+                break;
+
+            case "delete":
+                this.requestDelete(
+                    candidate
+                );
+                break;
+
+            case "forward":
+                this.moveForward(
+                    candidate
+                );
+                break;
+
+            case "backward":
+                this.moveBackward(
+                    candidate
+                );
+                break;
+        }
+    },
+
+    initialize() {
+
+        DOM.kanbanBoard
+            ?.addEventListener(
+                "click",
+                event =>
+                    this.handleKanbanClick(
+                        event
+                    )
+            );
+
+        DOM.scoreForm
+            ?.addEventListener(
+                "submit",
+                event =>
+                    this.submitScore(
+                        event
+                    )
+            );
+
+        DOM.confirmOfferBtn
+            ?.addEventListener(
+                "click",
+                () =>
+                    this.confirmOffer()
+            );
+
+        DOM.confirmDeleteBtn
+            ?.addEventListener(
+                "click",
+                () =>
+                    this.confirmDelete()
+            );
+    }
+};

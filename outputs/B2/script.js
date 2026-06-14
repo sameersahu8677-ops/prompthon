@@ -213,22 +213,119 @@ const apiService = {
         return { success: true };
     },
 
-    async checkoutBook() {
-        throw new Error(
-            "Checkout not implemented yet."
-        );
+    async checkoutBook(checkoutData) {
+
+        const book =
+            appState.books.find(
+                b => b.id === checkoutData.bookId
+            );
+
+        if (!book) {
+            throw new Error("Book not found.");
+        }
+
+        book.borrowedCopies++;
+
+        appState.activeLoans.push({
+            loanId: generateId("LOAN"),
+            bookId: book.id,
+            bookTitle: book.title,
+            studentId: checkoutData.studentId,
+            borrowDate: new Date().toISOString(),
+            dueDate: checkoutData.dueDate
+        });
+
+        await this.saveData();
+
+        return true;
     },
 
-    async returnBook() {
-        throw new Error(
-            "Return not implemented yet."
-        );
+    async returnBook(data) {
+
+        const loan =
+            appState.activeLoans.find(
+                l => l.loanId === data.loanId
+            );
+
+        if (!loan) {
+            throw new Error("Loan not found.");
+        }
+
+        const book =
+            appState.books.find(
+                b => b.id === loan.bookId
+            );
+
+        if (book) {
+            book.borrowedCopies =
+                Math.max(
+                    0,
+                    book.borrowedCopies - 1
+                );
+        }
+
+        const overdueDays =
+            Math.max(
+                Math.ceil(
+                    (
+                        new Date() -
+                        new Date(loan.dueDate)
+                    ) /
+                    (1000 * 60 * 60 * 24)
+                ),
+                0
+            );
+
+        const fine =
+            calculateFine(overdueDays);
+
+        appState.loanHistory.push({
+
+            loanId: loan.loanId,
+            bookId: loan.bookId,
+            bookTitle: loan.bookTitle,
+            studentId: loan.studentId,
+
+            borrowDate: loan.borrowDate,
+            dueDate: loan.dueDate,
+
+            returnDate:
+                new Date().toISOString(),
+
+            overdueDays,
+
+            fine: fine.totalFine
+        });
+
+        appState.activeLoans =
+            appState.activeLoans.filter(
+                l => l.loanId !== loan.loanId
+            );
+
+        await this.saveData();
+
+        return true;
     },
 
-    async searchLoans() {
-        return [];
-    }
+    async searchLoans(query) {
 
+        const search =
+            query.toLowerCase().trim();
+
+        return appState.activeLoans.filter(
+            loan =>
+                loan.loanId
+                    .toLowerCase()
+                    .includes(search)
+
+                ||
+
+                loan.studentId
+                    .toLowerCase()
+                    .includes(search)
+        );
+
+    },
 };
 
 /* ===================================== */
@@ -1743,6 +1840,94 @@ function renderHistory() {
 /* ===================================== */
 
 function registerEvents() {
+
+    inventoryElements.inventoryTableBody
+        ?.addEventListener(
+            "click",
+            async e => {
+
+                const editBtn =
+                    e.target.closest(
+                        ".edit-book-btn"
+                    );
+
+                if (editBtn) {
+
+                    const book =
+                        appState.books.find(
+                            b =>
+                                b.id ===
+                                editBtn.dataset.id
+                        );
+
+                    if (!book) return;
+
+                    const title =
+                        prompt(
+                            "Title",
+                            book.title
+                        );
+
+                    if (!title) return;
+
+                    const author =
+                        prompt(
+                            "Author",
+                            book.author
+                        );
+
+                    if (!author) return;
+
+                    const copies =
+                        prompt(
+                            "Copies",
+                            book.totalCopies
+                        );
+
+                    if (!copies) return;
+
+                    await editBook(
+                        book.id,
+                        {
+                            title,
+                            author,
+                            totalCopies:
+                                Number(copies)
+                        }
+                    );
+                }
+
+                const deleteBtn =
+                    e.target.closest(
+                        ".delete-book-btn"
+                    );
+
+                if (deleteBtn) {
+
+                    if (
+                        confirm(
+                            "Delete this book?"
+                        )
+                    ) {
+
+                        await deleteBook(
+                            deleteBtn.dataset.id
+                        );
+                    }
+                }
+
+            }
+        );
+
+    inventoryElements.inventorySearch
+        ?.addEventListener(
+            "input",
+            e => {
+                renderInventory(
+                    e.target.value
+                );
+            }
+        );
 
     inventoryElements.addBookBtn?.addEventListener("click", () => {
 

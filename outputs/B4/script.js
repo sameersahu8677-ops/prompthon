@@ -2062,3 +2062,490 @@ const EmptyStateRenderer = {
         );
     }
 };
+
+/* =========================================================
+   PART 4A
+   MODAL MANAGER + TOAST MANAGER + UI HELPERS
+   + KANBAN COUNT RENDERER + DETAILS MODAL RENDERER
+========================================================= */
+
+
+/* =========================================================
+   ADDITIONAL DOM REFERENCES
+========================================================= */
+
+Object.assign(DOM, {
+
+    /* Overlay */
+
+    modalOverlay:
+        document.getElementById(
+            "modalOverlay"
+        ),
+
+    /* Candidate Modal */
+
+    candidateModal:
+        document.getElementById(
+            "candidateModal"
+        ),
+
+    /* Score Modal */
+
+    technicalScoreModal:
+        document.getElementById(
+            "technicalScoreModal"
+        ),
+
+    /* Offer Modal */
+
+    offerConfirmationModal:
+        document.getElementById(
+            "offerConfirmationModal"
+        ),
+
+    /* Delete Modal */
+
+    deleteConfirmationModal:
+        document.getElementById(
+            "deleteConfirmationModal"
+        ),
+
+    /* Details Modal */
+
+    candidateDetailsModal:
+        document.getElementById(
+            "candidateDetailsModal"
+        ),
+
+    /* Toast */
+
+    toastContainer:
+        document.getElementById(
+            "toastContainer"
+        ),
+
+    toastTemplate:
+        document.getElementById(
+            "toastTemplate"
+        ),
+
+    /* Kanban Count Badges */
+
+    appliedBadgeCount:
+        document.getElementById(
+            "appliedBadgeCount"
+        ),
+
+    interviewingBadgeCount:
+        document.getElementById(
+            "interviewingBadgeCount"
+        ),
+
+    technicalBadgeCount:
+        document.getElementById(
+            "technicalBadgeCount"
+        ),
+
+    offeredBadgeCount:
+        document.getElementById(
+            "offeredBadgeCount"
+        ),
+
+    rejectedBadgeCount:
+        document.getElementById(
+            "rejectedBadgeCount"
+        ),
+
+    /* Details Modal Fields */
+
+    detailsName:
+        document.getElementById(
+            "detailsName"
+        ),
+
+    detailsRollNumber:
+        document.getElementById(
+            "detailsRollNumber"
+        ),
+
+    detailsRole:
+        document.getElementById(
+            "detailsRole"
+        ),
+
+    detailsStage:
+        document.getElementById(
+            "detailsStage"
+        ),
+
+    detailsScore:
+        document.getElementById(
+            "detailsScore"
+        ),
+
+    detailsCreatedAt:
+        document.getElementById(
+            "detailsCreatedAt"
+        ),
+
+    detailsUpdatedAt:
+        document.getElementById(
+            "detailsUpdatedAt"
+        ),
+
+    activityTimeline:
+        document.getElementById(
+            "activityTimeline"
+        )
+});
+
+
+/* =========================================================
+   UI HELPERS
+========================================================= */
+
+const UIHelpers = {
+
+    formatStageLabel(stage) {
+
+        const map = {
+
+            [STAGES.APPLIED]:
+                "Applied",
+
+            [STAGES.INTERVIEWING]:
+                "Interviewing",
+
+            [STAGES.TECHNICAL_TEST]:
+                "Technical Test",
+
+            [STAGES.OFFERED]:
+                "Offered",
+
+            [STAGES.REJECTED]:
+                "Rejected"
+        };
+
+        return map[stage] || stage;
+    }
+};
+
+
+/* =========================================================
+   MODAL MANAGER
+========================================================= */
+
+const ModalManager = {
+
+    getModalMap() {
+
+        return {
+
+            candidate:
+                DOM.candidateModal,
+
+            score:
+                DOM.technicalScoreModal,
+
+            offer:
+                DOM.offerConfirmationModal,
+
+            delete:
+                DOM.deleteConfirmationModal,
+
+            details:
+                DOM.candidateDetailsModal
+        };
+    },
+
+    openModal(modalKey) {
+
+        const modal =
+            this.getModalMap()[
+            modalKey
+            ];
+
+        if (!modal) {
+            return;
+        }
+
+        this.closeAllModals();
+
+        ATSStore.modalState.activeModal =
+            modalKey;
+
+        DOM.modalOverlay
+            .classList
+            .remove("hidden");
+
+        modal.classList.remove(
+            "hidden"
+        );
+    },
+
+    closeModal(modalKey) {
+
+        const modal =
+            this.getModalMap()[
+            modalKey
+            ];
+
+        if (!modal) {
+            return;
+        }
+
+        modal.classList.add(
+            "hidden"
+        );
+
+        ATSStore.modalState.activeModal =
+            null;
+
+        DOM.modalOverlay
+            .classList
+            .add("hidden");
+    },
+
+    closeAllModals() {
+
+        Object.values(
+            this.getModalMap()
+        )
+            .forEach(modal => {
+
+                modal.classList.add(
+                    "hidden"
+                );
+            });
+
+        ATSStore.modalState.activeModal =
+            null;
+
+        DOM.modalOverlay
+            .classList
+            .add("hidden");
+    }
+};
+
+
+/* =========================================================
+   TOAST MANAGER
+========================================================= */
+
+const ToastManager = {
+
+    show(
+        message,
+        type = "info",
+        duration = 3500
+    ) {
+
+        const fragment =
+            DOM.toastTemplate
+                .content
+                .cloneNode(true);
+
+        const toast =
+            fragment.querySelector(
+                ".toast"
+            );
+
+        toast.classList.add(
+            `toast-${type}`
+        );
+
+        fragment
+            .querySelector(
+                ".toast-message"
+            )
+            .textContent =
+            message;
+
+        DOM.toastContainer
+            .appendChild(
+                fragment
+            );
+
+        const insertedToast =
+            DOM.toastContainer
+                .lastElementChild;
+
+        setTimeout(() => {
+
+            insertedToast?.remove();
+
+        }, duration);
+    },
+
+    success(message) {
+
+        this.show(
+            message,
+            "success"
+        );
+    },
+
+    error(message) {
+
+        this.show(
+            message,
+            "error"
+        );
+    },
+
+    warning(message) {
+
+        this.show(
+            message,
+            "warning"
+        );
+    },
+
+    info(message) {
+
+        this.show(
+            message,
+            "info"
+        );
+    }
+};
+
+
+/* =========================================================
+   KANBAN COUNT RENDERER
+========================================================= */
+
+Renderer.updateKanbanCounts =
+    function () {
+
+        const visibleCandidates =
+            Renderer
+                .getVisibleCandidates();
+
+        const counts = {
+
+            applied: 0,
+
+            interviewing: 0,
+
+            technical: 0,
+
+            offered: 0,
+
+            rejected: 0
+        };
+
+        visibleCandidates
+            .forEach(candidate => {
+
+                switch (
+                candidate.stage
+                ) {
+
+                    case STAGES.APPLIED:
+                        counts.applied++;
+                        break;
+
+                    case STAGES.INTERVIEWING:
+                        counts.interviewing++;
+                        break;
+
+                    case STAGES.TECHNICAL_TEST:
+                        counts.technical++;
+                        break;
+
+                    case STAGES.OFFERED:
+                        counts.offered++;
+                        break;
+
+                    case STAGES.REJECTED:
+                        counts.rejected++;
+                        break;
+                }
+            });
+
+        DOM.appliedBadgeCount.textContent =
+            counts.applied;
+
+        DOM.interviewingBadgeCount.textContent =
+            counts.interviewing;
+
+        DOM.technicalBadgeCount.textContent =
+            counts.technical;
+
+        DOM.offeredBadgeCount.textContent =
+            counts.offered;
+
+        DOM.rejectedBadgeCount.textContent =
+            counts.rejected;
+    };
+
+
+/* =========================================================
+   DETAILS MODAL RENDERER
+========================================================= */
+
+const DetailsModalRenderer = {
+
+    render(candidate) {
+
+        if (!candidate) {
+            return;
+        }
+
+        DOM.detailsName.textContent =
+            candidate.name;
+
+        DOM.detailsRollNumber.textContent =
+            candidate.rollNumber;
+
+        DOM.detailsRole.textContent =
+            candidate.role;
+
+        DOM.detailsStage.textContent =
+            UIHelpers
+                .formatStageLabel(
+                    candidate.stage
+                );
+
+        DOM.detailsScore.textContent =
+            typeof candidate.technicalScore ===
+                "number"
+                ? candidate.technicalScore
+                : "N/A";
+
+        DOM.detailsCreatedAt.textContent =
+            Utils.formatDate(
+                candidate.createdAt
+            );
+
+        DOM.detailsUpdatedAt.textContent =
+            Utils.formatDate(
+                candidate.updatedAt
+            );
+
+        TimelineRenderer.render(
+            candidate,
+            DOM.activityTimeline
+        );
+    }
+};
+
+
+/* =========================================================
+   RENDERER ENHANCEMENT
+========================================================= */
+
+const originalRenderAll =
+    Renderer.renderAll.bind(
+        Renderer
+    );
+
+Renderer.renderAll =
+    function () {
+
+        originalRenderAll();
+
+        Renderer.updateKanbanCounts();
+    };
